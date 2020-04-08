@@ -2,14 +2,12 @@ export const sharedStyles = {
   h3: {
     color: 'white',
     fontSize: 18,
-    fontWeight: 'bold',
-    paddingBottom: 5
+    fontWeight: 'bold'
   },
   h2: {
     color: 'white',
     fontSize: 24,
-    fontWeight: 'bold',
-    paddingBottom: 5
+    fontWeight: 'bold'
   },
   scrollViewContainer: {
     padding: 10,

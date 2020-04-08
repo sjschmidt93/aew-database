@@ -15,6 +15,7 @@
     "@react-navigation/stack": "^5.2.9",
     "@unimodules/core": "^5.1.0",
     "expo": "~37.0.3",
+    "lodash": "^4.17.15",
     "mobx": "^5.15.4",
     "mobx-react": "^6.1.8",
     "react": "~16.9.0",
