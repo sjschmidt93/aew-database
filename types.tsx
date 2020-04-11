@@ -5,12 +5,20 @@ export type Wrestler = {
   image_url: string
   wins: number
   losses: number
+  division: string
 }
 
+export type TagTeam = {
+  name: string
+  nickname: string
+  image_url: string
+  wins: number
+  losses: number
+  wrestlers: Wrestler[]
+}
+
+
 export type Match = {
-  id: number
-  winner: string | null
-  winning_team: string[] | null
   wrestlers: Wrestler[]
   tag_teams: TagTeam[]
   event: Event
@@ -24,10 +32,6 @@ export type Event = {
   venue: string
 }
 
-export type TagTeam = {
-  name: string
-  wrestlers: Wrestler[]
-}
 
 export enum MATCH_TYPE {
   Tag = "tag"
