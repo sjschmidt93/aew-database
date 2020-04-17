@@ -7,8 +7,7 @@ import { NavigationScreenProp, NavigationState, NavigationParams } from 'react-n
 import { navigate } from "../RootNavigation"
 import { Wrestler, TagTeam } from "../types"
 import Picker from "../components/Picker"
-
-export const API_URL = 'http://4322aeed.ngrok.io'
+import { AewApi } from "../aew_api"
 
 export interface NavigationProp {
   navigation: NavigationScreenProp<NavigationState, NavigationParams>
@@ -34,21 +33,8 @@ export default class RosterScreen extends React.Component<NavigationProp> {
 
   onPickerSelect = (index: number) => this.selectedPickerIndex = index
 
-  fetchWrestlers = () => {
-    const url = `${API_URL}/wrestlers`
-    fetch(url)
-      .then(res => res.json())
-      .then(data => this.wrestlers = data)
-      .catch(e => console.warn('Error fetching wrestlers', e))
-  }
-
-  fetchTagTeams = () => {
-    const url = `${API_URL}/tag_teams`
-    fetch(url)
-      .then(res => res.json())
-      .then(data => this.tagTeams = data)
-      .catch(e => console.warn('Error fetching tag teams', e))
-  }
+  fetchWrestlers = async () => this.wrestlers = await AewApi.fetchWrestlers()
+  fetchTagTeams = async () => this.tagTeams = await AewApi.fetchTagTeams()
 
   @computed
   get dataArr() {
@@ -123,6 +109,7 @@ export class ItemRow extends React.Component<ItemRowProps> {
 }
 
 export const GRAPHITE = "#454343"
+export const AEW_YELLOW = "#A18931"
 
 const styles = StyleSheet.create({
   image: {

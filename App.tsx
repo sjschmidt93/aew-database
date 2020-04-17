@@ -1,5 +1,4 @@
 import React from 'react'
-import { Image } from 'react-native'
 import EventsScreen from './screens/EventsScreen'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { NavigationContainer } from '@react-navigation/native'
@@ -7,20 +6,22 @@ import { createStackNavigator, StackNavigationOptions } from '@react-navigation/
 import RosterScreen from './screens/RosterScreen'
 import WrestlerScreen from './screens/WrestlerScreen'
 import { navigationRef } from './RootNavigation'
-import { Wrestler } from './types'
+import { Wrestler, Event } from './types'
 import HomeScreen from './screens/HomeScreen'
+import EventPage from './screens/EventPage'
 
 export type RootStackParamList = {
   Home: undefined, 
   Roster: undefined,
-  Wrestler: { wrestler: Wrestler }
+  Wrestler: { wrestler: Wrestler },
+  Event: { event: Event }
 }
 
 const RootStack = createStackNavigator<RootStackParamList>()
 
 const screenOptions: StackNavigationOptions = {
-  header: () => <Image style={{ height: 80, width: 80, alignSelf: 'center' }} source={require('./assets/images/aew-logo.jpg')} />,
-  headerStyle: { backgroundColor: 'black' }
+  // header: () => <Image style={{ height: 80, width: 80, alignSelf: 'center' }} source={require('./assets/images/aew-logo.jpg')} />,
+  // headerStyle: { backgroundColor: 'black' }
 }
 
 function HomeStack() {
@@ -29,6 +30,7 @@ function HomeStack() {
       <RootStack.Screen name="Home" component={HomeScreen} />
       <RootStack.Screen name="Roster" component={RosterScreen} />
       <RootStack.Screen name="Wrestler" component={WrestlerScreen} />
+      <RootStack.Screen name="Event" component={EventPage} />
     </RootStack.Navigator>
   )
 }
@@ -38,6 +40,7 @@ function WrestlerStack() {
     <RootStack.Navigator screenOptions={screenOptions}>
       <RootStack.Screen name="Roster" component={RosterScreen} />
       <RootStack.Screen name="Wrestler" component={WrestlerScreen} />
+      <RootStack.Screen name="Event" component={EventPage} />
     </RootStack.Navigator>
   )
 }

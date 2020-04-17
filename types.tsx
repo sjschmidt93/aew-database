@@ -27,8 +27,10 @@ export type Match = {
 }
 
 export type Event = {
+  id: number
   name: string
   date: Date
   city: string
   venue: string
+  image_url: string
 }
