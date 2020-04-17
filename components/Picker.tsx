@@ -14,29 +14,34 @@ interface PickerProps {
 @observer
 export default class Picker extends React.Component<PickerProps> {
   renderItem = ({item, index}) => {
-    const textStyle = {
-      color: index == this.props.selectedIndex ? 'white' : GRAPHITE
+    const isSelected = this.props.selectedIndex === index
+    const unselectedTextStyle = {
+      color: GRAPHITE
+    }
+    const selectedContainerStyle = {
+      borderBottomWidth: 2,
+      borderBottomColor: 'white'
     }
     return (
       <TouchableOpacity
-        style={styles.columnContainer}
+        style={[styles.columnContainer, isSelected && selectedContainerStyle]}
         onPress={() => this.props.onSelect(index)}
       >
-        <Text style={[sharedStyles.h3, textStyle]}>{item}</Text>
+        <Text style={[sharedStyles.h3, !isSelected && unselectedTextStyle]}>{item}</Text>
       </TouchableOpacity>
     )
   }
 
   render() {
     return (
-      <View style={styles.container}>
+      <View>
         <FlatList
           data={this.props.options}
           horizontal={true}
           renderItem={this.renderItem}
           ItemSeparatorComponent={() => <View style={{ width: 10 }}/>}
           extraData={this.props.selectedIndex}
-          contentContainerStyle={{backgroundColor: '#A18931', flex: 1, paddingLeft: 15}}
+          contentContainerStyle={{ backgroundColor: '#A18931', flex: 1, paddingLeft: 15 }}
         />
       </View>
     )

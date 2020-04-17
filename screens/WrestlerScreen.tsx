@@ -1,12 +1,12 @@
 import React from "react"
-import { Text, ScrollView, StyleSheet, FlatList, View } from "react-native"
+import { Text, ScrollView, StyleSheet, FlatList, View, Image, TouchableOpacity } from "react-native"
 import { computed, observable } from "mobx"
 import { sharedStyles } from "../styles"
 import { StackNavigationProp } from "@react-navigation/stack"
 import { RootStackParamList } from "../App"
 import { RouteProp } from "@react-navigation/native"
-import { WrestlerRow, API_URL, GRAPHITE } from "./RosterScreen"
-import { Match, MATCH_TYPE, TagTeam, Wrestler } from "../types"
+import { API_URL, GRAPHITE } from "./RosterScreen"
+import { Match, MATCH_TYPE } from "../types"
 import { observer } from "mobx-react"
 import _ from "lodash"
 
@@ -41,12 +41,13 @@ export default class WrestlerScreen extends React.Component<Props> {
   render() {
     return (
       <ScrollView style={sharedStyles.scrollViewContainer}>
-        <WrestlerRow wrestler={this.wrestler} />
         <Text style={sharedStyles.h2}>Match history</Text>
         <FlatList
-          renderItem={({item}) => <MatchRow match={item} wrestlerName={this.wrestler.name} />}
+          renderItem={({item}) => <MatchRow match={item} />}
           data={this.matches}
+          contentContainerStyle={{ paddingTop: 10 }}
         />
+        <Text style={sharedStyles.h2}>Title reigns</Text>
       </ScrollView>
     )
   }
@@ -54,32 +55,19 @@ export default class WrestlerScreen extends React.Component<Props> {
 
 type MatchRowProps = {
   match: Match
-  wrestlerName: string
 }
 
 class MatchRow extends React.Component<MatchRowProps> {
-  @computed
-  get isTag() {
-    return this.match.match_type === MATCH_TYPE.Tag
+  render() {
+    if (this.props.match.type == "singles") {
+      return <SinglesMatchRow match={this.props.match} />
+    }
+    return <TagTeamMatchRow match={this.props.match} />
   }
+ }
 
-  @computed
-  get wrestlerName() {
-    return this.props.wrestlerName
-  }
-  
-  @computed 
-  get isWinner() {
-    return this.isTag
-      ? this.props.match.winning_team.includes(this.wrestlerName)
-      : this.props.match.winner == this.wrestlerName
-  }
 
-  @computed
-  get winLossText() {
-    return this.isWinner ? "WIN" : 'LOSS'
-  }
-
+class SinglesMatchRow extends React.Component<MatchRowProps> {
   @computed
   get match() {
     return this.props.match
@@ -90,41 +78,115 @@ class MatchRow extends React.Component<MatchRowProps> {
     return this.match.event
   }
 
-  @computed
-  get vsText() {
-    const teamsOrWrestlers = this.isTag ? this.match.tag_teams : this.match.wrestlers
-    return teamsOrWrestlers.map(teamOrWrestler => teamOrWrestler.name).join( " vs. ")
-  }
-
   render() {
-    const winLossTextStyle = {
-      color: this.isWinner ? "green" : 'red',
-      fontWeight: 'bold'
-    }
     return (
       <View style={styles.matchContainer}>
         <View style={styles.container}>
-          <Text numberOfLines={2} style={[sharedStyles.h3, styles.vsText]}>{this.vsText}</Text>
-          <Text style={sharedStyles.body}>{this.event.name}, {this.event.date}</Text>
-          <Text style={winLossTextStyle}>{this.winLossText}</Text>
+          <WrestlerWithImage match={this.match} wrestler={this.match.wrestlers[0]} />
+          <Text style={sharedStyles.h2}>vs.</Text>
+          <WrestlerWithImage match={this.match} wrestler={this.match.wrestlers[1]} />
         </View>
+        <TouchableOpacity>
+          <Text style={styles.eventName}>{this.event.name} ({this.event.date})</Text>
+        </TouchableOpacity>
       </View>
     )
   }
 }
 
+class TagTeamMatchRow extends React.Component<MatchRowProps> {
+  @computed
+  get match() {
+    return this.props.match
+  }
+
+  @computed
+  get event() {
+    return this.match.event
+  }
+
+  render() {
+    return (
+      <View style={styles.matchContainer}>
+        <View style={styles.container}>
+          <TagTeamWithImages tagTeam={this.match.tag_teams[0]} match={this.match} />
+          <Text style={sharedStyles.h2}>vs.</Text>
+          <TagTeamWithImages tagTeam={this.match.tag_teams[1]} match={this.match} />
+        </View>
+        <TouchableOpacity>
+          <Text style={styles.eventName}>{this.event.name} ({this.event.date})</Text>
+        </TouchableOpacity>
+      </View>
+    )
+  }
+}
+
+type TagTeamWithImagesProps = {
+  tagTeam: TagTeam
+  match: Match
+}
+
+function TagTeamWithImages({ tagTeam, match }: TagTeamWithImagesProps) {
+  const isWinner = match.winner === tagTeam.name
+  return (
+    <View style={styles.wrestlerContainer}>
+      <View style={{ flexDirection: 'row' }}>
+        <Image style={styles.image} source={{ uri: tagTeam.wrestlers[0].image_url }} />
+        <Image style={styles.image} source={{ uri: tagTeam.wrestlers[1].image_url }} />
+      </View>
+      <Text style={sharedStyles.body}>{tagTeam.name}</Text>
+      <Text style={[styles.bold, { color: isWinner ? 'green' : 'red' }]}>{isWinner ? "WIN" : "LOSS"}</Text>
+    </View>
+  )
+}
+
+type WrestlerWithImageProps = {
+  wrestler: Wrestler
+  match: Match
+}
+
+function WrestlerWithImage({ wrestler, match }: WrestlerWithImageProps) {
+  const isWinner = match.winner === wrestler.name
+  return (
+    <View style={styles.wrestlerContainer}>
+      <Image style={styles.image} source={{ uri: wrestler.image_url }}/>
+      <Text style={sharedStyles.body}>{wrestler.name}</Text>
+      <Text style={[styles.bold, { color: isWinner ? 'green' : 'red' }]}>{isWinner ? "WIN" : "LOSS"}</Text>
+    </View>
+  )
+}
+
 const styles = StyleSheet.create({
   matchContainer: {
-    //height: 85,
     backgroundColor: GRAPHITE,
-    padding: 5
-  },
-  container: {
+    padding: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 5
+    flex: 1,
+    marginBottom: 10
   },
-  vsText: {
-    textAlign: 'center'
+  wrestlerContainer: {
+    alignItems: 'center',
+    paddingHorizontal: 20
+  },
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    //alignSelf: 'center'
+    //flex: 1
+  },
+  bold: {
+    fontWeight: 'bold'
+  },
+  image: {
+    height: 75,
+    width: 75,
+    margin: 2.5
+  },
+  eventName: {
+    fontSize: 14,
+    color: 'white',
+    fontWeight: 'bold',
+    paddingTop: 10
   }
 })

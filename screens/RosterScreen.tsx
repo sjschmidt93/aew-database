@@ -7,9 +7,8 @@ import { NavigationScreenProp, NavigationState, NavigationParams } from 'react-n
 import { navigate } from "../RootNavigation"
 import { Wrestler, TagTeam } from "../types"
 import Picker from "../components/Picker"
-import * as ImageManipulator from "expo-image-manipulator"
 
-export const API_URL = 'http://0033a334.ngrok.io'
+export const API_URL = 'http://4322aeed.ngrok.io'
 
 export interface NavigationProp {
   navigation: NavigationScreenProp<NavigationState, NavigationParams>
@@ -57,7 +56,8 @@ export default class RosterScreen extends React.Component<NavigationProp> {
       this.wrestlers,
       this.mensDivision,
       this.womensDivision,
-      this.tagTeams
+      this.tagTeams,
+      []
     ]
   }
 
@@ -76,8 +76,9 @@ export default class RosterScreen extends React.Component<NavigationProp> {
     return [
       "ALL",
       "MEN'S",
-      "WOMEN's",
-      "TAG TEAMS"
+      "WOMEN'S",
+      "TAG TEAMS",
+      "STABLES"
     ]
   }
 
@@ -98,36 +99,16 @@ export default class RosterScreen extends React.Component<NavigationProp> {
   }
 }
 
-type WrestlerRowProps = {
+type ItemRowProps = {
   item: Wrestler | TagTeam
 }
 
 @observer
-export class ItemRow extends React.Component<WrestlerRowProps> {
-  @observable
-  croppedImageUrl = ""
-
-  componentDidMount() {
-    ImageManipulator.manipulateAsync(
-      this.props.item.image_url,
-      [
-        {
-          crop: {
-            originX: 0,
-            originY: 50,
-            height: 260,
-            width: 320
-          }
-        }
-      ]
-    ).then(result => this.croppedImageUrl = result.uri)
-     .catch(e => console.warn('Error cropping image', e))
-  }
-
+export class ItemRow extends React.Component<ItemRowProps> {
   render () {
     return (
       <View style={styles.wrestlerOuterContainer}>
-        <Image style={styles.image} source={{ uri: this.croppedImageUrl }} />
+        <Image style={styles.image} source={{ uri: this.props.item.image_url }} />
         <TouchableOpacity
           style={styles.wrestlerContainer}
           onPress={() => navigate('Wrestler', { wrestler: this.props.item }) }

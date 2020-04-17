@@ -22,7 +22,8 @@ export type Match = {
   wrestlers: Wrestler[]
   tag_teams: TagTeam[]
   event: Event
-  match_type: MATCH_TYPE
+  winner: string
+  type: "singles" | "tag"
 }
 
 export type Event = {
@@ -30,9 +31,4 @@ export type Event = {
   date: Date
   city: string
   venue: string
-}
-
-
-export enum MATCH_TYPE {
-  Tag = "tag"
 }
