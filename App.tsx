@@ -35,12 +35,20 @@ function HomeStack() {
   )
 }
 
-function WrestlerStack() {
+function RosterStack() {
   return (
     <RootStack.Navigator screenOptions={screenOptions}>
       <RootStack.Screen name="Roster" component={RosterScreen} />
       <RootStack.Screen name="Wrestler" component={WrestlerScreen} />
       <RootStack.Screen name="Event" component={EventPage} />
+    </RootStack.Navigator>
+  )
+}
+
+function EventsStack() {
+  return (
+    <RootStack.Navigator>
+      <RootStack.Screen name="Events" component={EventsScreen} />
     </RootStack.Navigator>
   )
 }
@@ -52,8 +60,8 @@ export default function App() {
     <NavigationContainer ref={navigationRef}>
       <Tab.Navigator>
         <Tab.Screen name="Home" component={HomeStack} />
-        <Tab.Screen name="Wrestlers" component={WrestlerStack} />
-        <Tab.Screen name="Events" component={EventsScreen} />
+        <Tab.Screen name="Roster" component={RosterStack} />
+        <Tab.Screen name="Events" component={EventsStack} />
       </Tab.Navigator>
     </NavigationContainer>
   )

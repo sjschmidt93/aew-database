@@ -13,7 +13,9 @@ export interface NavigationProp {
   navigation: NavigationScreenProp<NavigationState, NavigationParams>
 }
 
-const WRESTLER_ROW_HEIGHT = 75
+const ROSTER_ROW_HEIGHT = 75
+
+type RosterMember = Wrestler | TagTeam
 
 @observer
 export default class RosterScreen extends React.Component<NavigationProp> {
@@ -26,18 +28,19 @@ export default class RosterScreen extends React.Component<NavigationProp> {
   @observable
   selectedPickerIndex = 0
 
-  componentDidMount() {
-    this.fetchWrestlers()
-    this.fetchTagTeams()
+  @computed
+  get pickerData(): string[] {
+    return [
+      "ALL",
+      "MEN'S",
+      "WOMEN'S",
+      "TAG TEAMS",
+      "STABLES"
+    ]
   }
 
-  onPickerSelect = (index: number) => this.selectedPickerIndex = index
-
-  fetchWrestlers = async () => this.wrestlers = await AewApi.fetchWrestlers()
-  fetchTagTeams = async () => this.tagTeams = await AewApi.fetchTagTeams()
-
   @computed
-  get dataArr() {
+  get dataArr(): RosterMember[][] {
     return [
       this.wrestlers,
       this.mensDivision,
@@ -57,16 +60,15 @@ export default class RosterScreen extends React.Component<NavigationProp> {
     return this.wrestlers.filter(wrestler => wrestler.division === "womens")
   }
 
-  @computed
-  get pickerData(): string[] {
-    return [
-      "ALL",
-      "MEN'S",
-      "WOMEN'S",
-      "TAG TEAMS",
-      "STABLES"
-    ]
+  componentDidMount() {
+    this.fetchWrestlers()
+    this.fetchTagTeams()
   }
+
+  onPickerSelect = (index: number) => this.selectedPickerIndex = index
+
+  fetchWrestlers = async () => this.wrestlers = await AewApi.fetchWrestlers()
+  fetchTagTeams = async () => this.tagTeams = await AewApi.fetchOfficialTagTeams()
 
   render() {
     return (
@@ -74,8 +76,7 @@ export default class RosterScreen extends React.Component<NavigationProp> {
         <Picker options={this.pickerData} selectedIndex={this.selectedPickerIndex} onSelect={this.onPickerSelect} />
         <ScrollView style={sharedStyles.scrollViewContainer}>
           <FlatList
-            contentContainerStyle={styles.flatlistContentContainerStyle}
-            renderItem={({item}) => <ItemRow item={item} />}
+            renderItem={({item}) => <RosterRow item={item} />}
             data={this.dataArr[this.selectedPickerIndex]}
             ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
           />
@@ -85,12 +86,12 @@ export default class RosterScreen extends React.Component<NavigationProp> {
   }
 }
 
-type ItemRowProps = {
-  item: Wrestler | TagTeam
+type RosterRowProps = {
+  item: RosterMember
 }
 
 @observer
-export class ItemRow extends React.Component<ItemRowProps> {
+export class RosterRow extends React.Component<RosterRowProps> {
   render () {
     return (
       <View style={styles.wrestlerOuterContainer}>
@@ -113,21 +114,18 @@ export const AEW_YELLOW = "#A18931"
 
 const styles = StyleSheet.create({
   image: {
-    height: WRESTLER_ROW_HEIGHT,
-    width: WRESTLER_ROW_HEIGHT
+    height: ROSTER_ROW_HEIGHT,
+    width: ROSTER_ROW_HEIGHT
   },
   wrestlerOuterContainer: {
     flexDirection: 'row',
-    height: WRESTLER_ROW_HEIGHT,
+    height: ROSTER_ROW_HEIGHT,
     alignItems: 'center',
     width: '100%',
     backgroundColor: GRAPHITE
   },
   wrestlerContainer: {
     padding: 5
-  },
-  flatlistContentContainerStyle: {
-    //flexGrow: 1, justifyContent: 'space-between'
   },
   wrestlerText: {
     color: 'white',

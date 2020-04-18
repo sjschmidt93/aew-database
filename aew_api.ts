@@ -1,4 +1,4 @@
-const API_URL = 'http://cc55cc99.ngrok.io'
+const API_URL = 'http://d8747018.ngrok.io'
 
 function aewApiFetch(path: string, errorMessage: string) {
   const url = `${API_URL}${path}`
@@ -15,6 +15,14 @@ export const AewApi = {
 
   fetchTagTeams: () => {
     return aewApiFetch("/tag_teams", "Error fetching tag teams")
+  },
+
+  fetchOfficialTagTeams: () => {
+    return aewApiFetch("/tag_teams/official", "Error fetching official tag teams")
+  },
+
+  fetchEvents: () => {
+    return aewApiFetch("/events", "Error fetching events")
   },
 
   fetchWrestlerMatches: (wrestler_id: number) => {

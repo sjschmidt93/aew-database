@@ -33,4 +33,5 @@ export type Event = {
   city: string
   venue: string
   image_url: string
+  program: "dynamite" | "ppv" | "dark"
 }
