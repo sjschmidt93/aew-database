@@ -2,7 +2,7 @@ import React from "react"
 import { View, StyleSheet, FlatList, Text, Image, TouchableOpacity, ScrollView } from "react-native"
 import { observable, computed } from 'mobx'
 import { observer } from "mobx-react"
-import { sharedStyles } from "../styles"
+import { sharedStyles, colors } from "../styles"
 import { NavigationScreenProp, NavigationState, NavigationParams } from 'react-navigation'
 import { navigate } from "../RootNavigation"
 import { Wrestler, TagTeam } from "../types"
@@ -109,9 +109,6 @@ export class RosterRow extends React.Component<RosterRowProps> {
   }
 }
 
-export const GRAPHITE = "#454343"
-export const AEW_YELLOW = "#A18931"
-
 const styles = StyleSheet.create({
   image: {
     height: ROSTER_ROW_HEIGHT,
@@ -122,7 +119,7 @@ const styles = StyleSheet.create({
     height: ROSTER_ROW_HEIGHT,
     alignItems: 'center',
     width: '100%',
-    backgroundColor: GRAPHITE
+    backgroundColor: colors.graphite
   },
   wrestlerContainer: {
     padding: 5

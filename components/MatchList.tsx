@@ -1,9 +1,8 @@
 import { View, TouchableOpacity, Text, FlatList, StyleSheet, Image } from "react-native"
 import { computed } from "mobx"
 import { navigate } from "../RootNavigation"
-import { GRAPHITE } from "../screens/RosterScreen"
 import React from "react"
-import { sharedStyles } from "../styles"
+import { sharedStyles, colors } from "../styles"
 import { Match } from "../types"
 
 type MatchListProps = {
@@ -126,7 +125,7 @@ function WrestlerWithImage({ wrestler, match }: WrestlerWithImageProps) {
 
 const styles = StyleSheet.create({
   matchContainer: {
-    backgroundColor: GRAPHITE,
+    backgroundColor: colors.graphite,
     padding: 10,
     justifyContent: 'center',
     alignItems: 'center',

@@ -4,8 +4,7 @@ import { RouteProp } from "@react-navigation/native"
 import { RootStackParamList } from "../App"
 import { StackNavigationProp } from "@react-navigation/stack"
 import { computed, observable } from "mobx"
-import { sharedStyles } from "../styles"
-import { AEW_YELLOW } from "./RosterScreen"
+import { sharedStyles, colors } from "../styles"
 import { AewApi } from "../aew_api"
 import { Match } from "../types"
 import { observer } from "mobx-react"
@@ -61,7 +60,7 @@ type LabelValueProps = {
   align: "left" | "right"
 }
 
-function LabelValue({label, value, align = "left"}: LabelValueProps) {
+export function LabelValue({label, value, align = "left"}: LabelValueProps) {
   const textAlign = { textAlign: align }
   return (
     <View style={styles.labelValueContainer}>
@@ -73,13 +72,12 @@ function LabelValue({label, value, align = "left"}: LabelValueProps) {
 
 const styles = StyleSheet.create({
   eventImage: {
-    //width: 400,
     height: 200,
     borderRadius: 5,
     marginBottom: 10
   },
   label: {
-    color: AEW_YELLOW,
+    color: colors.aewYellow,
     fontSize: 24,
     fontWeight: 'bold'
   },

@@ -19,3 +19,9 @@ export const sharedStyles = {
     color: 'white'
   }
 }
+
+export const colors = {
+  graphite: "#454343",
+  aewYellow: "#A18931",
+  silver: "#C0C0C0"
+}

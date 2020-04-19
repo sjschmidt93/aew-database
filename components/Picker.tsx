@@ -3,7 +3,7 @@ import { FlatList, Text, StyleSheet, View } from "react-native"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { sharedStyles } from "../styles"
 import { observer } from "mobx-react"
-import { GRAPHITE, AEW_YELLOW } from "../screens/RosterScreen"
+import { colors } from "./../styles"
 
 interface PickerProps {
   options: string[]
@@ -16,7 +16,7 @@ export default class Picker extends React.Component<PickerProps> {
   renderItem = ({item, index}) => {
     const isSelected = this.props.selectedIndex === index
     const unselectedTextStyle = {
-      color: GRAPHITE
+      color: colors.graphite
     }
     const selectedContainerStyle = {
       borderBottomWidth: 2,
@@ -41,7 +41,7 @@ export default class Picker extends React.Component<PickerProps> {
           renderItem={this.renderItem}
           ItemSeparatorComponent={() => <View style={{ width: 10 }}/>}
           extraData={this.props.selectedIndex}
-          contentContainerStyle={{ backgroundColor: AEW_YELLOW, flex: 1, paddingLeft: 15 }}
+          contentContainerStyle={{ backgroundColor: colors.aewYellow, flex: 1, paddingLeft: 15 }}
         />
       </View>
     )
