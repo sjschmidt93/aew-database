@@ -1,5 +1,5 @@
 import React from "react"
-import { View, StyleSheet, FlatList, Text, Image, TouchableOpacity, ScrollView } from "react-native"
+import { View, StyleSheet, FlatList, Text, Image, TouchableOpacity, ScrollView, StatusBar } from "react-native"
 import { observable, computed } from 'mobx'
 import { observer } from "mobx-react"
 import { sharedStyles, colors } from "../styles"
@@ -8,6 +8,7 @@ import { navigate } from "../RootNavigation"
 import { Wrestler, TagTeam } from "../types"
 import Picker from "../components/Picker"
 import { AewApi } from "../aew_api"
+import _ from "lodash"
 
 export interface NavigationProp {
   navigation: NavigationScreenProp<NavigationState, NavigationParams>
@@ -73,10 +74,11 @@ export default class RosterScreen extends React.Component<NavigationProp> {
   render() {
     return (
       <>
+        <StatusBar barStyle="light-content" />
         <Picker options={this.pickerData} selectedIndex={this.selectedPickerIndex} onSelect={this.onPickerSelect} />
         <ScrollView style={sharedStyles.scrollViewContainer}>
           <FlatList
-            renderItem={({item}) => <RosterRow item={item} />}
+            renderItem={({item}) => <RosterRow member={item} />}
             data={this.dataArr[this.selectedPickerIndex]}
             ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
           />
@@ -86,27 +88,19 @@ export default class RosterScreen extends React.Component<NavigationProp> {
   }
 }
 
-type RosterRowProps = {
-  item: RosterMember
-}
-
-@observer
-export class RosterRow extends React.Component<RosterRowProps> {
-  render () {
-    return (
-      <View style={styles.wrestlerOuterContainer}>
-        <Image style={styles.image} source={{ uri: this.props.item.image_url }} />
-        <TouchableOpacity
-          style={styles.wrestlerContainer}
-          onPress={() => navigate('Wrestler', { wrestler: this.props.item }) }
-        >
-          <Text style={sharedStyles.h3}>{this.props.item.name}</Text>
-          <Text style={sharedStyles.body}>{this.props.item.nickname}</Text>
-          <Text style={styles.text}>{this.props.item.wins}-{this.props.item.losses}</Text>
-        </TouchableOpacity>
-      </View>
-    )
-  }
+function RosterRow({ member }: { member: RosterMember }) {
+  return (
+    <View style={styles.wrestlerOuterContainer}>
+      <Image style={styles.image} source={{ uri: member.image_url }} />
+      <TouchableOpacity
+        style={styles.wrestlerContainer}
+        onPress={() => navigate('Wrestler', { wrestler: member }) }
+      >
+        <Text style={sharedStyles.h2}>{member.name}</Text>
+        { !_.isNil(member.nickname) && <Text style={[sharedStyles.h3, { color: colors.silver }]}>{member.nickname}</Text> }
+      </TouchableOpacity>
+    </View>
+  )
 }
 
 const styles = StyleSheet.create({
@@ -122,7 +116,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.graphite
   },
   wrestlerContainer: {
-    padding: 5
+    padding: 5,
+    alignItems: 'center',
+    flex: 1
   },
   wrestlerText: {
     color: 'white',

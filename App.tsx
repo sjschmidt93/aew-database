@@ -1,4 +1,5 @@
 import React from 'react'
+import { Image } from 'react-native'
 import EventsScreen from './screens/EventsScreen'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { NavigationContainer } from '@react-navigation/native'
@@ -9,6 +10,7 @@ import { navigationRef } from './RootNavigation'
 import { Wrestler, Event } from './types'
 import HomeScreen from './screens/HomeScreen'
 import EventPage from './screens/EventPage'
+import { colors } from './styles'
 
 export type RootStackParamList = {
   Home: undefined, 
@@ -20,15 +22,15 @@ export type RootStackParamList = {
 const RootStack = createStackNavigator<RootStackParamList>()
 
 const screenOptions: StackNavigationOptions = {
-  // header: () => <Image style={{ height: 80, width: 80, alignSelf: 'center' }} source={require('./assets/images/aew-logo.jpg')} />,
-  // headerStyle: { backgroundColor: 'black' }
+  headerTitle: () => <Image style={{ height: 50, width: 60, alignSelf: "center", overflow: "hidden" }} source={require('./assets/images/aew-logo.png')} />,
+  headerTitleStyle: { alignSelf: "center" },
+  headerStyle: { backgroundColor: "black" }
 }
 
 function HomeStack() {
   return (
     <RootStack.Navigator headerMode="screen">
       <RootStack.Screen name="Home" component={HomeScreen} />
-      <RootStack.Screen name="Roster" component={RosterScreen} />
       <RootStack.Screen name="Wrestler" component={WrestlerScreen} />
       <RootStack.Screen name="Event" component={EventPage} />
     </RootStack.Navigator>
@@ -49,6 +51,8 @@ function EventsStack() {
   return (
     <RootStack.Navigator>
       <RootStack.Screen name="Events" component={EventsScreen} />
+      <RootStack.Screen name="Wrestler" component={WrestlerScreen} />
+      <RootStack.Screen name="Event" component={EventPage} />
     </RootStack.Navigator>
   )
 }

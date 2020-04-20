@@ -7,12 +7,13 @@ import { Match } from "../types"
 
 type MatchListProps = {
   matches: Match[]
+  showEvents?: boolean
 }
 
-export function MatchList({ matches }: MatchListProps) {
+export function MatchList({ matches, showEvents = false }: MatchListProps) {
   return (
     <FlatList
-      renderItem={({item}) => <MatchRow match={item} />}
+      renderItem={({item}) => <MatchRow match={item} showEvent={showEvents} />}
       data={matches}
       contentContainerStyle={{ paddingTop: 10, paddingBottom: 10 }}
     />
@@ -21,14 +22,15 @@ export function MatchList({ matches }: MatchListProps) {
 
 type MatchRowProps = {
   match: Match
+  showEvent: boolean
 }
 
 export class MatchRow extends React.Component<MatchRowProps> {
   render() {
     if (this.props.match.type == "singles") {
-      return <SinglesMatchRow match={this.props.match} />
+      return <SinglesMatchRow {...this.props} />
     }
-    return <TagTeamMatchRow match={this.props.match} />
+    return <TagTeamMatchRow {...this.props} />
   }
  }
 
@@ -52,9 +54,11 @@ class SinglesMatchRow extends React.Component<MatchRowProps> {
           <Text style={sharedStyles.h2}>vs.</Text>
           <WrestlerWithImage match={this.match} wrestler={this.match.wrestlers[1]} />
         </View>
-        <TouchableOpacity onPress={() => navigate('Event', { event: this.event })}>
-          <Text style={styles.eventName}>{this.event.name} ({this.event.date})</Text>
-        </TouchableOpacity>
+        { this.props.showEvent && (
+          <TouchableOpacity onPress={() => navigate('Event', { event: this.event })}>
+            <Text style={styles.eventName}>{this.event.name} ({this.event.date})</Text>
+          </TouchableOpacity>
+        )}
       </View>
     )
   }
@@ -79,9 +83,11 @@ class TagTeamMatchRow extends React.Component<MatchRowProps> {
           <Text style={sharedStyles.h2}>vs.</Text>
           <TagTeamWithImages tagTeam={this.match.tag_teams[1]} match={this.match} />
         </View>
-        <TouchableOpacity onPress={() => navigate('Event', { event: this.event })}>
-          <Text style={styles.eventName}>{this.event.name} ({this.event.date})</Text>
-        </TouchableOpacity>
+        {this.props.showEvent && (
+          <TouchableOpacity onPress={() => navigate('Event', { event: this.event })}>
+            <Text style={styles.eventName}>{this.event.name} ({this.event.date})</Text>
+          </TouchableOpacity>
+        )}
       </View>
     )
   }

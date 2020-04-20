@@ -1,12 +1,12 @@
 import React from "react"
-import { Text, StyleSheet, ScrollView, Image, FlatList, View } from "react-native"
+import { Text, StyleSheet, ScrollView, Image, View } from "react-native"
 import { RouteProp } from "@react-navigation/native"
 import { RootStackParamList } from "../App"
 import { StackNavigationProp } from "@react-navigation/stack"
 import { computed, observable } from "mobx"
 import { sharedStyles, colors } from "../styles"
 import { AewApi } from "../aew_api"
-import { Match } from "../types"
+import { Match, Event } from "../types"
 import { observer } from "mobx-react"
 import { MatchList } from "../components/MatchList"
 
@@ -32,11 +32,23 @@ export default class EventPage extends React.Component<Props> {
   get event() {
     return this.props.route.params.event
   }
+
+  @computed
+  get imageSource() {
+    switch(this.event.program) {
+      case "ppv":
+        return { uri: this.event.image_url }
+      case "dynamite":
+        return require("./../assets/images/dynamite-logo.jpg")
+      case "dark":
+        return require("./../assets/images/dark-logo.jpg")
+    }
+  }
   
   render() {
     return (
       <ScrollView style={sharedStyles.scrollViewContainer}>
-        <Image source={{ uri: this.event.image_url }} style={styles.eventImage} />
+        <Image source={this.imageSource} style={[styles.eventImage, this.event.program !== "ppv" && styles.tvImage]} />
         <View style={styles.infoContainer}>
           <View style={styles.infoRow}>
             <LabelValue label={"name"} value={this.event.name} />
@@ -48,7 +60,7 @@ export default class EventPage extends React.Component<Props> {
           </View>
         </View>
         <Text style={[sharedStyles.h2, styles.header]}>Card</Text>
-        <MatchList matches={this.matches} />
+        <MatchList matches={this.matches} showEvents={false} />
       </ScrollView>
     )
   }
@@ -74,7 +86,10 @@ const styles = StyleSheet.create({
   eventImage: {
     height: 200,
     borderRadius: 5,
-    marginBottom: 10
+    marginBottom: 10,
+  },
+  tvImage: {
+    alignSelf: 'center'
   },
   label: {
     color: colors.aewYellow,
