@@ -1,11 +1,11 @@
 import React from "react"
-import { Text, ScrollView, View, StyleSheet, Image } from "react-native"
+import { Text, ScrollView, View, StyleSheet, Image, FlatList } from "react-native"
 import { computed, observable } from "mobx"
 import { sharedStyles, colors } from "../styles"
 import { StackNavigationProp } from "@react-navigation/stack"
 import { RootStackParamList } from "../App"
 import { RouteProp } from "@react-navigation/native"
-import { Match } from "../types"
+import { Match, Reign } from "../types"
 import { observer } from "mobx-react"
 import _ from "lodash"
 import { MatchList } from "../components/MatchList"
@@ -48,10 +48,33 @@ export default class WrestlerScreen extends React.Component<Props> {
         </View>
         <Text style={sharedStyles.h2}>Match history</Text>
         <MatchList matches={this.matches} />
-        <Text style={sharedStyles.h2}>Title reigns</Text>
-      </ScrollView>
+        <ReignList reigns={this.wrestler.reigns} />
+      </ScrollView> 
     )
   }
+}
+
+function ReignRow({ reign }: { reign: Reign }) {
+  return (
+    <View style={styles.reignRowContainer}>
+      <Image source={{ uri: reign.championship.image_url }} style={styles.championshipImage} />
+      <Text style={sharedStyles.h2}>{reign.championship.name}</Text>
+      <Text style={sharedStyles.h3}>{`${reign.length} days${_.isNil(reign.end_date) ? " (ongoing)" : ""}`}</Text>
+    </View>
+  )
+}
+
+function ReignList({ reigns }: { reigns: Reign[] }) {
+  return reigns.length > 0 && (
+    <View>
+      <Text style={sharedStyles.h2}>Title reigns</Text>
+      <FlatList
+        data={reigns}
+        renderItem={({item}: { item: Reign }) => <ReignRow reign={item}/ > }
+        contentContainerStyle={{ paddingTop: 10, paddingBottom: 20 }}
+      />
+    </View>
+  )
 }
 
 const toHeightString = (height: number): string => `${Math.floor(height/12)}'${height % 12}"`
@@ -83,5 +106,14 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontWeight: "bold",
     fontSize: 20
+  },
+  reignRowContainer: {
+    backgroundColor: colors.graphite,
+    alignItems: "center",
+    padding: 10
+  },
+  championshipImage: {
+    height: 75,
+    width: 75 * (1920 / 572)
   }
 })

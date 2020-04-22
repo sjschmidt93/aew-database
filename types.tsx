@@ -8,6 +8,7 @@ export type Wrestler = {
   num_wins: number
   num_losses: number
   division: string
+  reigns: Reign[]
 }
 
 export type TagTeam = {
@@ -18,7 +19,6 @@ export type TagTeam = {
   losses: number
   wrestlers: Wrestler[]
 }
-
 
 export type Match = {
   wrestlers: Wrestler[]
@@ -36,4 +36,16 @@ export type Event = {
   venue: string
   image_url: string
   program: "dynamite" | "ppv" | "dark"
+}
+
+export type Reign = {
+  start_date: Date
+  end_date: Date
+  length: number
+  championship: Championship
+}
+
+export type Championship = {
+  name: string
+  image_url: string
 }

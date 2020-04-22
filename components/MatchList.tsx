@@ -103,8 +103,8 @@ function TagTeamWithImages({ tagTeam, match }: TagTeamWithImagesProps) {
   return (
     <View style={styles.wrestlerContainer}>
       <View style={{ flexDirection: 'row' }}>
-        <Image style={styles.image} source={{ uri: tagTeam.wrestlers[0].image_url }} />
-        <Image style={styles.image} source={{ uri: tagTeam.wrestlers[1].image_url }} />
+        <Image style={styles.tagTeamImage} source={{ uri: tagTeam.wrestlers[0].image_url }} />
+        <Image style={styles.tagTeamImage} source={{ uri: tagTeam.wrestlers[1].image_url }} />
       </View>
       <Text style={sharedStyles.body}>{tagTeam.name}</Text>
       <Text style={[styles.bold, { color: isWinner ? 'green' : 'red' }]}>{isWinner ? "WIN" : "LOSS"}</Text>
@@ -153,6 +153,10 @@ const styles = StyleSheet.create({
     height: 75,
     width: 75,
     margin: 2.5
+  },
+  tagTeamImage: {
+    height: 60,
+    width: 60
   },
   eventName: {
     fontSize: 14,
