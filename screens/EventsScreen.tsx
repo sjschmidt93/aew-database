@@ -6,8 +6,8 @@ import Picker from "../components/Picker"
 import { observer } from "mobx-react"
 import { Event } from "../types"
 import { AewApi } from "../aew_api"
-import { LabelValue } from "./EventPage"
 import { navigate } from "../RootNavigation"
+import { images } from "../assets"
 
 const EVENT_ROW_HEIGHT = 75
 
@@ -80,6 +80,7 @@ export default class EventsScreen extends React.Component {
             renderItem={this.renderItem}
             data={this.dataArr[this.selectedPickerIndex]}
             ItemSeparatorComponent={() => <View style={{ height: 20 }} />}
+            contentContainerStyle={{ paddingBottom: 20 }}
           />
         </ScrollView>
       </>
@@ -93,7 +94,7 @@ function DynamiteRow({ event }: { event: Event }) {
       onPress={() => navigate("Event", { event }) }
       style={[styles.nonPpvRowContainer, styles.ppvRowContainer]}
     >
-      <Image source={require("./../assets/images/dynamite-logo.jpg")} style={styles.dynamiteImage} />
+      <Image source={images.dynamiteLogo} style={styles.dynamiteImage} />
       <View style={styles.dynamiteInfoContainer}>
         <Text style={sharedStyles.h2}>Dynamite</Text>
         <Text style={[sharedStyles.h3, { color: colors.silver }]}>{event.date}</Text>

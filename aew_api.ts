@@ -1,4 +1,4 @@
-const API_URL = 'http://1aa720ee.ngrok.io'
+const API_URL = 'http://80d6731c.ngrok.io'
 
 function aewApiFetch(path: string, errorMessage: string) {
   const url = `${API_URL}${path}`

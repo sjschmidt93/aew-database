@@ -9,6 +9,7 @@ import { AewApi } from "../aew_api"
 import { Match, Event } from "../types"
 import { observer } from "mobx-react"
 import { MatchList } from "../components/MatchList"
+import { images } from "../assets"
 
 type EventPageNavigationProp = StackNavigationProp<RootStackParamList, 'Event'>
 type EventPageRouteProp = RouteProp<RootStackParamList, 'Event'>
@@ -39,9 +40,9 @@ export default class EventPage extends React.Component<Props> {
       case "ppv":
         return { uri: this.event.image_url }
       case "dynamite":
-        return require("./../assets/images/dynamite-logo.jpg")
+        return images.dynamiteLogo
       case "dark":
-        return require("./../assets/images/dark-logo.jpg")
+        return images.darkLogo
     }
   }
   
@@ -82,6 +83,7 @@ export function LabelValue({label, value, align = "left"}: LabelValueProps) {
   )
 }
 
+
 const styles = StyleSheet.create({
   eventImage: {
     height: 200,
@@ -89,7 +91,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   tvImage: {
-    alignSelf: 'center'
+    alignSelf: 'center',
+    height: 125,
+    width: 125 * (298 / 212)
   },
   label: {
     color: colors.aewYellow,
