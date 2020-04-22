@@ -10,7 +10,8 @@ export const sharedStyles = {
     fontWeight: 'bold'
   },
   scrollViewContainer: {
-    padding: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
     flex: 1,
     backgroundColor: 'black'
   },
@@ -21,6 +22,8 @@ export const sharedStyles = {
 }
 
 export const colors = {
+  white: "#ffffff",
+  black: "#000000",
   graphite: "#454343",
   aewYellow: "#A18931",
   silver: "#C0C0C0"

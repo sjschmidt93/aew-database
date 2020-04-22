@@ -52,12 +52,12 @@ export default class EventPage extends React.Component<Props> {
         <Image source={this.imageSource} style={[styles.eventImage, this.event.program !== "ppv" && styles.tvImage]} />
         <View style={styles.infoContainer}>
           <View style={styles.infoRow}>
-            <LabelValue label={"name"} value={this.event.name} />
-            <LabelValue label={"date"} value={this.event.date.toString()} align="right" />
+            <LabelValue label="name" value={this.event.name} />
+            <LabelValue label="date" value={this.event.date.toString()} align="right" />
           </View>
           <View style={styles.infoRow}>
-            <LabelValue label={"venue"} value={this.event.venue} />
-            <LabelValue label={"city"} value={this.event.city} align="right" />
+            <LabelValue label="venue" value={this.event.venue} />
+            <LabelValue label="city" value={this.event.city} align="right" />
           </View>
         </View>
         <Text style={[sharedStyles.h2, styles.header]}>Card</Text>
@@ -73,11 +73,10 @@ type LabelValueProps = {
   align: "left" | "right"
 }
 
-export function LabelValue({label, value, align = "left"}: LabelValueProps) {
-  const textAlign = { textAlign: align }
+function LabelValue({label, value, align = "left"}: LabelValueProps) {
   return (
     <View style={styles.labelValueContainer}>
-      <Text style={[styles.label, textAlign]}>{label.toUpperCase()}</Text>
+      <Text style={[styles.label, { textAlign: align }]}>{label.toUpperCase()}</Text>
       <Text style={styles.value}>{value}</Text>
     </View>
   )

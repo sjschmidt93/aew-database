@@ -1,10 +1,12 @@
 export type Wrestler = {
   id: number
   name: string
+  height: number
+  weight: number
   nickname: string
   image_url: string
-  wins: number
-  losses: number
+  num_wins: number
+  num_losses: number
   division: string
 }
 

@@ -10,7 +10,7 @@ import { navigationRef } from './RootNavigation'
 import { Wrestler, Event } from './types'
 import HomeScreen from './screens/HomeScreen'
 import EventPage from './screens/EventPage'
-import { colors } from './styles'
+import { images } from './assets'
 
 export type RootStackParamList = {
   Home: undefined, 
@@ -22,8 +22,7 @@ export type RootStackParamList = {
 const RootStack = createStackNavigator<RootStackParamList>()
 
 const screenOptions: StackNavigationOptions = {
-  headerTitle: () => <Image style={{ height: 50, width: 60, alignSelf: "center", overflow: "hidden" }} source={require('./assets/images/aew-logo.png')} />,
-  headerTitleStyle: { alignSelf: "center" },
+  headerTitle: () => <Image style={{ height: 50, width: 60, alignSelf: "center", overflow: "hidden" }} source={images.aewLogo} />,
   headerStyle: { backgroundColor: "black" }
 }
 
@@ -39,9 +38,9 @@ function HomeStack() {
 
 function RosterStack() {
   return (
-    <RootStack.Navigator screenOptions={screenOptions}>
-      <RootStack.Screen name="Roster" component={RosterScreen} />
-      <RootStack.Screen name="Wrestler" component={WrestlerScreen} />
+    <RootStack.Navigator>
+      <RootStack.Screen name="Roster" component={RosterScreen} options={screenOptions} />
+      <RootStack.Screen name="Wrestler" component={WrestlerScreen} options={({ route }) => ({ title: route.params.wrestler.name })}/>
       <RootStack.Screen name="Event" component={EventPage} />
     </RootStack.Navigator>
   )

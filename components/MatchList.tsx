@@ -15,7 +15,7 @@ export function MatchList({ matches, showEvents = false }: MatchListProps) {
     <FlatList
       renderItem={({item}) => <MatchRow match={item} showEvent={showEvents} />}
       data={matches}
-      contentContainerStyle={{ paddingTop: 10, paddingBottom: 10 }}
+      contentContainerStyle={{ paddingTop: 10, paddingBottom: 20 }}
     />
   )
 }
