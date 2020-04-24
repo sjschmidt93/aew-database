@@ -1,6 +1,6 @@
 import React from "react"
 import { Text, ScrollView, View, StyleSheet, Image, FlatList } from "react-native"
-import { computed, observable } from "mobx"
+import { computed, observable, action, _interceptReads } from "mobx"
 import { sharedStyles, colors } from "../styles"
 import { StackNavigationProp } from "@react-navigation/stack"
 import { RootStackParamList } from "../App"
@@ -10,6 +10,9 @@ import { observer } from "mobx-react"
 import _ from "lodash"
 import { MatchList } from "../components/MatchList"
 import { AewApi } from "../aew_api"
+import { TouchableOpacity } from "react-native-gesture-handler"
+import { AntDesign } from '@expo/vector-icons'
+import { _isComputed } from "mobx/lib/internal"
 
 type WrestlerScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Wrestler'>
 type WrestlerScreenRouteProp = RouteProp<RootStackParamList, 'Wrestler'>
@@ -23,6 +26,9 @@ export default class WrestlerScreen extends React.Component<Props> {
   @observable
   matches: Match[] = []
 
+  @observable
+  showingMore = false
+
   componentDidMount() {
     this.fetchMatches()
   }
@@ -34,18 +40,33 @@ export default class WrestlerScreen extends React.Component<Props> {
     return this.props.route.params.wrestler
   }
 
+  @action
+  onPressViewMore = () => this.showingMore = !this.showingMore
+
   render() {
     return (
       <ScrollView style={sharedStyles.scrollViewContainer}>
         <View style={styles.wrestlerInfoContainer}>
           <Image source={{ uri: this.wrestler.image_url }} style={styles.image} />
-          <View>
+          <View style={styles.basicInfoContainer}>
             <LabelValue label="AEW Record" value={`${this.wrestler.num_wins}-${this.wrestler.num_losses}`} />
             <LabelValue label={`${new Date().getFullYear()} Record`} value={"TODO"} />
-            {/* <LabelValue label="Height" value={toHeightString(this.wrestler.height)} />
-            <LabelValue label="Weight" value={`${this.wrestler.weight} lbs.`} /> */}
           </View>
         </View>
+        { this.showingMore && (
+          <View style={styles.moreContainer}>
+            <LabelValue label="Nickname" value={this.wrestler.nickname} />
+            <LabelValue label="Height" value={toHeightString(this.wrestler.height)} />
+            <LabelValue label="Weight" value={`${this.wrestler.weight} lbs.`} />
+            <LabelValue label="Hometown" value={this.wrestler.hometown} />
+          </View>
+        )}
+        <TouchableOpacity style={styles.viewMoreButton} onPress={this.onPressViewMore}>
+          <View style={styles.buttonContainer}>
+            <Text style={styles.viewMoreText}>{this.showingMore ? "View Less" : "View More"}</Text>
+            <AntDesign name={this.showingMore ? "caretup" : "caretdown"} color={colors.white} size={16} />
+          </View>
+        </TouchableOpacity>
         <Text style={sharedStyles.h2}>Match history</Text>
         <MatchList matches={this.matches} />
         <ReignList reigns={this.wrestler.reigns} />
@@ -80,8 +101,8 @@ function ReignList({ reigns }: { reigns: Reign[] }) {
 const toHeightString = (height: number): string => `${Math.floor(height/12)}'${height % 12}"`
 
 function LabelValue({ label, value }: { label: string, value: string }) {
-  return (
-    <View style={{ paddingBottom: 10 }}>
+  return !_.isNil(value) && (
+    <View>
       <Text style={styles.label}>{label}</Text>
       <Text style={styles.value}>{value}</Text>
     </View>
@@ -91,12 +112,38 @@ function LabelValue({ label, value }: { label: string, value: string }) {
 const styles = StyleSheet.create({
   wrestlerInfoContainer: {
     flexDirection: "row",
+    paddingBottom: 10
+  },
+  moreContainer: {
+    paddingLeft: 30,
     paddingBottom: 20
   },
+  basicInfoContainer: {
+    flex: 1,
+    justifyContent: "space-between",
+    paddingVertical: 5
+  },
+  viewMoreButton: {
+    alignSelf: "center",
+    borderColor: colors.aewYellow,
+    borderWidth: 3,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    marginBottom: 15,
+    borderRadius: 20
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    alignItems: "center"
+  },
   image: {
-    height: 100,
-    width: 100,
+    height: 120,
+    width: 120,
     marginRight: 20
+  },
+  viewMoreText: {
+    color: colors.silver,
+    paddingRight: 3
   },
   label: {
     color: colors.white,
