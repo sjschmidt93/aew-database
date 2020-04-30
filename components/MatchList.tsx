@@ -3,14 +3,15 @@ import { computed } from "mobx"
 import { navigate } from "../RootNavigation"
 import React from "react"
 import { sharedStyles, colors } from "../styles"
-import { Match } from "../types"
+import { Match, Wrestler } from "../types"
+import _ from "lodash"
 
 type MatchListProps = {
   matches: Match[]
   showEvents?: boolean
 }
 
-export function MatchList({ matches, showEvents = false }: MatchListProps) {
+export function MatchList({ matches, showEvents = true }: MatchListProps) {
   return (
     <FlatList
       renderItem={({item}) => <MatchRow match={item} showEvent={showEvents} />}
@@ -98,16 +99,45 @@ type TagTeamWithImagesProps = {
   match: Match
 }
 
-function TagTeamWithImages({ tagTeam, match }: TagTeamWithImagesProps) {
-  const isWinner = match.winner === tagTeam.name
-  return (
-    <View style={styles.wrestlerContainer}>
-      <View style={{ flexDirection: 'row' }}>
-        <Image style={styles.tagTeamImage} source={{ uri: tagTeam.wrestlers[0].image_url }} />
-        <Image style={styles.tagTeamImage} source={{ uri: tagTeam.wrestlers[1].image_url }} />
+class TagTeamWithImages extends React.Component<TagTeamWithImagesProps> {
+  @computed
+  get tagTeam() {
+    return this.props.tagTeam
+  }
+
+  @computed
+  get match() {
+    return this.props.match
+  }
+
+  @computed
+  get isWinner() {
+    return this.match.winner === this.tagTeam.name
+  }
+
+  @computed
+  get rows(): Wrestler[][] {
+    return _.chunk(this.tagTeam.wrestlers, this.tagTeam.wrestlers.length <= 4 ? 2 : 3)
+  }
+
+  render () {
+    return (
+      <View style={styles.wrestlerContainer}>
+        <View style={{ alignItems: "center" }}>
+          { this.rows.map(row => <ImageRow wrestlers={row} />) }
+        </View>
+        <Text style={sharedStyles.body}>{this.tagTeam.name}</Text>
+        <Text style={[styles.bold, { color: this.isWinner ? 'green' : 'red' }]}>{this.isWinner ? "WIN" : "LOSS"}</Text>
       </View>
-      <Text style={sharedStyles.body}>{tagTeam.name}</Text>
-      <Text style={[styles.bold, { color: isWinner ? 'green' : 'red' }]}>{isWinner ? "WIN" : "LOSS"}</Text>
+    )
+  }
+}
+
+function ImageRow({ wrestlers }: { wrestlers: Wrestler[] }) {
+  const imageStyle = { height: 60, width: 60, marginRight: 5 }
+  return (
+    <View style={{ flexDirection: "row", paddingBottom: 5 }}>
+      { wrestlers.map(wrestler => <Image style={imageStyle} source={{ uri: wrestler.image_url }} />) }
     </View>
   )
 }

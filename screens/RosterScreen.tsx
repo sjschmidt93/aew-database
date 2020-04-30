@@ -36,7 +36,7 @@ export default class RosterScreen extends React.Component<NavigationProp> {
       "MEN'S",
       "WOMEN'S",
       "TAG TEAMS",
-      "STABLES"
+      //"STABLES"
     ]
   }
 
