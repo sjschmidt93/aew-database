@@ -25,7 +25,12 @@ export type Match = {
   tag_teams: TagTeam[]
   event: Event
   winner: string
-  type: "singles" | "tag"
+  type: MATCH_TYPE
+}
+
+export enum MATCH_TYPE {
+  SINGLES = "singles",
+  TAG = "tag"
 }
 
 export type Event = {

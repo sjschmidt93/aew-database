@@ -3,7 +3,7 @@ import { computed } from "mobx"
 import { navigate } from "../RootNavigation"
 import React from "react"
 import { sharedStyles, colors } from "../styles"
-import { Match, Wrestler } from "../types"
+import { Match, Wrestler, TagTeam, MATCH_TYPE } from "../types"
 import _ from "lodash"
 
 type MatchListProps = {
@@ -26,17 +26,7 @@ type MatchRowProps = {
   showEvent: boolean
 }
 
-export class MatchRow extends React.Component<MatchRowProps> {
-  render() {
-    if (this.props.match.type == "singles") {
-      return <SinglesMatchRow {...this.props} />
-    }
-    return <TagTeamMatchRow {...this.props} />
-  }
- }
-
-
-class SinglesMatchRow extends React.Component<MatchRowProps> {
+class MatchRow extends React.Component<MatchRowProps> {
   @computed
   get match() {
     return this.props.match
@@ -47,42 +37,18 @@ class SinglesMatchRow extends React.Component<MatchRowProps> {
     return this.match.event
   }
 
-  render() {
-    return (
-      <View style={styles.matchContainer}>
-        <View style={styles.container}>
-          <WrestlerWithImage match={this.match} wrestler={this.match.wrestlers[0]} />
-          <Text style={sharedStyles.h2}>vs.</Text>
-          <WrestlerWithImage match={this.match} wrestler={this.match.wrestlers[1]} />
-        </View>
-        { this.props.showEvent && (
-          <TouchableOpacity onPress={() => navigate('Event', { event: this.event })}>
-            <Text style={styles.eventName}>{this.event.name} ({this.event.date})</Text>
-          </TouchableOpacity>
-        )}
-      </View>
-    )
-  }
-}
-
-class TagTeamMatchRow extends React.Component<MatchRowProps> {
   @computed
-  get match() {
-    return this.props.match
-  }
-
-  @computed
-  get event() {
-    return this.match.event
+  get sideKey() {
+    return this.match.type === MATCH_TYPE.SINGLES ? "wrestlers" : "tag_teams"
   }
 
   render() {
     return (
       <View style={styles.matchContainer}>
         <View style={styles.container}>
-          <TagTeamWithImages tagTeam={this.match.tag_teams[0]} match={this.match} />
+          <SideWithImages side={this.match[this.sideKey][0]} match={this.match} />
           <Text style={sharedStyles.h2}>vs.</Text>
-          <TagTeamWithImages tagTeam={this.match.tag_teams[1]} match={this.match} />
+          <SideWithImages side={this.match[this.sideKey][1]} match={this.match} />
         </View>
         {this.props.showEvent && (
           <TouchableOpacity onPress={() => navigate('Event', { event: this.event })}>
@@ -94,15 +60,19 @@ class TagTeamMatchRow extends React.Component<MatchRowProps> {
   }
 }
 
-type TagTeamWithImagesProps = {
-  tagTeam: TagTeam
+function isTagTeam(side: TagTeam | Wrestler): side is TagTeam {
+  return (side as TagTeam).wrestlers !== undefined
+}
+
+type SideWithImagesProps = {
+  side: TagTeam | Wrestler
   match: Match
 }
 
-class TagTeamWithImages extends React.Component<TagTeamWithImagesProps> {
+class SideWithImages extends React.Component<SideWithImagesProps> {
   @computed
-  get tagTeam() {
-    return this.props.tagTeam
+  get side() {
+    return this.props.side
   }
 
   @computed
@@ -112,52 +82,48 @@ class TagTeamWithImages extends React.Component<TagTeamWithImagesProps> {
 
   @computed
   get isWinner() {
-    return this.match.winner === this.tagTeam.name
+    return this.match.winner === this.side.name
+  }
+
+  @computed
+  get wrestlers() {
+    return isTagTeam(this.side) ? this.side.wrestlers : [this.side]
   }
 
   @computed
   get rows(): Wrestler[][] {
-    return _.chunk(this.tagTeam.wrestlers, this.tagTeam.wrestlers.length <= 4 ? 2 : 3)
+    return _.chunk(this.wrestlers, this.wrestlers.length <= 4 ? 2 : 3)
   }
 
   render () {
     return (
       <View style={styles.wrestlerContainer}>
         <View style={{ alignItems: "center" }}>
-          { this.rows.map(row => <ImageRow wrestlers={row} />) }
+          { this.rows.map(row => <ImageRow wrestlers={row} matchType={this.match.type} />) }
         </View>
-        <Text style={sharedStyles.body}>{this.tagTeam.name}</Text>
-        <Text style={[styles.bold, { color: this.isWinner ? 'green' : 'red' }]}>{this.isWinner ? "WIN" : "LOSS"}</Text>
+        <Text style={sharedStyles.body}>{this.side.name}</Text>
+        <Text style={[styles.bold, { color: this.isWinner ? 'green' : 'red' }]}>{ this.isWinner ? "WIN" : "LOSS" }</Text>
       </View>
     )
   }
 }
 
-function ImageRow({ wrestlers }: { wrestlers: Wrestler[] }) {
-  const imageStyle = { height: 60, width: 60, marginRight: 5 }
+const SINGLES_MATCH_IMAGE_DIM = 75
+const TAG_MATCH_IMAGE_DIM = 60
+
+function ImageRow({ wrestlers, matchType }: { wrestlers: Wrestler[], matchType: MATCH_TYPE }) {
+  const dim = matchType == MATCH_TYPE.SINGLES ? SINGLES_MATCH_IMAGE_DIM : TAG_MATCH_IMAGE_DIM
+  const imageStyle = {
+    height: dim,
+    width: dim,
+    marginRight: 5
+  }
   return (
     <View style={{ flexDirection: "row", paddingBottom: 5 }}>
       { wrestlers.map(wrestler => <Image style={imageStyle} source={{ uri: wrestler.image_url }} />) }
     </View>
   )
 }
-
-type WrestlerWithImageProps = {
-  wrestler: Wrestler
-  match: Match
-}
-
-function WrestlerWithImage({ wrestler, match }: WrestlerWithImageProps) {
-  const isWinner = match.winner === wrestler.name
-  return (
-    <TouchableOpacity style={styles.wrestlerContainer} onPress={() => navigate("Wrestler", { wrestler })}>
-      <Image style={styles.image} source={{ uri: wrestler.image_url }}/>
-      <Text style={sharedStyles.body}>{wrestler.name}</Text>
-      <Text style={[styles.bold, { color: isWinner ? 'green' : 'red' }]}>{isWinner ? "WIN" : "LOSS"}</Text>
-    </TouchableOpacity>
-  )
-}
-
 
 const styles = StyleSheet.create({
   matchContainer: {
