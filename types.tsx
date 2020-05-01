@@ -36,7 +36,7 @@ export enum MATCH_TYPE {
 export type Event = {
   id: number
   name: string
-  date: Date
+  date: string
   city: string
   venue: string
   image_url: string
@@ -44,8 +44,8 @@ export type Event = {
 }
 
 export type Reign = {
-  start_date: Date
-  end_date: Date
+  start_date: string
+  end_date: string
   length: number
   championship: Championship
 }

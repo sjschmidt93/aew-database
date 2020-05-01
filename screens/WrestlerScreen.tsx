@@ -13,6 +13,7 @@ import { AewApi } from "../aew_api"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { AntDesign } from '@expo/vector-icons'
 import { _isComputed } from "mobx/lib/internal"
+import { formatDate } from "../utils"
 
 type WrestlerScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Wrestler'>
 type WrestlerScreenRouteProp = RouteProp<RootStackParamList, 'Wrestler'>
@@ -76,11 +77,12 @@ export default class WrestlerScreen extends React.Component<Props> {
 }
 
 function ReignRow({ reign }: { reign: Reign }) {
+  const dateStr = `${formatDate(reign.start_date)} - ${!_.isNil(reign.end_date) ? reign.end_date : "present"}`
   return (
     <View style={styles.reignRowContainer}>
       <Image source={{ uri: reign.championship.image_url }} style={styles.championshipImage} />
       <Text style={sharedStyles.h2}>{reign.championship.name}</Text>
-      <Text style={sharedStyles.h3}>{`${reign.length} days${_.isNil(reign.end_date) ? " (ongoing)" : ""}`}</Text>
+      <Text style={styles.reignDate}>{dateStr}</Text>
     </View>
   )
 }
@@ -162,5 +164,9 @@ const styles = StyleSheet.create({
   championshipImage: {
     height: 75,
     width: 75 * (1920 / 572)
+  },
+  reignDate: {
+    color: "white",
+    fontSize: 16
   }
 })
