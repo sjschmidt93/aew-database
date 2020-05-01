@@ -18,6 +18,10 @@ export const sharedStyles = {
   body: {
     fontSize: 12,
     color: 'white'
+  },
+  listContainer: {
+    paddingTop: 10,
+    paddingBottom: 20
   }
 }
 

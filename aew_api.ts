@@ -1,7 +1,7 @@
-const API_URL = 'http://d8947806.ngrok.io'
+const API_URL = 'http://cd4479aa.ngrok.io'
 
-function aewApiFetch(path: string, errorMessage: string) {
-  const url = `${API_URL}${path}`
+function aewApiFetch(path: string, errorMessage: string, requestParams = "") {
+  const url = `${API_URL}${path}${requestParams}`
   return fetch(url)
     .then(res => res.json())
     .then(data => data)
@@ -21,8 +21,9 @@ export const AewApi = {
     return aewApiFetch("/tag_teams/official", "Error fetching official tag teams")
   },
 
-  fetchEvents: () => {
-    return aewApiFetch("/events", "Error fetching events")
+  fetchEvents: (limit?: number) => {
+    const params = limit !== undefined ? `?limit=${limit}` : ""
+    return aewApiFetch("/events", "Error fetching events", params)
   },
 
   fetchWrestlerMatches: (wrestler_id: number) => {
@@ -31,5 +32,9 @@ export const AewApi = {
 
   fetchEventMatches: (event_id: number) => {
     return aewApiFetch(`/events/${event_id}/matches`, "Error fetching event matches")
+  },
+
+  fetchActiveReigns: () => {
+    return aewApiFetch("/reigns/active", "Error fetching active reigns")
   }
 }

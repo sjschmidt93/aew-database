@@ -28,7 +28,7 @@ const screenOptions: StackNavigationOptions = {
 
 function HomeStack() {
   return (
-    <RootStack.Navigator headerMode="screen">
+    <RootStack.Navigator headerMode="screen" screenOptions={screenOptions}>
       <RootStack.Screen name="Home" component={HomeScreen} />
       <RootStack.Screen name="Wrestler" component={WrestlerScreen} />
       <RootStack.Screen name="Event" component={EventPage} />

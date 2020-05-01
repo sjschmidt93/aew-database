@@ -16,7 +16,7 @@ export function MatchList({ matches, showEvents = true }: MatchListProps) {
     <FlatList
       renderItem={({item}) => <MatchRow match={item} showEvent={showEvents} />}
       data={matches}
-      contentContainerStyle={{ paddingTop: 10, paddingBottom: 20 }}
+      contentContainerStyle={sharedStyles.listContainer}
     />
   )
 }
@@ -60,7 +60,7 @@ class MatchRow extends React.Component<MatchRowProps> {
   }
 }
 
-function isTagTeam(side: TagTeam | Wrestler): side is TagTeam {
+export function isTagTeam(side: TagTeam | Wrestler): side is TagTeam {
   return (side as TagTeam).wrestlers !== undefined
 }
 

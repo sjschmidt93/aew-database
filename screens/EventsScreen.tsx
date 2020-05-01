@@ -62,30 +62,39 @@ export default class EventsScreen extends React.Component {
 
   onPickerSelect = (index: number) => this.selectedPickerIndex = index
   
-  renderItem = ({item}: { item: Event }) => {
-    if (item.program === "ppv") {
-      return <PpvRow event={item} />
-    }
-    if (item.program === "dynamite") {
-      return <DynamiteRow event={item} />
-    }
-  }
+  renderItem = ({item}: { item: Event }) => (
+    item.program === "ppv" 
+      ? <PpvRow event={item} />
+      : <DynamiteRow event={item} />
+  )
 
   render() {
     return (
       <>
         <Picker options={this.pickerData} selectedIndex={this.selectedPickerIndex} onSelect={this.onPickerSelect} />
         <ScrollView style={sharedStyles.scrollViewContainer}>
-          <FlatList
-            renderItem={this.renderItem}
-            data={this.dataArr[this.selectedPickerIndex]}
-            ItemSeparatorComponent={() => <View style={{ height: 20 }} />}
-            contentContainerStyle={{ paddingBottom: 20 }}
-          />
+          <EventList events={this.dataArr[this.selectedPickerIndex]} />
         </ScrollView>
       </>
     )
   }
+}
+
+export function EventList({ events }: { events: Event[] }) {
+  const renderItem = ({item}: { item: Event }) => (
+    item.program === "ppv" 
+      ? <PpvRow event={item} />
+      : <DynamiteRow event={item} />
+  )
+                                                    
+  return (
+    <FlatList
+      renderItem={renderItem}
+      data={events}
+      ItemSeparatorComponent={() => <View style={{ height: 20 }} />}
+      contentContainerStyle={{ paddingBottom: 20 }}
+    />
+  )
 }
 
 function DynamiteRow({ event }: { event: Event }) {
