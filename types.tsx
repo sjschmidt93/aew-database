@@ -54,4 +54,5 @@ export type Reign = {
 export type Championship = {
   name: string
   image_url: string
+  reigns: Reign[]
 }

@@ -7,16 +7,18 @@ import { createStackNavigator, StackNavigationOptions } from '@react-navigation/
 import RosterScreen from './screens/RosterScreen'
 import WrestlerScreen from './screens/WrestlerScreen'
 import { navigationRef } from './RootNavigation'
-import { Wrestler, Event } from './types'
+import { Wrestler, Event, Championship } from './types'
 import HomeScreen from './screens/HomeScreen'
 import EventPage from './screens/EventPage'
 import { images } from './assets'
+import ChampionshipPage from './screens/ChampionshipPage'
 
 export type RootStackParamList = {
   Home: undefined, 
   Roster: undefined,
   Wrestler: { wrestler: Wrestler },
-  Event: { event: Event }
+  Event: { event: Event },
+  Championship: { championship: Championship }
 }
 
 const RootStack = createStackNavigator<RootStackParamList>()
@@ -30,6 +32,11 @@ function HomeStack() {
   return (
     <RootStack.Navigator headerMode="screen">
       <RootStack.Screen name="Home" component={HomeScreen} />
+      <RootStack.Screen
+        name="Championship"
+        component={ChampionshipPage}
+        options={({ route }) => ({ title: route.params.championship.name })}
+      />
       <RootStack.Screen name="Wrestler" component={WrestlerScreen} />
       <RootStack.Screen name="Event" component={EventPage} />
     </RootStack.Navigator>
@@ -40,7 +47,11 @@ function RosterStack() {
   return (
     <RootStack.Navigator>
       <RootStack.Screen name="Roster" component={RosterScreen} options={screenOptions} />
-      <RootStack.Screen name="Wrestler" component={WrestlerScreen} options={({ route }) => ({ title: route.params.wrestler.name })}/>
+      <RootStack.Screen
+        name="Wrestler"
+        component={WrestlerScreen}
+        options={({ route }) => ({ title: route.params.wrestler.name })}
+      />
       <RootStack.Screen name="Event" component={EventPage} />
     </RootStack.Navigator>
   )

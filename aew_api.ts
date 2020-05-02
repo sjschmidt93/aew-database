@@ -36,5 +36,9 @@ export const AewApi = {
 
   fetchActiveReigns: () => {
     return aewApiFetch("/reigns/active", "Error fetching active reigns")
+  },
+
+  fetchChampionships: () => {
+    return aewApiFetch("/championships", "Error fetching championships")
   }
 }
