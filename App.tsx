@@ -22,13 +22,13 @@ export type RootStackParamList = {
 const RootStack = createStackNavigator<RootStackParamList>()
 
 const screenOptions: StackNavigationOptions = {
-  headerTitle: () => <Image style={{ height: 50, width: 60, alignSelf: "center", overflow: "hidden" }} source={images.aewLogo} />,
+  headerTitle: () => <Image style={{ height: 50, width: 60 }} source={images.aewLogo} />,
   headerStyle: { backgroundColor: "black" }
 }
 
 function HomeStack() {
   return (
-    <RootStack.Navigator headerMode="screen" screenOptions={screenOptions}>
+    <RootStack.Navigator headerMode="screen">
       <RootStack.Screen name="Home" component={HomeScreen} />
       <RootStack.Screen name="Wrestler" component={WrestlerScreen} />
       <RootStack.Screen name="Event" component={EventPage} />

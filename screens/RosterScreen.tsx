@@ -1,25 +1,48 @@
-import React from "react"
-import { View, StyleSheet, FlatList, Text, Image, TouchableOpacity, ScrollView, StatusBar } from "react-native"
+import React, { useState } from "react"
+import { View, StyleSheet, FlatList, Text, Image, TouchableOpacity, ScrollView, StatusBar, TextInput } from "react-native"
 import { observable, computed } from 'mobx'
 import { observer } from "mobx-react"
 import { sharedStyles, colors } from "../styles"
 import { NavigationScreenProp, NavigationState, NavigationParams } from 'react-navigation'
-import { navigate } from "../RootNavigation"
+import { navigate } from "../RootNavigation"  
 import { Wrestler, TagTeam } from "../types"
 import Picker from "../components/Picker"
 import { AewApi } from "../aew_api"
 import _ from "lodash"
+import { AntDesign } from "@expo/vector-icons"
+import { StackNavigationProp } from "@react-navigation/stack"
+import { RootStackParamList } from "../App"
 
-export interface NavigationProp {
-  navigation: NavigationScreenProp<NavigationState, NavigationParams>
-}
+type RosterScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  "Roster"
+>;
 
 const ROSTER_ROW_HEIGHT = 75
 
 type RosterMember = Wrestler | TagTeam
 
+export default function RosterScreen({ navigation }: { navigation: RosterScreenNavigationProp }) { 
+  const [showingSearch, setShowingSearch] = useState(false)
+  
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity onPress={() => setShowingSearch(!showingSearch)} style={{ paddingRight: 20 }}>
+          <AntDesign name="search1" color={colors.white} size={25} />
+        </TouchableOpacity>
+      )
+    })
+  }, [navigation, setShowingSearch])
+  return <RosterPage showingSearch={showingSearch} />
+}
+
+interface RosterPageProps {
+  showingSearch: boolean
+}
+
 @observer
-export default class RosterScreen extends React.Component<NavigationProp> {
+class RosterPage extends React.Component<RosterPageProps> {
   @observable
   wrestlers: Wrestler[] = []
 
@@ -28,6 +51,9 @@ export default class RosterScreen extends React.Component<NavigationProp> {
 
   @observable
   selectedPickerIndex = 0
+
+  @observable
+  searchInput = ""
 
   @computed
   get pickerData(): string[] {
@@ -52,6 +78,11 @@ export default class RosterScreen extends React.Component<NavigationProp> {
   }
 
   @computed
+  get filteredData(): RosterMember[] {
+    return this.dataArr[this.selectedPickerIndex].filter(member => member.name.startsWith(this.searchInput))
+  }
+
+  @computed
   get mensDivision() {
     return this.wrestlers.filter(wrestler => wrestler.division === "mens")
   }
@@ -66,8 +97,6 @@ export default class RosterScreen extends React.Component<NavigationProp> {
     this.fetchTagTeams()
   }
 
-  onPickerSelect = (index: number) => this.selectedPickerIndex = index
-
   fetchWrestlers = async () => this.wrestlers = await AewApi.fetchWrestlers()
   fetchTagTeams = async () => this.tagTeams = await AewApi.fetchOfficialTagTeams()
 
@@ -75,11 +104,25 @@ export default class RosterScreen extends React.Component<NavigationProp> {
     return (
       <>
         <StatusBar barStyle="light-content" />
-        <Picker options={this.pickerData} selectedIndex={this.selectedPickerIndex} onSelect={this.onPickerSelect} />
+        <Picker
+          options={this.pickerData}
+          selectedIndex={this.selectedPickerIndex}
+          onSelect={index => this.selectedPickerIndex = index}
+        />
         <ScrollView style={sharedStyles.scrollViewContainer}>
+          {this.props.showingSearch && (
+            <View style={styles.textInputContainer}>
+              <TextInput
+                value={this.searchInput}
+                style={sharedStyles.h3}
+                placeholder="Search"
+                onChangeText={text => this.searchInput = text}
+              />
+            </View>
+          )}
           <FlatList
             renderItem={({item}) => <RosterRow member={item} />}
-            data={this.dataArr[this.selectedPickerIndex]}
+            data={this.filteredData}
             ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
           />
         </ScrollView>
@@ -126,5 +169,14 @@ const styles = StyleSheet.create({
   },
   text: {
     color: 'white'
+  },
+  textInputContainer: {
+    margin: 10,
+    padding: 5,
+    borderBottomColor: colors.graphite,
+    borderBottomWidth: 1
+  },
+  textInput: {
+    
   }
 })
