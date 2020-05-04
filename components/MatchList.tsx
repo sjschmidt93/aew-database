@@ -11,7 +11,7 @@ type MatchListProps = {
   showEvents?: boolean
 }
 
-export function MatchList({ matches, showEvents = true }: MatchListProps) {
+export default function MatchList({ matches, showEvents = true }: MatchListProps) {
   return (
     <FlatList
       renderItem={({item}) => <MatchRow match={item} showEvent={showEvents} />}

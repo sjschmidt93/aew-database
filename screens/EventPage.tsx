@@ -6,10 +6,10 @@ import { StackNavigationProp } from "@react-navigation/stack"
 import { computed, observable } from "mobx"
 import { sharedStyles, colors } from "../styles"
 import { AewApi } from "../aew_api"
-import { Match, Event } from "../types"
+import { Match } from "../types"
 import { observer } from "mobx-react"
-import { MatchList } from "../components/MatchList"
 import { images } from "../assets"
+import MatchList from "../components/MatchList"
 
 type EventPageNavigationProp = StackNavigationProp<RootStackParamList, 'Event'>
 type EventPageRouteProp = RouteProp<RootStackParamList, 'Event'>

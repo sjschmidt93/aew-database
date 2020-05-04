@@ -6,6 +6,7 @@ import { sharedStyles, colors } from "../styles"
 import { formatDate } from "../utils"
 import { Reign } from "../types"
 import _ from "lodash"
+import MatchList from "../components/MatchList"
 
 type ChampionshipPageRouteProp = RouteProp<RootStackParamList, "Championship">
 type Props = {
@@ -16,13 +17,14 @@ export default function ChampionshipPage({ route }: Props) {
   const championship = route.params.championship
   return (
     <ScrollView style={sharedStyles.scrollViewContainer}>
-      <Text style={sharedStyles.h2}>Champion History</Text>
+      <Text style={[sharedStyles.h2, styles.header]}>Title History</Text>
       <FlatList
         //contentContainerStyle={sharedStyles.scrollViewContainer}
         data={championship.reigns}
         renderItem={({item}) => <ReignRow reign={item} />}
       />
-      {/* <Text style={sharedStyles.h2}>Match History</Text> */}
+      <Text style={sharedStyles.h2}>Match History</Text>
+      <MatchList matches={championship.matches} />
     </ScrollView>
   )
 }
@@ -60,5 +62,8 @@ const styles = {
   image: {
     height: 85,
     width: 85
+  },
+  header: {
+    paddingBottom: 10
   }
 }

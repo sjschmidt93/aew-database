@@ -8,17 +8,15 @@ import { RouteProp } from "@react-navigation/native"
 import { Match, Reign } from "../types"
 import { observer } from "mobx-react"
 import _ from "lodash"
-import { MatchList } from "../components/MatchList"
 import { AewApi } from "../aew_api"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { AntDesign } from '@expo/vector-icons'
 import { _isComputed } from "mobx/lib/internal"
 import { formatDate } from "../utils"
+import MatchList from "../components/MatchList"
 
-type WrestlerScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Wrestler'>
-type WrestlerScreenRouteProp = RouteProp<RootStackParamList, 'Wrestler'>
+type WrestlerScreenRouteProp = RouteProp<RootStackParamList, "Wrestler">
 type Props = {
-  navigation: WrestlerScreenNavigationProp
   route: WrestlerScreenRouteProp
 }
 
@@ -77,11 +75,11 @@ export default class WrestlerScreen extends React.Component<Props> {
 }
 
 function ReignRow({ reign }: { reign: Reign }) {
-  const dateStr = `${formatDate(reign.start_date)} - ${!_.isNil(reign.end_date) ? reign.end_date : "present"}`
+  const dateStr = `${formatDate(reign.start_date)} - ${!_.isNil(reign.end_date) ? formatDate(reign.end_date) : "present"}`
   return (
     <View style={styles.reignRowContainer}>
       <Image source={{ uri: reign.championship.image_url }} style={styles.championshipImage} />
-      <Text style={sharedStyles.h2}>{reign.championship.name}</Text>
+      <Text style={[sharedStyles.h2, { textAlign: "center" }]}>{reign.championship.name}</Text>
       <Text style={styles.reignDate}>{dateStr}</Text>
     </View>
   )

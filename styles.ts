@@ -12,6 +12,7 @@ export const sharedStyles = {
   scrollViewContainer: {
     paddingVertical: 10,
     paddingHorizontal: 10,
+    marginBottom: 10,
     flex: 1,
     backgroundColor: 'black'
   },

@@ -12,6 +12,7 @@ import _ from "lodash"
 import { AntDesign } from "@expo/vector-icons"
 import { StackNavigationProp } from "@react-navigation/stack"
 import { RootStackParamList } from "../App"
+import { isTagTeam } from "../components/MatchList"
 
 type RosterScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -22,27 +23,8 @@ const ROSTER_ROW_HEIGHT = 75
 
 type RosterMember = Wrestler | TagTeam
 
-export default function RosterScreen({ navigation }: { navigation: RosterScreenNavigationProp }) { 
-  const [showingSearch, setShowingSearch] = useState(false)
-  
-  React.useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <TouchableOpacity onPress={() => setShowingSearch(!showingSearch)} style={{ paddingRight: 20 }}>
-          <AntDesign name="search1" color={colors.white} size={25} />
-        </TouchableOpacity>
-      )
-    })
-  }, [navigation, setShowingSearch])
-  return <RosterPage showingSearch={showingSearch} />
-}
-
-interface RosterPageProps {
-  showingSearch: boolean
-}
-
 @observer
-class RosterPage extends React.Component<RosterPageProps> {
+export default class RosterScreen extends React.Component<RosterPageProps> {
   @observable
   wrestlers: Wrestler[] = []
 
@@ -102,42 +84,58 @@ class RosterPage extends React.Component<RosterPageProps> {
 
   render() {
     return (
-      <>
+      <View style={{ flex: 1, backgroundColor: colors.black }}>
         <StatusBar barStyle="light-content" />
         <Picker
           options={this.pickerData}
           selectedIndex={this.selectedPickerIndex}
           onSelect={index => this.selectedPickerIndex = index}
         />
-        <ScrollView style={sharedStyles.scrollViewContainer}>
-          {this.props.showingSearch && (
-            <View style={styles.textInputContainer}>
-              <TextInput
-                value={this.searchInput}
-                style={sharedStyles.h3}
-                placeholder="Search"
-                onChangeText={text => this.searchInput = text}
-              />
-            </View>
-          )}
-          <FlatList
-            renderItem={({item}) => <RosterRow member={item} />}
-            data={this.filteredData}
-            ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
+        <View style={styles.textInputContainer}>
+          <TextInput
+            value={this.searchInput}
+            style={[sharedStyles.h3, { flex: 1 }]}
+            placeholder="Search"
+            onChangeText={text => this.searchInput = text}
           />
+          {this.searchInput === ""
+            ? <AntDesign name="search1" size={20} color={colors.white} />
+            : (
+              <TouchableOpacity onPress={() => this.searchInput = ""}>
+                <AntDesign name="close" size={20} color={colors.white} />
+              </TouchableOpacity>
+            )
+          }
+        </View>
+        <ScrollView style={sharedStyles.scrollViewContainer}>
+          <RosterMemberList members={this.filteredData} />
         </ScrollView>
-      </>
+      </View>
     )
   }
 }
 
+export function RosterMemberList({ members }: { members: RosterMember[] }) {
+  return (
+    <FlatList
+      renderItem={({item}) => <RosterRow member={item} />}
+      data={members}
+      ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
+      contentContainerStyle={{ marginBottom: 10 }}
+    />
+  )
+}
+
 function RosterRow({ member }: { member: RosterMember }) {
+  const onPress = isTagTeam(member)
+    ? () => navigate("TagTeam", { tagTeam: member })
+    : () => navigate("Wrestler", { wrestler: member })
   return (
     <View style={styles.wrestlerOuterContainer}>
       <Image style={styles.image} source={{ uri: member.image_url }} />
       <TouchableOpacity
         style={styles.wrestlerContainer}
-        onPress={() => navigate('Wrestler', { wrestler: member }) }
+        onPress={onPress}
       >
         <Text style={sharedStyles.h2}>{member.name}</Text>
         { !_.isNil(member.nickname) && <Text style={[sharedStyles.h3, { color: colors.silver }]}>{member.nickname}</Text> }
@@ -171,10 +169,15 @@ const styles = StyleSheet.create({
     color: 'white'
   },
   textInputContainer: {
-    margin: 10,
+    marginHorizontal: 20,
+    marginTop: 10,
+    marginBottom: 5,
     padding: 5,
     borderBottomColor: colors.graphite,
-    borderBottomWidth: 1
+    borderBottomWidth: 1,
+    backgroundColor: colors.black,
+    flexDirection: "row",
+    justifyContent: "space-between"
   },
   textInput: {
     

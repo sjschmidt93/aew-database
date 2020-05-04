@@ -12,6 +12,7 @@ export type Wrestler = {
 }
 
 export type TagTeam = {
+  id: number
   name: string
   nickname: string
   image_url: string
@@ -55,4 +56,5 @@ export type Championship = {
   name: string
   image_url: string
   reigns: Reign[]
+  matches: Match[]
 }

@@ -12,6 +12,7 @@ import HomeScreen from './screens/HomeScreen'
 import EventPage from './screens/EventPage'
 import { images } from './assets'
 import ChampionshipPage from './screens/ChampionshipPage'
+import TagTeamScreen from './screens/TagTeamScreen'
 
 export type RootStackParamList = {
   Home: undefined, 
@@ -19,6 +20,7 @@ export type RootStackParamList = {
   Wrestler: { wrestler: Wrestler },
   Event: { event: Event },
   Championship: { championship: Championship }
+  TagTeam: { tagTeam: TagTeam }
 }
 
 const RootStack = createStackNavigator<RootStackParamList>()
@@ -53,6 +55,11 @@ function RosterStack() {
         options={({ route }) => ({ title: route.params.wrestler.name })}
       />
       <RootStack.Screen name="Event" component={EventPage} />
+      <RootStack.Screen
+        name="TagTeam"
+        component={TagTeamScreen}
+        options={({ route }) => ({ title: route.params.tagTeam.name })}
+      />
     </RootStack.Navigator>
   )
 }
