@@ -25,7 +25,7 @@ export type RootStackParamList = {
 
 const RootStack = createStackNavigator<RootStackParamList>()
 
-const screenOptions: StackNavigationOptions = {
+const homeScreenOptions: StackNavigationOptions = {
   headerTitle: () => <Image style={{ height: 50, width: 60 }} source={images.aewLogo} />,
   headerStyle: { backgroundColor: "black" }
 }
@@ -33,22 +33,26 @@ const screenOptions: StackNavigationOptions = {
 function HomeStack() {
   return (
     <RootStack.Navigator headerMode="screen">
-      <RootStack.Screen name="Home" component={HomeScreen} />
+      <RootStack.Screen name="Home" component={HomeScreen} options={homeScreenOptions} />
       <RootStack.Screen
         name="Championship"
         component={ChampionshipPage}
         options={({ route }) => ({ title: route.params.championship.name })}
       />
-      <RootStack.Screen name="Wrestler" component={WrestlerScreen} />
+      <RootStack.Screen name="Wrestler" component={WrestlerScreen} options={screenOptions} />
       <RootStack.Screen name="Event" component={EventPage} />
     </RootStack.Navigator>
   )
 }
 
+const screenOptions: StackNavigationOptions = {
+  headerTitleStyle: { color: "white " }
+}
+
 function RosterStack() {
   return (
     <RootStack.Navigator>
-      <RootStack.Screen name="Roster" component={RosterScreen} options={screenOptions} />
+      <RootStack.Screen name="Roster" component={RosterScreen} />
       <RootStack.Screen
         name="Wrestler"
         component={WrestlerScreen}

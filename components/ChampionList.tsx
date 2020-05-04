@@ -19,11 +19,8 @@ export default class ChampionList extends React.Component {
   championships = []
 
   componentDidMount() {
-    this.fetchActiveReigns()
     this.fetchChampionships()
   }
-
-  fetchActiveReigns = async () => this.reigns = await AewApi.fetchActiveReigns()
 
   fetchChampionships = async () => this.championships = await AewApi.fetchChampionships()
 

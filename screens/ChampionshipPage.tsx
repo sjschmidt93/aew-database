@@ -4,9 +4,12 @@ import { RouteProp } from "@react-navigation/native"
 import React from "react"
 import { sharedStyles, colors } from "../styles"
 import { formatDate } from "../utils"
-import { Reign } from "../types"
+import { Reign, TagTeam, Wrestler } from "../types"
 import _ from "lodash"
 import MatchList from "../components/MatchList"
+import { navigateToRosterMember } from "./RosterScreen"
+import { computed, observable } from "mobx"
+import { AewApi } from "../aew_api"
 
 type ChampionshipPageRouteProp = RouteProp<RootStackParamList, "Championship">
 type Props = {
@@ -35,18 +38,43 @@ const reignText = (reign: Reign) => (
     : `${formatDate(reign.start_date)} - ${formatDate(reign.end_date)} (${reign.length} days)`
 )
 
-function ReignRow({ reign }: { reign: Reign }) {
-  return (
-    <TouchableOpacity style={styles.reignRowContainer} onPress={() => null}>
-      <View style={{ flexDirection: "row", flex: 1 }}>
-        <Image source={{ uri: reign.competitor.image_url }} style={styles.image} />
-        <View style={styles.reignInfoRowContainer}>
-          <Text style={sharedStyles.h3}>{reign.competitor.name}</Text>
-          <Text style={sharedStyles.body}>{reignText(reign)}</Text>
+interface ReignRowProps {
+  reign: Reign
+}
+
+class ReignRow extends React.Component<ReignRowProps> {
+  @computed
+  get reign() {
+    return this.props.reign
+  }
+
+  competitor = null
+
+  componentDidMount() {
+    this.fetchCompetitor()
+  }
+
+  fetchCompetitor = async () => (
+    this.competitor = this.reign.competitor_type === "Wrestler"
+      ? await AewApi.fetchWrestler(this.competitor.id)
+      : await AewApi.fetchTagTeam(this.competitor.id)
+  ) 
+
+  // TODO: cleanup use of TagTeam | Wrestler
+
+  render() {
+    return (
+      <TouchableOpacity style={styles.reignRowContainer} onPress={navigateToRosterMember(reign.competitor)}>
+        <View style={{ flexDirection: "row", flex: 1 }}>
+          <Image source={{ uri: reign.competitor.image_url }} style={styles.image} />
+          <View style={styles.reignInfoRowContainer}>
+            <Text style={sharedStyles.h3}>{reign.competitor.name}</Text>
+            <Text style={sharedStyles.body}>{reignText(reign)}</Text>
+          </View>
         </View>
-      </View>
-    </TouchableOpacity>
-  )
+      </TouchableOpacity>
+    )
+  }
 }
 
 const styles = {

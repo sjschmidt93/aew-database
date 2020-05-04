@@ -126,16 +126,19 @@ export function RosterMemberList({ members }: { members: RosterMember[] }) {
   )
 }
 
-function RosterRow({ member }: { member: RosterMember }) {
-  const onPress = isTagTeam(member)
+export function navigateToRosterMember(member: RosterMember) {
+  return isTagTeam(member)
     ? () => navigate("TagTeam", { tagTeam: member })
     : () => navigate("Wrestler", { wrestler: member })
+}
+
+function RosterRow({ member }: { member: RosterMember }) {
   return (
     <View style={styles.wrestlerOuterContainer}>
       <Image style={styles.image} source={{ uri: member.image_url }} />
       <TouchableOpacity
         style={styles.wrestlerContainer}
-        onPress={onPress}
+        onPress={navigateToRosterMember(member)}
       >
         <Text style={sharedStyles.h2}>{member.name}</Text>
         { !_.isNil(member.nickname) && <Text style={[sharedStyles.h3, { color: colors.silver }]}>{member.nickname}</Text> }

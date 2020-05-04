@@ -4,7 +4,7 @@ import React from "react"
 import { RouteProp } from "@react-navigation/native"
 import { RootStackParamList } from "../App"
 import { computed, observable } from "mobx"
-import { ScrollView, Text, StyleSheet } from "react-native"
+import { ScrollView, Text } from "react-native"
 import { RosterMemberList } from "./RosterScreen"
 import { Match } from "../types"
 import { AewApi } from "../aew_api"
@@ -34,18 +34,11 @@ export default class TagTeamScreen extends React.Component<Props> {
   render() {
     return (
       <ScrollView style={sharedStyles.scrollViewContainer}>
-        <Text style={styles.header}>Members</Text>
+        <Text style={[sharedStyles.h2, { paddingBottom: 10 }]}>Members</Text>
         <RosterMemberList members={this.tagTeam.wrestlers} />
-        <Text style={styles.header}>Matches</Text>
+        <Text style={sharedStyles.h2}>Matches</Text>
         <MatchList matches={this.matches} />
       </ScrollView>
     )
   }
 }
-
-const styles = StyleSheet.create({
-  header: {
-    ...sharedStyles.h2,
-    paddingBottom: 10
-  }
-})

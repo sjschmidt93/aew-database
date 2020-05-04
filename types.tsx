@@ -49,7 +49,14 @@ export type Reign = {
   end_date: string
   length: number
   championship: Championship
-  competitor: Wrestler | TagTeam
+  competitor_type: "Wrestler" | "TagTeam"
+  competitor: Competitor
+}
+
+type Competitor = {
+  id: number
+  name: string
+  image_url: string
 }
 
 export type Championship = {
