@@ -19,6 +19,7 @@ export type TagTeam = {
   wins: number
   losses: number
   wrestlers: Wrestler[]
+  is_official: boolean
 }
 
 export type Match = {

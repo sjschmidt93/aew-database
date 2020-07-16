@@ -1,6 +1,6 @@
 import React from "react"
 import { Text, ScrollView, View, StyleSheet, Image, FlatList } from "react-native"
-import { observable, action, _interceptReads } from "mobx"
+import { observable, _interceptReads, action, reaction, computed } from "mobx"
 import { sharedStyles, colors } from "../styles"
 import { RootStackParamList } from "../App"
 import { RouteProp } from "@react-navigation/native"
@@ -10,7 +10,6 @@ import _ from "lodash"
 import { AewApi } from "../aew_api"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { AntDesign } from '@expo/vector-icons'
-import { _isComputed } from "mobx/lib/internal"
 import { formatDate } from "../utils"
 import MatchList from "../components/MatchList"
 
@@ -24,28 +23,36 @@ export default class WrestlerScreen extends React.Component<Props> {
   @observable
   matches: Match[] = []
 
-  @observable
-  wrestler: Wrestler = this.props.route.params.wrestler
+  @computed
+  get wrestler() {
+    return this.props.route.params.wrestler
+  }
 
   @observable
   showingMore = false
 
   componentDidMount() {
     this.fetchMatches()
-    this.fetchWrestler()
+    // this.fetchWrestler()
   }
 
-  @action
-  fetchWrestler = async () => {
-    if (_.isNil(this.wrestler.reigns)) {
-      this.wrestler.reigns = await AewApi.fetchWrestler(this.wrestler.id).reigns
-    }
-  }
-
+  // @action
+  // fetchWrestler = async () => {
+  //   console.log(this.wrestler)
+  //   if (this.wrestler.id !== this.props.route.params.wrestler.id || _.isNil(this.wrestler.reigns)) {
+  //     this.wrestler = await AewApi.fetchWrestler(this.props.route.params.wrestler.id)
+  //   }
+  // }
+  
   fetchMatches = async () => this.matches = await AewApi.fetchWrestlerMatches(this.wrestler.id)
 
   @action
   onPressViewMore = () => this.showingMore = !this.showingMore
+
+  reaction = reaction(
+    () => this.wrestler,
+    this.fetchMatches
+  )
 
   render() {
     return (

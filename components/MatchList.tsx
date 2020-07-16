@@ -5,6 +5,7 @@ import React from "react"
 import { sharedStyles, colors } from "../styles"
 import { Match, Wrestler, TagTeam, MATCH_TYPE } from "../types"
 import _ from "lodash"
+import { navigateToRosterMember } from "../screens/RosterScreen"
 
 type MatchListProps = {
   matches: Match[]
@@ -95,11 +96,12 @@ class SideWithImages extends React.Component<SideWithImagesProps> {
   
   renderImages = () => {
     const images= this.rows.map(row => <ImageRow wrestlers={row} matchType={this.match.type} />)
-    return !isTagTeam(this.side) && this.props.wrestler?.id !== this.side.id
+    const isPressable = (!isTagTeam(this.side) && this.props.wrestler?.id !== this.side.id) || (isTagTeam(this.side) && this.side.is_official)
+    return isPressable
       ? (
         <TouchableOpacity
           style={{ alignItems: "center" }}
-          onPress={() => navigate("Wrestler", { wrestler: this.side })}
+          onPress={navigateToRosterMember(this.side)}
         >
           { images }
         </TouchableOpacity>
