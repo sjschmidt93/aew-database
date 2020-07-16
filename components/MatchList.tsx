@@ -8,13 +8,14 @@ import _ from "lodash"
 
 type MatchListProps = {
   matches: Match[]
+  wrestler?: Wrestler
   showEvents?: boolean
 }
 
-export default function MatchList({ matches, showEvents = true }: MatchListProps) {
+export default function MatchList({ matches, showEvents = true, wrestler }: MatchListProps) {
   return (
     <FlatList
-      renderItem={({item}) => <MatchRow match={item} showEvent={showEvents} />}
+      renderItem={({item}) => <MatchRow match={item} showEvent={showEvents} wrestler={wrestler} />}
       data={matches}
       contentContainerStyle={sharedStyles.listContainer}
     />
@@ -24,6 +25,7 @@ export default function MatchList({ matches, showEvents = true }: MatchListProps
 type MatchRowProps = {
   match: Match
   showEvent: boolean
+  wrestler?: Wrestler
 }
 
 class MatchRow extends React.Component<MatchRowProps> {
@@ -46,9 +48,9 @@ class MatchRow extends React.Component<MatchRowProps> {
     return (
       <View style={styles.matchContainer}>
         <View style={styles.container}>
-          <SideWithImages side={this.match[this.sideKey][0]} match={this.match} />
+          <SideWithImages side={this.match[this.sideKey][0]} match={this.match} wrestler={this.props.wrestler} />
           <Text style={sharedStyles.h2}>vs.</Text>
-          <SideWithImages side={this.match[this.sideKey][1]} match={this.match} />
+          <SideWithImages side={this.match[this.sideKey][1]} match={this.match} wrestler={this.props.wrestler} />
         </View>
         {this.props.showEvent && (
           <TouchableOpacity onPress={() => navigate('Event', { event: this.event })}>
@@ -67,6 +69,7 @@ export function isTagTeam(side: TagTeam | Wrestler): side is TagTeam {
 type SideWithImagesProps = {
   side: TagTeam | Wrestler
   match: Match
+  wrestler?: Wrestler
 }
 
 class SideWithImages extends React.Component<SideWithImagesProps> {
@@ -89,6 +92,24 @@ class SideWithImages extends React.Component<SideWithImagesProps> {
   get wrestlers() {
     return isTagTeam(this.side) ? this.side.wrestlers : [this.side]
   }
+  
+  renderImages = () => {
+    const images= this.rows.map(row => <ImageRow wrestlers={row} matchType={this.match.type} />)
+    return !isTagTeam(this.side) && this.props.wrestler?.id !== this.side.id
+      ? (
+        <TouchableOpacity
+          style={{ alignItems: "center" }}
+          onPress={() => navigate("Wrestler", { wrestler: this.side })}
+        >
+          { images }
+        </TouchableOpacity>
+      )
+      : (
+        <View style={{ alignItems: "center" }}>
+          { images }
+        </View>
+      )
+    }
 
   @computed
   get rows(): Wrestler[][] {
@@ -98,9 +119,7 @@ class SideWithImages extends React.Component<SideWithImagesProps> {
   render () {
     return (
       <View style={styles.wrestlerContainer}>
-        <View style={{ alignItems: "center" }}>
-          { this.rows.map(row => <ImageRow wrestlers={row} matchType={this.match.type} />) }
-        </View>
+        {this.renderImages()}
         <Text style={sharedStyles.body}>{this.side.name}</Text>
         <Text style={[styles.bold, { color: this.isWinner ? 'green' : 'red' }]}>{ this.isWinner ? "WIN" : "LOSS" }</Text>
       </View>

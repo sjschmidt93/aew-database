@@ -127,6 +127,9 @@ export function RosterMemberList({ members }: { members: RosterMember[] }) {
 }
 
 export function navigateToRosterMember(member: RosterMember) {
+  if (_.isNil(member)) {
+    return () => null
+  }
   return isTagTeam(member)
     ? () => navigate("TagTeam", { tagTeam: member })
     : () => navigate("Wrestler", { wrestler: member })

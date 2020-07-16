@@ -1,4 +1,5 @@
-const API_URL = 'http://5a299ca7.ngrok.io'
+const API_URL = 'http://59eab086ff8d.ngrok.io'
+//const API_URL = 'https://aew-api.herokuapp.com/'
 
 function aewApiFetch(path: string, errorMessage: string, requestParams = "") {
   const url = `${API_URL}${path}${requestParams}`
@@ -13,8 +14,16 @@ export const AewApi = {
     return aewApiFetch("/wrestlers", "Error fetching wrestlers")
   },
 
+  fetchWrestler: (wrestlerId: number) => {
+    return aewApiFetch(`/wrestlers/${wrestlerId}`, `Error fetching wrestler ${wrestlerId}`)
+  },
+
   fetchTagTeams: () => {
     return aewApiFetch("/tag_teams", "Error fetching tag teams")
+  },
+
+  fetchTagTeam: (tagTeamId: number) => {
+    return aewApiFetch(`/tagTeam/${tagTeamId}`, `Error fetching wrestler ${tagTeamId}`)
   },
 
   fetchOfficialTagTeams: () => {

@@ -4,12 +4,13 @@ import { RouteProp } from "@react-navigation/native"
 import React from "react"
 import { sharedStyles, colors } from "../styles"
 import { formatDate } from "../utils"
-import { Reign, TagTeam, Wrestler } from "../types"
+import { Reign } from "../types"
 import _ from "lodash"
 import MatchList from "../components/MatchList"
 import { navigateToRosterMember } from "./RosterScreen"
 import { computed, observable } from "mobx"
 import { AewApi } from "../aew_api"
+import { observer } from "mobx-react"
 
 type ChampionshipPageRouteProp = RouteProp<RootStackParamList, "Championship">
 type Props = {
@@ -42,34 +43,36 @@ interface ReignRowProps {
   reign: Reign
 }
 
+@observer
 class ReignRow extends React.Component<ReignRowProps> {
   @computed
   get reign() {
     return this.props.reign
   }
 
-  competitor = null
+  @observable
+  fetchedCompetitor = null
 
   componentDidMount() {
     this.fetchCompetitor()
   }
 
   fetchCompetitor = async () => (
-    this.competitor = this.reign.competitor_type === "Wrestler"
-      ? await AewApi.fetchWrestler(this.competitor.id)
-      : await AewApi.fetchTagTeam(this.competitor.id)
-  ) 
+    this.fetchedCompetitor = this.reign.competitor_type === "Wrestler"
+      ? await AewApi.fetchWrestler(this.reign.competitor.id)
+      : await AewApi.fetchTagTeam(this.reign.competitor.id)
+  )
 
   // TODO: cleanup use of TagTeam | Wrestler
 
   render() {
     return (
-      <TouchableOpacity style={styles.reignRowContainer} onPress={navigateToRosterMember(reign.competitor)}>
+      <TouchableOpacity style={styles.reignRowContainer} onPress={navigateToRosterMember(this.fetchedCompetitor)}>
         <View style={{ flexDirection: "row", flex: 1 }}>
-          <Image source={{ uri: reign.competitor.image_url }} style={styles.image} />
+          <Image source={{ uri: this.reign.competitor.image_url }} style={styles.image} />
           <View style={styles.reignInfoRowContainer}>
-            <Text style={sharedStyles.h3}>{reign.competitor.name}</Text>
-            <Text style={sharedStyles.body}>{reignText(reign)}</Text>
+            <Text style={sharedStyles.h3}>{this.reign.competitor.name}</Text>
+            <Text style={sharedStyles.body}>{reignText(this.reign)}</Text>
           </View>
         </View>
       </TouchableOpacity>

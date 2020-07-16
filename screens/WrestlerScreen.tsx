@@ -1,11 +1,10 @@
 import React from "react"
 import { Text, ScrollView, View, StyleSheet, Image, FlatList } from "react-native"
-import { computed, observable, action, _interceptReads } from "mobx"
+import { observable, action, _interceptReads } from "mobx"
 import { sharedStyles, colors } from "../styles"
-import { StackNavigationProp } from "@react-navigation/stack"
 import { RootStackParamList } from "../App"
 import { RouteProp } from "@react-navigation/native"
-import { Match, Reign } from "../types"
+import { Match, Reign, Wrestler } from "../types"
 import { observer } from "mobx-react"
 import _ from "lodash"
 import { AewApi } from "../aew_api"
@@ -26,18 +25,24 @@ export default class WrestlerScreen extends React.Component<Props> {
   matches: Match[] = []
 
   @observable
+  wrestler: Wrestler = this.props.route.params.wrestler
+
+  @observable
   showingMore = false
 
   componentDidMount() {
     this.fetchMatches()
+    this.fetchWrestler()
+  }
+
+  @action
+  fetchWrestler = async () => {
+    if (_.isNil(this.wrestler.reigns)) {
+      this.wrestler.reigns = await AewApi.fetchWrestler(this.wrestler.id).reigns
+    }
   }
 
   fetchMatches = async () => this.matches = await AewApi.fetchWrestlerMatches(this.wrestler.id)
-
-  @computed
-  get wrestler() {
-    return this.props.route.params.wrestler
-  }
 
   @action
   onPressViewMore = () => this.showingMore = !this.showingMore
@@ -67,8 +72,8 @@ export default class WrestlerScreen extends React.Component<Props> {
           </View>
         </TouchableOpacity>
         <Text style={sharedStyles.h2}>Match history</Text>
-        <MatchList matches={this.matches} />
-        <ReignList reigns={this.wrestler.reigns} />
+        <MatchList matches={this.matches} wrestler={this.wrestler} />
+        { !_.isNil(this.wrestler.reigns) && <ReignList reigns={this.wrestler.reigns} /> }
       </ScrollView> 
     )
   }

@@ -39,7 +39,16 @@ function HomeStack() {
         component={ChampionshipPage}
         options={({ route }) => ({ title: route.params.championship.name })}
       />
-      <RootStack.Screen name="Wrestler" component={WrestlerScreen} options={screenOptions} />
+      <RootStack.Screen
+        name="Wrestler"
+        component={WrestlerScreen}
+        options={({ route }) => ({ title: route.params.wrestler.name })}
+      />
+      <RootStack.Screen
+        name="TagTeam"
+        component={TagTeamScreen}
+        options={({ route }) => ({ title: route.params.tagTeam.name })}
+      />
       <RootStack.Screen name="Event" component={EventPage} />
     </RootStack.Navigator>
   )
@@ -72,7 +81,11 @@ function EventsStack() {
   return (
     <RootStack.Navigator>
       <RootStack.Screen name="Events" component={EventsScreen} />
-      <RootStack.Screen name="Wrestler" component={WrestlerScreen} />
+      <RootStack.Screen
+        name="Wrestler"
+        component={WrestlerScreen}
+        options={({ route }) => ({ title: route.params.wrestler.name })}
+      />
       <RootStack.Screen name="Event" component={EventPage} />
     </RootStack.Navigator>
   )
