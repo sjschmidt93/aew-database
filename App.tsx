@@ -34,7 +34,7 @@ const homeScreenOptions: StackNavigationOptions = {
 
 function HomeStack() {
   return (
-    <RootStack.Navigator headerMode="screen">
+    <RootStack.Navigator headerMode="screen" screenOptions={screenOptions}>
       <RootStack.Screen name="Home" component={HomeScreen} options={homeScreenOptions} />
       <RootStack.Screen
         name="Championship"
@@ -57,12 +57,14 @@ function HomeStack() {
 }
 
 const screenOptions: StackNavigationOptions = {
-  headerTitleStyle: { color: "white " }
+  headerTitleAlign: "center",
+  headerTitleStyle: { color: "white", alignSelf: "center" },
+  headerStyle: { backgroundColor: colors.black }
 }
 
 function RosterStack() {
   return (
-    <RootStack.Navigator>
+    <RootStack.Navigator screenOptions={screenOptions}>
       <RootStack.Screen name="Roster" component={RosterScreen} />
       <RootStack.Screen
         name="Wrestler"
@@ -81,14 +83,17 @@ function RosterStack() {
 
 function EventsStack() {
   return (
-    <RootStack.Navigator>
+    <RootStack.Navigator screenOptions={screenOptions}>
       <RootStack.Screen name="Events" component={EventsScreen} />
       <RootStack.Screen
         name="Wrestler"
         component={WrestlerScreen}
         options={({ route }) => ({ title: route.params.wrestler.name })}
       />
-      <RootStack.Screen name="Event" component={EventPage} />
+      <RootStack.Screen
+        name="Event"
+        component={EventPage}
+        options={({ route }) => ({ title: route.params.event.name })} />
     </RootStack.Navigator>
   )
 }
