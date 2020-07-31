@@ -59,7 +59,8 @@ function HomeStack() {
 const screenOptions: StackNavigationOptions = {
   headerTitleAlign: "center",
   headerTitleStyle: { color: "white", alignSelf: "center" },
-  headerStyle: { backgroundColor: colors.black }
+  headerStyle: { backgroundColor: colors.black },
+  headerTintColor: "white"
 }
 
 function RosterStack() {
