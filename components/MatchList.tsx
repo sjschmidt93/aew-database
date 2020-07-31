@@ -93,25 +93,6 @@ class SideWithImages extends React.Component<SideWithImagesProps> {
   get wrestlers() {
     return isTagTeam(this.side) ? this.side.wrestlers : [this.side]
   }
-  
-  renderImages = () => {
-    const images= this.rows.map(row => <ImageRow wrestlers={row} matchType={this.match.type} />)
-    const isPressable = (!isTagTeam(this.side) && this.props.wrestler?.id !== this.side.id) || (isTagTeam(this.side) && this.side.is_official)
-    return isPressable
-      ? (
-        <TouchableOpacity
-          style={{ alignItems: "center" }}
-          onPress={navigateToRosterMember(this.side)}
-        >
-          { images }
-        </TouchableOpacity>
-      )
-      : (
-        <View style={{ alignItems: "center" }}>
-          { images }
-        </View>
-      )
-    }
 
   @computed
   get rows(): Wrestler[][] {
@@ -119,10 +100,21 @@ class SideWithImages extends React.Component<SideWithImagesProps> {
   }
 
   render () {
+    const images= this.rows.map(row => <ImageRow wrestlers={row} matchType={this.match.type} />)
+    const isPressable = (!isTagTeam(this.side) && this.props.wrestler?.id !== this.side.id) || (isTagTeam(this.side) && this.side.is_official)
+    const body = (
+      <>
+        {images}
+        <Text style={sharedStyles.body}>{this.side.name}</Text>
+      </>
+    )
     return (
       <View style={styles.wrestlerContainer}>
-        {this.renderImages()}
-        <Text style={sharedStyles.body}>{this.side.name}</Text>
+        { isPressable ? (
+          <TouchableOpacity onPress={navigateToRosterMember(this.side)}>
+            {body}
+          </TouchableOpacity>
+        ) : body }
         <Text style={[styles.bold, { color: this.isWinner ? 'green' : 'red' }]}>{ this.isWinner ? "WIN" : "LOSS" }</Text>
       </View>
     )
