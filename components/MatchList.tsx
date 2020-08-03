@@ -99,22 +99,32 @@ class SideWithImages extends React.Component<SideWithImagesProps> {
     return _.chunk(this.wrestlers, this.wrestlers.length <= 4 ? 2 : 3)
   }
 
+  @computed
+  get body() {
+    return (
+      this.wrestlers.map(wrestler => (
+        <Text
+          style={[
+            sharedStyles.body,
+            this.props.wrestler?.name === wrestler.name && { fontWeight: "bold", fontSize: 13 }
+          ]}
+        >
+          {wrestler.name}
+        </Text>
+      ))
+    )
+  }
+
   render () {
     const images= this.rows.map(row => <ImageRow wrestlers={row} matchType={this.match.type} />)
     const isPressable = (!isTagTeam(this.side) && this.props.wrestler?.id !== this.side.id) || (isTagTeam(this.side) && this.side.is_official)
-    const body = (
-      <>
-        {images}
-        <Text style={sharedStyles.body}>{this.side.name}</Text>
-      </>
-    )
     return (
       <View style={styles.wrestlerContainer}>
         { isPressable ? (
           <TouchableOpacity onPress={navigateToRosterMember(this.side)}>
-            {body}
+            {this.body}
           </TouchableOpacity>
-        ) : body }
+        ) : this.body }
         <Text style={[styles.bold, { color: this.isWinner ? 'green' : 'red' }]}>{ this.isWinner ? "WIN" : "LOSS" }</Text>
       </View>
     )
