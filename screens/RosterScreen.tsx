@@ -5,7 +5,7 @@ import { observer } from "mobx-react"
 import { sharedStyles, colors } from "../styles"
 import { NavigationScreenProp, NavigationState, NavigationParams } from 'react-navigation'
 import { navigate } from "../RootNavigation"  
-import { Wrestler, TagTeam } from "../types"
+import { Wrestler, TagTeam, NAMING_CONVENTION } from "../types"
 import Picker from "../components/Picker"
 import { AewApi } from "../aew_api"
 import _ from "lodash"
@@ -22,6 +22,27 @@ type RosterScreenNavigationProp = StackNavigationProp<
 const ROSTER_ROW_HEIGHT = 75
 
 type RosterMember = Wrestler | TagTeam
+
+const tagTeamWrestlersJoined = (tagTeam: TagTeam) => tagTeam.wrestlers.map(wrestler => wrestler.name).join(" & ")
+
+const primaryName = (rosterMember: RosterMember) => {
+  if (isTagTeam(rosterMember)) {
+
+  }
+  return isTagTeam(rosterMember)
+    ? rosterMember.naming_convention === "wrestlers"
+      ? tagTeamWrestlersJoined(rosterMember)
+      : rosterMember.name
+    : rosterMember.name
+}
+
+const secondaryName = (rosterMember: RosterMember) => {
+  return isTagTeam(rosterMember)
+    ? rosterMember.naming_convention === "both"
+      ? tagTeamWrestlersJoined(rosterMember)
+      : null
+    : rosterMember.nickname
+}
 
 @observer
 export default class RosterScreen extends React.Component<RosterPageProps> {
@@ -61,7 +82,7 @@ export default class RosterScreen extends React.Component<RosterPageProps> {
 
   @computed
   get filteredData(): RosterMember[] {
-    return this.dataArr[this.selectedPickerIndex].filter(member => member.name.startsWith(this.searchInput))
+    return this.dataArr[this.selectedPickerIndex].filter(member => primaryName(member).startsWith(this.searchInput))
   }
 
   @computed
@@ -136,6 +157,7 @@ export function navigateToRosterMember(member: RosterMember) {
 }
 
 function RosterRow({ member }: { member: RosterMember }) {
+  const _secondaryName = secondaryName(member)
   return (
     <View style={styles.wrestlerOuterContainer}>
       <Image style={styles.image} source={{ uri: member.image_url }} />
@@ -143,8 +165,8 @@ function RosterRow({ member }: { member: RosterMember }) {
         style={styles.wrestlerContainer}
         onPress={navigateToRosterMember(member)}
       >
-        <Text style={sharedStyles.h2}>{member.name}</Text>
-        { !_.isNil(member.nickname) && <Text style={[sharedStyles.h3, { color: colors.silver }]}>{member.nickname}</Text> }
+        <Text style={sharedStyles.h2}>{primaryName(member)}</Text>
+        { !_.isNil(_secondaryName) && <Text style={[sharedStyles.h3, { color: colors.silver }]}>{_secondaryName}</Text> }
       </TouchableOpacity>
     </View>
   )
