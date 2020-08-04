@@ -15,6 +15,7 @@ import ChampionshipPage from './screens/ChampionshipPage'
 import TagTeamScreen from './screens/TagTeamScreen'
 import { Ionicons, MaterialIcons } from '@expo/vector-icons'
 import { colors } from './styles'
+import GoToModal from './GoToModal'
 
 export type RootStackParamList = {
   Home: undefined, 
@@ -113,6 +114,7 @@ const Tab = createBottomTabNavigator()
 export default function App() {
   return (
     <NavigationContainer ref={navigationRef}>
+      <GoToModal />
       <Tab.Navigator
         screenOptions={({ route }) => ({
           tabBarIcon: ({ focused, color, size }) => {

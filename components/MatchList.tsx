@@ -1,11 +1,11 @@
 import { View, TouchableOpacity, Text, FlatList, StyleSheet, Image } from "react-native"
 import { computed } from "mobx"
-import { navigate } from "../RootNavigation"
+import { navigate, navigationRef } from "../RootNavigation"
 import React from "react"
 import { sharedStyles, colors } from "../styles"
 import { Match, Wrestler, TagTeam, MATCH_TYPE } from "../types"
 import _ from "lodash"
-import { navigateToRosterMember } from "../screens/RosterScreen"
+import GoToModal from "../GoToModal"
 
 type MatchListProps = {
   matches: Match[]
@@ -118,10 +118,11 @@ class SideWithImages extends React.Component<SideWithImagesProps> {
   render () {
     const images= this.rows.map(row => <ImageRow wrestlers={row} matchType={this.match.type} />)
     const isPressable = (!isTagTeam(this.side) && this.props.wrestler?.id !== this.side.id) || (isTagTeam(this.side) && this.side.is_official)
+    const onPress = isTagTeam(this.side) ? GoToModal.isVisible = true : navigate("Wrestler", { wrestler: this.side } )
     return (
       <View style={styles.wrestlerContainer}>
         { isPressable ? (
-          <TouchableOpacity onPress={navigateToRosterMember(this.side)}>
+          <TouchableOpacity onPress={onPress}>
             {this.body}
           </TouchableOpacity>
         ) : this.body }
