@@ -28,7 +28,7 @@
     "android": {
       "package": "com.aewdb",
       "permissions": [],
-      "versionCode": 2
+      "versionCode": 3
     }
   }
 }
