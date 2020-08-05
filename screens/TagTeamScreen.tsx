@@ -37,7 +37,7 @@ export default class TagTeamScreen extends React.Component<Props> {
         <Text style={[sharedStyles.h2, { paddingBottom: 10 }]}>Members</Text>
         <RosterMemberList members={this.tagTeam.wrestlers} />
         <Text style={sharedStyles.h2}>Matches</Text>
-        <MatchList matches={this.matches} />
+        <MatchList matches={this.matches} tagTeam={this.tagTeam} />
       </ScrollView>
     )
   }

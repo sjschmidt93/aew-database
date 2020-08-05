@@ -10,13 +10,21 @@ import GoToModal from "../GoToModal"
 type MatchListProps = {
   matches: Match[]
   wrestler?: Wrestler
+  tagTeam?: TagTeam
   showEvents?: boolean
 }
 
-export default function MatchList({ matches, showEvents = true, wrestler }: MatchListProps) {
+export default function MatchList({ matches, showEvents = true, wrestler, tagTeam }: MatchListProps) {
   return (
     <FlatList
-      renderItem={({item}) => <MatchRow match={item} showEvent={showEvents} wrestler={wrestler} />}
+      renderItem={({item}) => (
+        <MatchRow
+          match={item}  
+          showEvent={showEvents}  
+          wrestler={wrestler}
+          tagTeam={tagTeam} 
+        />
+      )}
       data={matches}
       contentContainerStyle={sharedStyles.listContainer}
     />
@@ -27,6 +35,7 @@ type MatchRowProps = {
   match: Match
   showEvent: boolean
   wrestler?: Wrestler
+  tagTeam?: tagTeam
 }
 
 class MatchRow extends React.Component<MatchRowProps> {
@@ -49,9 +58,19 @@ class MatchRow extends React.Component<MatchRowProps> {
     return (
       <View style={styles.matchContainer}>
         <View style={styles.container}>
-          <SideWithImages side={this.match[this.sideKey][0]} match={this.match} wrestler={this.props.wrestler} />
+          <SideWithImages
+            side={this.match[this.sideKey][0]}
+            match={this.match}
+            wrestler={this.props.wrestler}
+            tagTeam={this.props.tagTeam}
+          />
           <Text style={sharedStyles.h2}>vs.</Text>
-          <SideWithImages side={this.match[this.sideKey][1]} match={this.match} wrestler={this.props.wrestler} />
+          <SideWithImages
+            side={this.match[this.sideKey][1]}
+            match={this.match}
+            wrestler={this.props.wrestler}
+            tagTeam={this.props.tagTeam}
+          />
         </View>
         {this.props.showEvent && (
           <TouchableOpacity onPress={() => navigate('Event', { event: this.event })}>
@@ -71,6 +90,7 @@ type SideWithImagesProps = {
   side: TagTeam | Wrestler
   match: Match
   wrestler?: Wrestler
+  tagTeam?: TagTeam
 }
 
 class SideWithImages extends React.Component<SideWithImagesProps> {
@@ -102,16 +122,19 @@ class SideWithImages extends React.Component<SideWithImagesProps> {
   @computed
   get body() {
     return (
-      this.wrestlers.map(wrestler => (
-        <Text
-          style={[
-            sharedStyles.body,
-            this.props.wrestler?.name === wrestler.name && { fontWeight: "bold", fontSize: 13 }
-          ]}
-        >
-          {wrestler.name}
-        </Text>
-      ))
+      this.wrestlers.map(wrestler => {
+        const isBold = this.props.wrestler?.name === wrestler.name || this.props.tagTeam?.name === this.side.name
+        return (
+          <Text
+            style={[
+              sharedStyles.body,
+              isBold && { fontWeight: "bold", fontSize: 13 }
+            ]}
+          >
+            {wrestler.name}
+          </Text>
+        )
+      })
     )
   }
 
