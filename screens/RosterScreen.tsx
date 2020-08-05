@@ -25,25 +25,6 @@ type RosterMember = Wrestler | TagTeam
 
 const tagTeamWrestlersJoined = (tagTeam: TagTeam) => tagTeam.wrestlers.map(wrestler => wrestler.name).join(" & ")
 
-const primaryName = (rosterMember: RosterMember) => {
-  if (isTagTeam(rosterMember)) {
-
-  }
-  return isTagTeam(rosterMember)
-    ? rosterMember.naming_convention === "wrestlers"
-      ? tagTeamWrestlersJoined(rosterMember)
-      : rosterMember.name
-    : rosterMember.name
-}
-
-const secondaryName = (rosterMember: RosterMember) => {
-  return isTagTeam(rosterMember)
-    ? rosterMember.naming_convention === "both"
-      ? tagTeamWrestlersJoined(rosterMember)
-      : null
-    : rosterMember.nickname
-}
-
 @observer
 export default class RosterScreen extends React.Component<RosterPageProps> {
   @observable
@@ -82,7 +63,7 @@ export default class RosterScreen extends React.Component<RosterPageProps> {
 
   @computed
   get filteredData(): RosterMember[] {
-    return this.dataArr[this.selectedPickerIndex].filter(member => primaryName(member).startsWith(this.searchInput))
+    return this.dataArr[this.selectedPickerIndex].filter(member => member.name.startsWith(this.searchInput))
   }
 
   @computed
@@ -156,8 +137,21 @@ export function navigateToRosterMember(member: RosterMember) {
     : () => navigate("Wrestler", { wrestler: member })
 }
 
+const isTagTeamWithStable = (tagTeam: TagTeam) => isTagTeam(tagTeam) && tagTeam.name.includes("(")
+const stableName = (tagTeam: TagTeam) => tagTeam.name.split(" (")[0]
+const tagTeamMembers = (tagTeam: TagTeam) => tagTeam.name.split(" (")[1].replace(")","")
+
 function RosterRow({ member }: { member: RosterMember }) {
-  const _secondaryName = secondaryName(member)
+  const primaryName = isTagTeam(member)
+    ? isTagTeamWithStable(member)
+      ? stableName(member)
+      : member.name
+    : member.name
+  const secondaryName = isTagTeam(member)
+    ? isTagTeamWithStable(member)
+      ? tagTeamMembers(member)
+      : null
+    : member.nickname
   return (
     <View style={styles.wrestlerOuterContainer}>
       <Image style={styles.image} source={{ uri: member.image_url }} />
@@ -165,8 +159,8 @@ function RosterRow({ member }: { member: RosterMember }) {
         style={styles.wrestlerContainer}
         onPress={navigateToRosterMember(member)}
       >
-        <Text style={sharedStyles.h2}>{primaryName(member)}</Text>
-        { !_.isNil(_secondaryName) && <Text style={[sharedStyles.h3, { color: colors.silver }]}>{_secondaryName}</Text> }
+        <Text style={sharedStyles.h2}>{primaryName}</Text>
+        { !_.isNil(secondaryName) && <Text style={[sharedStyles.h3, { color: colors.silver }]}>{secondaryName}</Text> }
       </TouchableOpacity>
     </View>
   )

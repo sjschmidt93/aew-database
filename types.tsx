@@ -23,13 +23,6 @@ export type TagTeam = {
   losses: number
   wrestlers: Wrestler[]
   is_official: boolean
-  naming_convention: NAMING_CONVENTION
-}
-
-export enum NAMING_CONVENTION {
-  TEAM = "team",
-  WRESTLERS = "wrestlers",
-  BOTH = "both"
 }
 
 export type Match = {

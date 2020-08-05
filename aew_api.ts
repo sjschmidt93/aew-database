@@ -1,4 +1,4 @@
-const API_URL = 'http://54514d6e1f2e.ngrok.io'
+const API_URL = 'http://1392f7cfccdb.ngrok.io'
 //const API_URL = 'https://aew-api.herokuapp.com/'
 //const API_URL = 'https://morning-coast-52689.herokuapp.com/'
 
