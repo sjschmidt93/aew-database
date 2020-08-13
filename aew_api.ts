@@ -1,6 +1,8 @@
-//const API_URL = 'http://1392f7cfccdb.ngrok.io'
+
+const API_URL = 'localhost:3000/'
+//const API_URL = 'http://175f468fbb65.ngrok.io'
 //const API_URL = 'https://aew-api.herokuapp.com/'
-const API_URL = 'https://morning-coast-52689.herokuapp.com/'
+//const API_URL = 'https://morning-coast-52689.herokuapp.com/'
 
 function aewApiFetch(path: string, errorMessage: string, requestParams = "") {
   const url = `${API_URL}${path}${requestParams}`
