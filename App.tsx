@@ -16,6 +16,7 @@ import TagTeamScreen from './screens/TagTeamScreen'
 import { Ionicons, MaterialIcons } from '@expo/vector-icons'
 import { colors } from './styles'
 import GoToModal from './GoToModal'
+import { observer } from 'mobx-react'
 
 export type RootStackParamList = {
   Home: undefined, 
@@ -111,7 +112,9 @@ function EventsStack() {
 
 const Tab = createBottomTabNavigator()
 
-export default function App() {
+@observer
+export default class App extends React.Component {
+  render() {
   return (
     <NavigationContainer ref={navigationRef}>
       <GoToModal />
@@ -148,4 +151,5 @@ export default function App() {
       </Tab.Navigator>
     </NavigationContainer>
   )
+      }
 }

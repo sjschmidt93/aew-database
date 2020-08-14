@@ -141,7 +141,7 @@ class SideWithImages extends React.Component<SideWithImagesProps> {
   render () {
     const isPressable = (!isTagTeam(this.side) && this.props.wrestler?.id !== this.side.id) || (isTagTeam(this.side) && this.side.is_official)
     const onPress = isTagTeam(this.side)
-      ? () => GoToModal.isVisible = false /*true*/
+      ? () => GoToModal.isVisible = true
       : () => navigate("Wrestler", { wrestler: this.side } )
     return (
       <View style={styles.wrestlerContainer}>

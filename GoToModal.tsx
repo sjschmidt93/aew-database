@@ -7,7 +7,7 @@ import { colors } from "./styles"
 @observer
 export default class GoToModal extends React.Component {
   @observable
-  static isVisible = false
+  static isVisible = true
 
   render() {
     return GoToModal.isVisible && (
@@ -24,9 +24,11 @@ export default class GoToModal extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "rgba(0,0,0,0.5)",
-    flex: 1,
-    position: "absolute"
+    backgroundColor: "black",//"rgba(0,0,0,0.5)",
+    position: "absolute",
+    bottom: 0,
+    height: 200,
+    width: 200
   },
   bottomContainer: {
     bottom: 0,
