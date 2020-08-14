@@ -1,39 +1,44 @@
-import { View, StyleSheet } from "react-native"
+import { View, StyleSheet, Text, Dimensions } from "react-native"
 import { observable } from "mobx"
 import React from "react"
 import { observer } from "mobx-react"
 import { colors } from "./styles"
 
+const dims = Dimensions.get("screen")
+const HEIGHT = dims.height
+const WIDTH = dims.height
+
 @observer
 export default class GoToModal extends React.Component {
   @observable
-  static isVisible = true
+  static isVisible = false
 
   render() {
-    return GoToModal.isVisible && (
-      <View style={styles.container}>
+    return (
+      GoToModal.isVisible && (
+        <View style={styles.container}>
+          <View style={styles.bottomContainer}>
 
-        <View style={styles.bottomContainer}>
-
+          </View>
         </View>
-        
-      </View>
+      )
     )
   }
 }
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "black",//"rgba(0,0,0,0.5)",
-    position: "absolute",
-    bottom: 0,
-    height: 200,
-    width: 200
+    backgroundColor: 'rgba(0,0,0,.6)',
+    position: 'absolute',
+    top: 0,
+    height: HEIGHT,
+    width: WIDTH
   },
   bottomContainer: {
-    bottom: 0,
-    position: "absolute",
+    height: 400,
     backgroundColor: colors.graphite,
-    height: 300
+    position: "absolute",
+    bottom: 0,
+    width: WIDTH
   }
 })

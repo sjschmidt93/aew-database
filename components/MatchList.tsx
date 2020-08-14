@@ -6,6 +6,7 @@ import { sharedStyles, colors } from "../styles"
 import { Match, Wrestler, TagTeam, MATCH_TYPE } from "../types"
 import _ from "lodash"
 import GoToModal from "../GoToModal"
+import { observer } from "mobx-react"
 
 type MatchListProps = {
   matches: Match[]
@@ -93,6 +94,7 @@ type SideWithImagesProps = {
   tagTeam?: TagTeam
 }
 
+@observer
 class SideWithImages extends React.Component<SideWithImagesProps> {
   @computed
   get side() {

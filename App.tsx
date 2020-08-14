@@ -115,41 +115,43 @@ const Tab = createBottomTabNavigator()
 @observer
 export default class App extends React.Component {
   render() {
-  return (
-    <NavigationContainer ref={navigationRef}>
-      <GoToModal />
-      <Tab.Navigator
-        screenOptions={({ route }) => ({
-          tabBarIcon: ({ focused, color, size }) => {
-            let iconName;
+    return (
+      <>
+        <NavigationContainer ref={navigationRef}>
+          <Tab.Navigator
+            screenOptions={({ route }) => ({
+              tabBarIcon: ({ focused, color, size }) => {
+                let iconName;
 
-            switch (route.name) {
-              case "Home":
-                iconName = "md-home"
-                break
-              case "Roster":
-                iconName = "ios-people"
-                break
-              case "Events":
-                return <MaterialIcons name="event" size={size} color={color} />
-            }
+                switch (route.name) {
+                  case "Home":
+                    iconName = "md-home"
+                    break
+                  case "Roster":
+                    iconName = "ios-people"
+                    break
+                  case "Events":
+                    return <MaterialIcons name="event" size={size} color={color} />
+                }
 
-            // You can return any component that you like here!
-            return <Ionicons name={iconName} size={size} color={color} />;
-          },
-        })}
-        tabBarOptions={{
-          activeTintColor: colors.aewYellow,
-          inactiveTintColor: colors.white,
-          activeBackgroundColor: colors.black,
-          inactiveBackgroundColor: colors.black
-        }}
-      >
-        <Tab.Screen name="Home" component={HomeStack} />
-        <Tab.Screen name="Roster" component={RosterStack} />
-        <Tab.Screen name="Events" component={EventsStack} />
-      </Tab.Navigator>
-    </NavigationContainer>
-  )
-      }
+                // You can return any component that you like here!
+                return <Ionicons name={iconName} size={size} color={color} />;
+              },
+            })}
+            tabBarOptions={{
+              activeTintColor: colors.aewYellow,
+              inactiveTintColor: colors.white,
+              activeBackgroundColor: colors.black,
+              inactiveBackgroundColor: colors.black
+            }}
+          >
+            <Tab.Screen name="Home" component={HomeStack} />
+            <Tab.Screen name="Roster" component={RosterStack} />
+            <Tab.Screen name="Events" component={EventsStack} />
+          </Tab.Navigator>
+        </NavigationContainer>
+        <GoToModal />
+      </>
+    )
+  }
 }
