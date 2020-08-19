@@ -1,11 +1,10 @@
-import React, { useState } from "react"
+import React from "react"
 import { View, StyleSheet, FlatList, Text, Image, TouchableOpacity, ScrollView, StatusBar, TextInput } from "react-native"
 import { observable, computed } from 'mobx'
 import { observer } from "mobx-react"
 import { sharedStyles, colors } from "../styles"
-import { NavigationScreenProp, NavigationState, NavigationParams } from 'react-navigation'
 import { navigate } from "../RootNavigation"  
-import { Wrestler, TagTeam, NAMING_CONVENTION } from "../types"
+import { Wrestler, TagTeam } from "../types"
 import Picker from "../components/Picker"
 import { AewApi } from "../aew_api"
 import _ from "lodash"
@@ -13,6 +12,7 @@ import { AntDesign } from "@expo/vector-icons"
 import { StackNavigationProp } from "@react-navigation/stack"
 import { RootStackParamList } from "../App"
 import { isTagTeam } from "../components/MatchList"
+import AsyncStorage from '@react-native-community/async-storage'
 
 type RosterScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -22,8 +22,6 @@ type RosterScreenNavigationProp = StackNavigationProp<
 const ROSTER_ROW_HEIGHT = 75
 
 type RosterMember = Wrestler | TagTeam
-
-const tagTeamWrestlersJoined = (tagTeam: TagTeam) => tagTeam.wrestlers.map(wrestler => wrestler.name).join(" & ")
 
 @observer
 export default class RosterScreen extends React.Component<RosterPageProps> {
@@ -46,6 +44,7 @@ export default class RosterScreen extends React.Component<RosterPageProps> {
       "MEN'S",
       "WOMEN'S",
       "TAG TEAMS",
+      "FAVORITES"
       //"STABLES"
     ]
   }
@@ -83,6 +82,8 @@ export default class RosterScreen extends React.Component<RosterPageProps> {
 
   fetchWrestlers = async () => this.wrestlers = await AewApi.fetchWrestlers()
   fetchTagTeams = async () => this.tagTeams = await AewApi.fetchOfficialTagTeams()
+
+
 
   render() {
     return (
@@ -152,6 +153,9 @@ function RosterRow({ member }: { member: RosterMember }) {
       ? tagTeamMembers(member)
       : null
     : member.nickname
+  // const onPress = isTagTeam(member)
+  //   ? () => null
+  //   : 
   return (
     <View style={styles.wrestlerOuterContainer}>
       <Image style={styles.image} source={{ uri: member.image_url }} />
@@ -162,6 +166,7 @@ function RosterRow({ member }: { member: RosterMember }) {
         <Text style={sharedStyles.h2}>{primaryName}</Text>
         { !_.isNil(secondaryName) && <Text style={[sharedStyles.h3, { color: colors.silver }]}>{secondaryName}</Text> }
       </TouchableOpacity>
+      <AntDesign name="staro" size={30} style={{ paddingRight: 15 }} />
     </View>
   )
 }
