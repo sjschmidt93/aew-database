@@ -13,6 +13,7 @@ import { StackNavigationProp } from "@react-navigation/stack"
 import { RootStackParamList } from "../App"
 import { isTagTeam } from "../components/MatchList"
 import AsyncStorage from '@react-native-community/async-storage'
+import { useStore } from "../FavoritesStore"
 
 type RosterScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -82,9 +83,7 @@ export default class RosterScreen extends React.Component<RosterPageProps> {
 
   fetchWrestlers = async () => this.wrestlers = await AewApi.fetchWrestlers()
   fetchTagTeams = async () => this.tagTeams = await AewApi.fetchOfficialTagTeams()
-
-
-
+ 
   render() {
     return (
       <View style={{ flex: 1, backgroundColor: colors.black }}>
@@ -148,14 +147,13 @@ function RosterRow({ member }: { member: RosterMember }) {
       ? stableName(member)
       : member.name
     : member.name
+
   const secondaryName = isTagTeam(member)
     ? isTagTeamWithStable(member)
       ? tagTeamMembers(member)
       : null
     : member.nickname
-  // const onPress = isTagTeam(member)
-  //   ? () => null
-  //   : 
+
   return (
     <View style={styles.wrestlerOuterContainer}>
       <Image style={styles.image} source={{ uri: member.image_url }} />
@@ -166,10 +164,32 @@ function RosterRow({ member }: { member: RosterMember }) {
         <Text style={sharedStyles.h2}>{primaryName}</Text>
         { !_.isNil(secondaryName) && <Text style={[sharedStyles.h3, { color: colors.silver }]}>{secondaryName}</Text> }
       </TouchableOpacity>
-      <AntDesign name="staro" size={30} style={{ paddingRight: 15 }} />
+      <Star member={member} />
     </View>
   )
 }
+
+const Star = observer(({ member }: { member: RosterMember }) => {
+  const store = useStore()
+  const isFavorited = observable(store.isFavorited(member))
+
+  const onPress = isFavorited
+    ? () => store.removeWrestler(member)
+    : () => store.addWrestler(member)
+
+  console.log(store.rerenderHack)
+
+  return (
+    <TouchableOpacity onPress={onPress}>
+      <AntDesign
+        name="staro"
+        size={30}
+        color={ isFavorited ? "yellow" : "black" }
+        style={{ paddingRight: 15 }}
+      />
+    </TouchableOpacity>
+  )
+})
 
 const styles = StyleSheet.create({
   image: {

@@ -117,7 +117,7 @@ const Tab = createBottomTabNavigator()
 export default class App extends React.Component {
   render() {
     return (
-      <Provider favoritesStore={favoritesStore}>
+      <>
         <NavigationContainer ref={navigationRef}>
           <Tab.Navigator
             screenOptions={({ route }) => ({
@@ -152,7 +152,7 @@ export default class App extends React.Component {
           </Tab.Navigator>
         </NavigationContainer>
         <GoToModal />
-      </Provider>
+      </>
     )
   }
 }

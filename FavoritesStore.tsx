@@ -1,17 +1,27 @@
-import { observable } from "mobx"
+import { observable, action } from "mobx"
 import _ from "lodash"
 import AsyncStorage from "@react-native-community/async-storage"
 import { Wrestler, TagTeam } from "./types"
+import React from "react"
 
 const FAV_WRESTLERS_KEY = "@fav_wrestlers_key"
 const FAV_TAG_TEAMS_KEY  = "@fav_tag_teams_key"
 
-export class FavoritesStore {
-
+class FavoritesStore {
   constructor() {
     this.fetchFavoriteWrestlers()
     this.fetchFavoriteTagTeams()
   }
+
+  favoriteWrestlers: number[] = observable([])
+  
+  observe
+
+  @observable
+  rerenderHack = false
+
+  @observable
+  favoriteTagTeams = []
 
   fetchFavoriteWrestlers = async () => {
     try {
@@ -31,26 +41,30 @@ export class FavoritesStore {
     }
   }
 
+  @action
   addWrestler = async (wrestler: Wrestler) => {
-
+    this.favoriteWrestlers = [...this.favoriteWrestlers, wrestler.id]
+    await AsyncStorage.setItem(FAV_WRESTLERS_KEY, JSON.stringify(this.favoriteWrestlers))
+    console.log(this.favoriteWrestlers)
+    this.rerenderHack = !this.rerenderHack
   }
 
   addTagTeam = async(tagTeam: TagTeam) => {
 
   }
 
-  @observable
-  favoriteWrestlers = []
+  @action
+  removeWrestler = async (wrestler: Wrestler) => {
+    const index = this.favoriteWrestlers.indexOf(wrestler.id)
+    if (index > -1) {
+      this.favoriteWrestlers.splice(index, 1)
+    }
+    console.log(this.favoriteWrestlers)
+    this.rerenderHack = !this.rerenderHack
+  } 
 
-  @observable
-  favoriteTagTeams = []
-
-  
-  // fetchFavorites = async () => {
-
-  // }
-
+  isFavorited = (wrestler: Wrestler) => this.favoriteWrestlers.includes(wrestler.id)
 }
 
-const favoritesStores = new FavoritesStore()
-export default favoritesStores
+const storeContext = React.createContext(new FavoritesStore())
+export const useStore = () => React.useContext(storeContext)
