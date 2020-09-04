@@ -21,7 +21,7 @@ type RosterScreenNavigationProp = StackNavigationProp<
 
 const ROSTER_ROW_HEIGHT = 75
 
-type RosterMember = Wrestler | TagTeam
+export type RosterMember = Wrestler | TagTeam
 
 @observer
 export default class RosterScreen extends React.Component<RosterPageProps> {
@@ -57,8 +57,8 @@ export default class RosterScreen extends React.Component<RosterPageProps> {
       this.wrestlers,
       this.mensDivision,
       this.womensDivision,
-		this.tagTeams,
-		this.favorites
+			this.tagTeams,
+			this.favorites
       //[]
     ]
   }
@@ -79,8 +79,8 @@ export default class RosterScreen extends React.Component<RosterPageProps> {
   }
 
   @computed
-  get favorites() {
-    return this.wrestlers.filter(wrestler => this.context.isFavorited(wrestler))
+  get favorites(): RosterMember[] {
+    return this.wrestlers.concat(this.tagTeams).filter(wrestler => this.context.isFavorited(wrestler))
   }
 
   componentDidMount() {
@@ -180,15 +180,14 @@ const Star = observer(({ member }: { member: RosterMember }) => {
   const store = useStore()
   const [isFavorited, setIsFavorited] = useState(store.isFavorited(member))
 
-  const onPress = () => {
-    const func = isFavorited ? store.removeWrestler : store.addWrestler
-    func(member)
+  const onPress = () => (
+    store.modifyMember(member)
       .then(res => {
         if (res) {
           setIsFavorited(!isFavorited)
         }
       })
-  }
+  )
 
 
   return (
@@ -237,8 +236,5 @@ const styles = StyleSheet.create({
     backgroundColor: colors.black,
     flexDirection: "row",
     justifyContent: "space-between"
-  },
-  textInput: {
-    
   }
 })

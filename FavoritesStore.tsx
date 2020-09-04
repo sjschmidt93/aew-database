@@ -4,6 +4,8 @@ import AsyncStorage from "@react-native-community/async-storage"
 import { Wrestler, TagTeam } from "./types"
 import React from "react"
 import { useLocalStore } from "mobx-react"
+import { RosterMember } from "./screens/RosterScreen"
+import { isTagTeam } from "./components/MatchList"
 
 const FAV_WRESTLERS_KEY = "@fav_wrestlers_key"
 const FAV_TAG_TEAMS_KEY  = "@fav_tag_teams_key"
@@ -38,19 +40,25 @@ class FavoritesStore {
     }
   }
 
+  modifyMember = (member: RosterMember) => {
+    return isTagTeam(member)
+      ? this.isTagTeamFavorited(member)
+        ? this.removeTagTeam(member)
+        : this.addTagTeam(member)
+      : this.isWrestlerFavorited(member)
+        ? this.removeWrestler(member)
+        : this.addWrestler(member)
+  }
+
   @action
   addWrestler = async (wrestler: Wrestler) => {
-    if (this.favoriteWrestlers.indexOf(wrestler.id) > -1) {
+    if (this.isWrestlerFavorited(wrestler)) {
       console.warn("Attemped to favorite a wrestler that is already in favorites")
       return false
     }
     this.favoriteWrestlers.push(wrestler.id)
-    await AsyncStorage.setItem(FAV_WRESTLERS_KEY, JSON.stringify(this.favoriteWrestlers))
+    await this.saveWrestlers()
     return true
-  }
-
-  addTagTeam = async(tagTeam: TagTeam) => {
-
   }
 
   @action
@@ -58,14 +66,43 @@ class FavoritesStore {
     const index = this.favoriteWrestlers.indexOf(wrestler.id)
     if (index > -1) {
       this.favoriteWrestlers.splice(index, 1)
-    } else {
-      console.warn("Attempted to unfavorite a wrestler that is not in favorites")
-      return false
+      await this.saveWrestlers()
+      return true
     }
-    return true
+    console.warn("Attempted to unfavorite a wrestler that is not in favorites")
+    return false
   } 
 
-  isFavorited = (wrestler: Wrestler) => this.favoriteWrestlers.includes(wrestler.id)
+  @action
+  addTagTeam = async (tagTeam: TagTeam) => {
+    if (this.isTagTeamFavorited(tagTeam)) {
+      console.warn("Attemped to favorite a tag team that is already in favorites")
+      return false
+    }
+    this.favoriteTagTeams.push(tagTeam.id)
+    await this.saveTagTeams()
+    return true
+  }
+
+  @action
+  removeTagTeam = async (tagTeam: Wrestler) => {
+    const index = this.favoriteTagTeams.indexOf(tagTeam.id)
+    if (index > -1) {
+      this.favoriteTagTeams.splice(index, 1)
+      await this.saveTagTeams()
+      return true
+    }
+    console.warn("Attempted to unfavorite a tag team that is not in favorites")
+    return false
+  }
+
+  saveWrestlers = async () => await AsyncStorage.setItem(FAV_WRESTLERS_KEY, JSON.stringify(this.favoriteWrestlers))
+  saveTagTeams = async () => await AsyncStorage.setItem(FAV_TAG_TEAMS_KEY, JSON.stringify(this.favoriteTagTeams))
+
+  isFavorited = (member: RosterMember) => isTagTeam(member) ? this.isTagTeamFavorited(member) : this.isWrestlerFavorited(member)
+
+  isWrestlerFavorited = (wrestler: Wrestler) => this.favoriteWrestlers.includes(wrestler.id)
+  isTagTeamFavorited = (tagTeam: TagTeam) => this.favoriteTagTeams.includes(tagTeam.id)
 }
 
 export const storeContext = React.createContext<FavoritesStore | null>(null)
