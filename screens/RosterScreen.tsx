@@ -171,7 +171,7 @@ function RosterRow({ member }: { member: RosterMember }) {
 
 const Star = observer(({ member }: { member: RosterMember }) => {
   const store = useStore()
-  const isFavorited = observable(store.isFavorited(member))
+  const isFavorited = store.isFavorited(member)
 
   const onPress = isFavorited
     ? () => store.removeWrestler(member)
@@ -182,7 +182,7 @@ const Star = observer(({ member }: { member: RosterMember }) => {
   return (
     <TouchableOpacity onPress={onPress}>
       <AntDesign
-        name="staro"
+        name={ isFavorited ? "star" : "staro" }
         size={30}
         color={ isFavorited ? "yellow" : "black" }
         style={{ paddingRight: 15 }}

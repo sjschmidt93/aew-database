@@ -14,8 +14,6 @@ class FavoritesStore {
   }
 
   favoriteWrestlers: number[] = observable([])
-  
-  observe
 
   @observable
   rerenderHack = false
@@ -43,8 +41,12 @@ class FavoritesStore {
 
   @action
   addWrestler = async (wrestler: Wrestler) => {
+    if (this.favoriteWrestlers.indexOf(wrestler.id) > -1) {
+      console.warn("Attemped to favorite a wrestler that is already in favorites")
+      return
+    }
     this.favoriteWrestlers = [...this.favoriteWrestlers, wrestler.id]
-    await AsyncStorage.setItem(FAV_WRESTLERS_KEY, JSON.stringify(this.favoriteWrestlers))
+    await AsyncStorage.setItem(FAV_WRESTLERS_KEY, JSON.stringify([]))
     console.log(this.favoriteWrestlers)
     this.rerenderHack = !this.rerenderHack
   }
@@ -58,6 +60,8 @@ class FavoritesStore {
     const index = this.favoriteWrestlers.indexOf(wrestler.id)
     if (index > -1) {
       this.favoriteWrestlers.splice(index, 1)
+    } else {
+      console.warn("Attempted to unfavorite a wrestler that is not in favorites")
     }
     console.log(this.favoriteWrestlers)
     this.rerenderHack = !this.rerenderHack
