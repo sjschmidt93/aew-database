@@ -3,7 +3,7 @@ import { View, StyleSheet, FlatList, Text, Image, TouchableOpacity, ScrollView, 
 import { observable, computed } from 'mobx'
 import { observer } from "mobx-react"
 import { sharedStyles, colors } from "../styles"
-import { navigate } from "../RootNavigation"  
+import { push } from "../RootNavigation"  
 import { Wrestler, TagTeam } from "../types"
 import Picker from "../components/Picker"
 import { AewApi } from "../aew_api"
@@ -140,8 +140,8 @@ export function navigateToRosterMember(member: RosterMember) {
     return () => null
   }
   return isTagTeam(member)
-    ? () => navigate("TagTeam", { tagTeam: member })
-    : () => navigate("Wrestler", { wrestler: member })
+    ? () => push("TagTeam", { tagTeam: member })
+    : () => push("Wrestler", { wrestler: member })
 }
 
 const isTagTeamWithStable = (tagTeam: TagTeam) => isTagTeam(tagTeam) && tagTeam.name.includes("(")

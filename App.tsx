@@ -150,8 +150,8 @@ export default class App extends React.Component {
             <Tab.Screen name="Roster" component={RosterStack} />
             <Tab.Screen name="Events" component={EventsStack} />
           </Tab.Navigator>
+          <GoToModal />
         </NavigationContainer>
-        <GoToModal />
       </StoreProvider>
     )
   }

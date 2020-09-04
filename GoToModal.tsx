@@ -5,7 +5,9 @@ import { observer } from "mobx-react"
 import { colors, sharedStyles } from "./styles"
 import { TagTeam, Wrestler } from "./types"
 import _ from "lodash"
-import { TouchableOpacity, TouchableWithoutFeedback, TouchableHighlight } from "react-native-gesture-handler"
+import { TouchableOpacity } from "react-native-gesture-handler"
+import { navigate, navigationRef, push } from "./RootNavigation"
+import { navigateToRosterMember } from "./screens/RosterScreen"
 
 const dims = Dimensions.get("screen")
 const HEIGHT = dims.height
@@ -38,11 +40,23 @@ export default class GoToModal extends React.Component {
       return null
     }
     // if is tag team ...
-    return GoToModal.items.map(item => (
-      <TouchableOpacity style={styles.barContainer}>
-        <Text style={sharedStyles.h3}>Go to {item.name}</Text>
-      </TouchableOpacity>
-    ))
+
+
+    return GoToModal.items.map(item => {
+      const onPress = () => {
+        GoToModal.isVisible = false
+        navigateToRosterMember(item)()
+      }
+
+      return (
+        <TouchableOpacity
+          onPress={onPress}
+          style={styles.barContainer}
+        >
+          <Text style={sharedStyles.h3}>Go to {item.name}</Text>
+        </TouchableOpacity>
+      )
+    })
   }
 
   render() {
