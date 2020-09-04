@@ -17,7 +17,7 @@ import { Ionicons, MaterialIcons } from '@expo/vector-icons'
 import { colors } from './styles'
 import GoToModal from './GoToModal'
 import { observer, Provider } from 'mobx-react'
-import favoritesStore from "./FavoritesStore"
+import favoritesStore, { StoreProvider } from "./FavoritesStore"
 
 export type RootStackParamList = {
   Home: undefined, 
@@ -117,7 +117,7 @@ const Tab = createBottomTabNavigator()
 export default class App extends React.Component {
   render() {
     return (
-      <>
+      <StoreProvider>
         <NavigationContainer ref={navigationRef}>
           <Tab.Navigator
             screenOptions={({ route }) => ({
@@ -152,7 +152,7 @@ export default class App extends React.Component {
           </Tab.Navigator>
         </NavigationContainer>
         <GoToModal />
-      </>
+      </StoreProvider>
     )
   }
 }

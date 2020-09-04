@@ -12,7 +12,7 @@ import { AntDesign } from "@expo/vector-icons"
 import { StackNavigationProp } from "@react-navigation/stack"
 import { RootStackParamList } from "../App"
 import { isTagTeam } from "../components/MatchList"
-import { useStore } from "../FavoritesStore"
+import { storeContext, useStore } from "../FavoritesStore"
 
 type RosterScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -36,6 +36,8 @@ export default class RosterScreen extends React.Component<RosterPageProps> {
 
   @observable
   searchInput = ""
+
+  static contextType = storeContext
 
   @computed
   get pickerData(): string[] {
@@ -78,7 +80,7 @@ export default class RosterScreen extends React.Component<RosterPageProps> {
 
   @computed
   get favorites() {
-    return []//favs([...this.wrestlers, ...this.tagTeams])
+    return this.wrestlers.filter(wrestler => this.context.isFavorited(wrestler))
   }
 
   componentDidMount() {
@@ -120,11 +122,6 @@ export default class RosterScreen extends React.Component<RosterPageProps> {
       </View>
     )
   }
-}
-
-function favs(members: RosterMember[]) {
-	const store = useStore()
-	return members.filter(member => store.isFavorited(member))
 }
 
 export function RosterMemberList({ members }: { members: RosterMember[] }) {

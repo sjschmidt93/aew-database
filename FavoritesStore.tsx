@@ -3,6 +3,7 @@ import _ from "lodash"
 import AsyncStorage from "@react-native-community/async-storage"
 import { Wrestler, TagTeam } from "./types"
 import React from "react"
+import { useLocalStore } from "mobx-react"
 
 const FAV_WRESTLERS_KEY = "@fav_wrestlers_key"
 const FAV_TAG_TEAMS_KEY  = "@fav_tag_teams_key"
@@ -67,5 +68,17 @@ class FavoritesStore {
   isFavorited = (wrestler: Wrestler) => this.favoriteWrestlers.includes(wrestler.id)
 }
 
-const storeContext = React.createContext(new FavoritesStore())
-export const useStore = () => React.useContext(storeContext)
+export const storeContext = React.createContext<FavoritesStore | null>(null)
+
+export const StoreProvider = ({ children }: any) => {
+  const store = useLocalStore(() => new FavoritesStore())
+  return <storeContext.Provider value={store}>{children}</storeContext.Provider>
+}
+
+export const useStore = () => {
+  const store = React.useContext(storeContext)
+  if (!store) {
+    throw new Error('useStore must be used within a StoreProvider.')
+  }
+  return store
+}
