@@ -13,13 +13,11 @@ class FavoritesStore {
     this.fetchFavoriteTagTeams()
   }
 
-  favoriteWrestlers: number[] = observable([])
+  @observable
+  favoriteWrestlers: number[] = []
 
   @observable
-  rerenderHack = false
-
-  @observable
-  favoriteTagTeams = []
+  favoriteTagTeams: number[] = []
 
   fetchFavoriteWrestlers = async () => {
     try {
@@ -43,12 +41,11 @@ class FavoritesStore {
   addWrestler = async (wrestler: Wrestler) => {
     if (this.favoriteWrestlers.indexOf(wrestler.id) > -1) {
       console.warn("Attemped to favorite a wrestler that is already in favorites")
-      return
+      return false
     }
-    this.favoriteWrestlers = [...this.favoriteWrestlers, wrestler.id]
-    await AsyncStorage.setItem(FAV_WRESTLERS_KEY, JSON.stringify([]))
-    console.log(this.favoriteWrestlers)
-    this.rerenderHack = !this.rerenderHack
+    this.favoriteWrestlers.push(wrestler.id)
+    await AsyncStorage.setItem(FAV_WRESTLERS_KEY, JSON.stringify(this.favoriteWrestlers))
+    return true
   }
 
   addTagTeam = async(tagTeam: TagTeam) => {
@@ -62,9 +59,9 @@ class FavoritesStore {
       this.favoriteWrestlers.splice(index, 1)
     } else {
       console.warn("Attempted to unfavorite a wrestler that is not in favorites")
+      return false
     }
-    console.log(this.favoriteWrestlers)
-    this.rerenderHack = !this.rerenderHack
+    return true
   } 
 
   isFavorited = (wrestler: Wrestler) => this.favoriteWrestlers.includes(wrestler.id)

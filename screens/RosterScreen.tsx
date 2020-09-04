@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState } from "react"
 import { View, StyleSheet, FlatList, Text, Image, TouchableOpacity, ScrollView, StatusBar, TextInput } from "react-native"
 import { observable, computed } from 'mobx'
 import { observer } from "mobx-react"
@@ -12,7 +12,6 @@ import { AntDesign } from "@expo/vector-icons"
 import { StackNavigationProp } from "@react-navigation/stack"
 import { RootStackParamList } from "../App"
 import { isTagTeam } from "../components/MatchList"
-import AsyncStorage from '@react-native-community/async-storage'
 import { useStore } from "../FavoritesStore"
 
 type RosterScreenNavigationProp = StackNavigationProp<
@@ -56,7 +55,8 @@ export default class RosterScreen extends React.Component<RosterPageProps> {
       this.wrestlers,
       this.mensDivision,
       this.womensDivision,
-      this.tagTeams,
+		this.tagTeams,
+		this.favorites
       //[]
     ]
   }
@@ -74,6 +74,11 @@ export default class RosterScreen extends React.Component<RosterPageProps> {
   @computed
   get womensDivision() {
     return this.wrestlers.filter(wrestler => wrestler.division === "womens")
+  }
+
+  @computed
+  get favorites() {
+    return []//favs([...this.wrestlers, ...this.tagTeams])
   }
 
   componentDidMount() {
@@ -115,6 +120,11 @@ export default class RosterScreen extends React.Component<RosterPageProps> {
       </View>
     )
   }
+}
+
+function favs(members: RosterMember[]) {
+	const store = useStore()
+	return members.filter(member => store.isFavorited(member))
 }
 
 export function RosterMemberList({ members }: { members: RosterMember[] }) {
@@ -171,13 +181,18 @@ function RosterRow({ member }: { member: RosterMember }) {
 
 const Star = observer(({ member }: { member: RosterMember }) => {
   const store = useStore()
-  const isFavorited = store.isFavorited(member)
+  const [isFavorited, setIsFavorited] = useState(store.isFavorited(member))
 
-  const onPress = isFavorited
-    ? () => store.removeWrestler(member)
-    : () => store.addWrestler(member)
+  const onPress = () => {
+    const func = isFavorited ? store.removeWrestler : store.addWrestler
+    func(member)
+      .then(res => {
+        if (res) {
+          setIsFavorited(!isFavorited)
+        }
+      })
+  }
 
-  console.log(store.rerenderHack)
 
   return (
     <TouchableOpacity onPress={onPress}>
