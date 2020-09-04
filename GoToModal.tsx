@@ -7,13 +7,11 @@ import { TagTeam, Wrestler } from "./types"
 import _ from "lodash"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { navigate, navigationRef, push } from "./RootNavigation"
-import { navigateToRosterMember } from "./screens/RosterScreen"
+import { navigateToRosterMember, RosterMember } from "./screens/RosterScreen"
 
 const dims = Dimensions.get("screen")
 const HEIGHT = dims.height
 const WIDTH = dims.height
-
-type Item = TagTeam | Wrestler // | ...
 
 @observer
 export default class GoToModal extends React.Component {
@@ -21,7 +19,7 @@ export default class GoToModal extends React.Component {
   static isVisible = false
 
   @observable
-  static items: Item[] = []
+  static items: RosterMember[] = []
 
   @action
   static show = (items: Item[]) => {
@@ -39,8 +37,6 @@ export default class GoToModal extends React.Component {
     if (_.isEmpty(GoToModal.items)) {
       return null
     }
-    // if is tag team ...
-
 
     return GoToModal.items.map(item => {
       const onPress = () => {

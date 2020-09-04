@@ -141,10 +141,20 @@ class SideWithImages extends React.Component<SideWithImagesProps> {
   }
 
   render () {
-    const isPressable = (!isTagTeam(this.side) && this.props.wrestler?.id !== this.side.id) || (isTagTeam(this.side) && this.side.is_official)
-    const onPress = isTagTeam(this.side)
-      ? () => GoToModal.show([this.side, ...this.side.wrestlers])
-      : () => navigate("Wrestler", { wrestler: this.side })
+    const isPressable = isTagTeam(this.side) || this.props.wrestler?.id !== this.side.id
+    const onPress = () => {
+      if (isTagTeam(this.side)) {
+        const wrestlers = this.side.wrestlers.filter(wrestler => wrestler.id !== this.props.wrestler?.id)
+        let items: RosterMember[] = wrestlers
+        if (this.side.is_official) {
+          items = [this.side, ...wrestlers]
+        }
+        GoToModal.show(items)
+      } else {
+        navigate("Wrestler", { wrestler: this.side })
+      }
+    }
+    
     return (
       <View style={styles.wrestlerContainer}>
         { isPressable ? (
