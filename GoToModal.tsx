@@ -1,5 +1,5 @@
-import { View, StyleSheet, Dimensions, Text, Image } from "react-native"
-import { observable, action } from "mobx"
+import { View, StyleSheet, Dimensions, Text, Image, Animated } from "react-native"
+import { observable, action, reaction } from "mobx"
 import React from "react"
 import { observer } from "mobx-react"
 import { colors, sharedStyles } from "./styles"
@@ -11,8 +11,10 @@ import { isTagTeam } from "./components/MatchList"
 import { Wrestler } from "./types"
 
 const dims = Dimensions.get("screen")
-const HEIGHT = dims.height
-const WIDTH = dims.height
+const SCREEN_HEIGHT = dims.height
+const SCREEN_WIDTH = dims.height
+
+const HIDDEN_Y_OFFSET = 200 // TODO: calculate height of bars
 
 @observer
 export default class GoToModal extends React.Component {
@@ -22,16 +24,29 @@ export default class GoToModal extends React.Component {
   @observable
   static items: RosterMember[] = []
 
+  @observable
+  static yOffset = new Animated.Value(HIDDEN_Y_OFFSET)
+
   @action
-  static show = (items: Item[]) => {
+  static show = (items: RosterMember[]) => {
     GoToModal.items = items
     GoToModal.isVisible = true
+    Animated.timing(
+      GoToModal.yOffset, { toValue: 0 }
+    ).start()
   }
 
   @action
-  static hide = () => {
-    GoToModal.isVisible = false
-    GoToModal.items = []
+  static hide = (callback: () => void = () => null) => {
+    Animated.timing(
+      GoToModal.yOffset, { toValue: HIDDEN_Y_OFFSET }
+    ).start(({ finished }) => {
+      if (finished) {
+        GoToModal.isVisible = false
+        GoToModal.items = []
+        callback()
+      }
+    })
   }
 
   renderBars = () => {
@@ -40,11 +55,8 @@ export default class GoToModal extends React.Component {
     }
 
     return GoToModal.items.map(item => {
-      const onPress = () => {
-        GoToModal.isVisible = false
-        navigateToRosterMember(item)()
-      }
-      
+      const onPress = () => GoToModal.hide(navigateToRosterMember(item))
+
       const isTeam = isTagTeam(item)
 
       const icon = !_.isNil(item.image_url)
@@ -57,7 +69,6 @@ export default class GoToModal extends React.Component {
 
       const variableStyle = {
         height: isTeam ? TAG_TEAM_BAR_CONTAINER_HEIGHT: BAR_CONTAINER_HEIGHT,
-        borderBottomColor: isTeam ? colors.black : colors.black,
         borderBottomWidth: isTeam ? 3 : 1
       }
 
@@ -74,13 +85,15 @@ export default class GoToModal extends React.Component {
   }
 
   render() {
+    const transform = { transform: [{ translateY: GoToModal.yOffset }] }
+
     return (
       GoToModal.isVisible && (
         <>
-          <View onTouchEnd={GoToModal.hide} style={styles.container} />
-          <View style={styles.bottomContainer}>
+          <View onTouchEnd={() => GoToModal.hide()} style={styles.container} />
+          <Animated.View style={[styles.bottomContainer, transform]}>
             {this.renderBars()}
-          </View>
+          </Animated.View>
         </>
       )
     )
@@ -110,19 +123,20 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,.6)',
     position: 'absolute',
     top: 0,
-    height: HEIGHT,
-    width: WIDTH
+    height: SCREEN_HEIGHT,
+    width: SCREEN_WIDTH
   },
   bottomContainer: {
     backgroundColor: colors.graphite,
     position: "absolute",
-    bottom: 0,
-    width: WIDTH
+    width: SCREEN_WIDTH,
+    bottom: 0
   },
   barContainer: {
     paddingLeft: 20,
     alignItems: "center",
-    flexDirection: "row"
+    flexDirection: "row",
+    borderBottomColor: colors.black,
   },
   image: {
     height: IMAGE_WIDTH,
