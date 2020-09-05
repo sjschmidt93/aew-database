@@ -1,4 +1,4 @@
-import { View, StyleSheet, Dimensions, Text, Image, Animated } from "react-native"
+import { View, StyleSheet, Dimensions, Text, Image, Animated, PanResponder } from "react-native"
 import { observable, action, reaction } from "mobx"
 import React from "react"
 import { observer } from "mobx-react"
@@ -41,9 +41,7 @@ export default class GoToModal extends React.Component {
       Animated.timing(
         GoToModal.opacity, { toValue: 0.6 }
       )
-    ])
-    
-    .start()
+    ]).start()
   }
 
   @action
@@ -63,6 +61,18 @@ export default class GoToModal extends React.Component {
       }
     })
   }
+
+  _panResponders = PanResponder.create({
+    onStartShouldSetPanResponder: () => true,
+    onMoveShouldSetPanResponder: () => false,
+    onPanResponderMove: (e, gs) => { console.log(GoToModal.yOffset); GoToModal.yOffset.setValue(gs.dy) },
+    onPanResponderRelease: (e, gs) => {
+      if (gs.dy > 0 && gs.vy > 2) {
+        return GoToModal.show(GoToModal.items)
+      }
+      return GoToModal.hide()
+    }
+  })
 
   renderBars = () => {
     if (_.isEmpty(GoToModal.items)) {
@@ -85,13 +95,12 @@ export default class GoToModal extends React.Component {
       }
 
       return (
-        <TouchableWithoutFeedback
-          onPress={() => GoToModal.hide(navigateToRosterMember(item))}
-          style={[styles.barContainer, variableStyle]}
-        >
-          {icon}
-          <BarBody item={item} />
-        </TouchableWithoutFeedback>
+        <View style={[styles.outerBarContainer, variableStyle]}>
+          <TouchableOpacity style={styles.barContainer} onPress={() => GoToModal.hide(navigateToRosterMember(item))}>
+            {icon}
+            <BarBody item={item} />
+          </TouchableOpacity>
+        </View>
       )
     })
   }
@@ -103,7 +112,7 @@ export default class GoToModal extends React.Component {
       GoToModal.isVisible && (
         <>
           <Animated.View onTouchEnd={() => GoToModal.hide()} style={[styles.container, { opacity: GoToModal.opacity }]} />
-          <Animated.View style={[styles.bottomContainer, transform]}>
+          <Animated.View  {...this._panResponders}  style={[styles.bottomContainer, transform]}>
             <View style={styles.dragBar}>
               <View style={styles.dragIndicator} />
             </View>
@@ -147,9 +156,12 @@ const styles = StyleSheet.create({
     width: SCREEN_WIDTH,
     bottom: 0
   },
+  outerBarContainer: {
+    justifyContent: "center",
+    backgroundColor: colors.graphite
+  },
   barContainer: {
     paddingLeft: 20,
-    alignItems: "center",
     flexDirection: "row",
     borderBottomColor: colors.black,
     backgroundColor: colors.graphite
