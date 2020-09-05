@@ -70,10 +70,6 @@ export default class GoToModal extends React.Component {
     }
 
     return GoToModal.items.map((item, index) => {
-      const onPress = () => GoToModal.hide(navigateToRosterMember(item))
-
-      const isTeam = isTagTeam(item)
-
       const icon = !_.isNil(item.image_url)
         ? <Image source={{ uri: item.image_url }} style={styles.image} />
         : (
@@ -82,6 +78,7 @@ export default class GoToModal extends React.Component {
           </View>
         )
 
+      const isTeam = isTagTeam(item)
       const variableStyle = {
         height: (isTeam ? TAG_TEAM_BAR_CONTAINER_HEIGHT: BAR_CONTAINER_HEIGHT) - (index === 0 ? 20 : 0),
         borderBottomWidth: isTeam ? 2 : 1
@@ -89,7 +86,7 @@ export default class GoToModal extends React.Component {
 
       return (
         <TouchableWithoutFeedback
-          onPress={onPress}
+          onPress={() => GoToModal.hide(navigateToRosterMember(item))}
           style={[styles.barContainer, variableStyle]}
         >
           {icon}
