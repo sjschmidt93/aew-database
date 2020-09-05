@@ -1,5 +1,5 @@
-import { View, StyleSheet, Dimensions, Text, Image, Animated, PanResponder } from "react-native"
-import { observable, action, reaction } from "mobx"
+import { View, StyleSheet, Dimensions, Text, Image, Animated, PanResponder, PanResponderInstance } from "react-native"
+import { observable, action, reaction, computed } from "mobx"
 import React from "react"
 import { observer } from "mobx-react"
 import { colors, sharedStyles } from "./styles"
@@ -25,15 +25,26 @@ export default class GoToModal extends React.Component {
   static items: RosterMember[] = []
 
   @observable
-  static yOffset = new Animated.Value(HIDDEN_Y_OFFSET)
+  static yOffset = new Animated.Value(SCREEN_HEIGHT) // might break when modal size > screen_height
 
   @observable
   static opacity = new Animated.Value(0)
+
+  @observable
+  static height = 0
 
   @action
   static show = (items: RosterMember[]) => {
     GoToModal.items = items
     GoToModal.isVisible = true
+    GoToModal.height = isTagTeam(GoToModal.items[0])
+      ? TAG_TEAM_BAR_CONTAINER_HEIGHT + BAR_CONTAINER_HEIGHT * (GoToModal.items.length - 1)
+      : GoToModal.items.length * BAR_CONTAINER_HEIGHT
+    GoToModal.yOffset.setValue(GoToModal.height)
+    GoToModal.showAnimation()
+  }
+
+  static showAnimation = () => {
     Animated.parallel([
       Animated.timing(
         GoToModal.yOffset, { toValue: 0 }
@@ -48,7 +59,7 @@ export default class GoToModal extends React.Component {
   static hide = (callback: () => void = () => null) => {
     Animated.parallel([
       Animated.timing(
-        GoToModal.yOffset, { toValue: HIDDEN_Y_OFFSET }
+        GoToModal.yOffset, { toValue: GoToModal.height }
       ),
       Animated.timing(
         GoToModal.opacity, { toValue: 0 }
@@ -62,17 +73,25 @@ export default class GoToModal extends React.Component {
     })
   }
 
-  _panResponders = PanResponder.create({
-    onStartShouldSetPanResponder: () => true,
-    onMoveShouldSetPanResponder: () => false,
-    onPanResponderMove: (e, gs) => { console.log(GoToModal.yOffset); GoToModal.yOffset.setValue(gs.dy) },
-    onPanResponderRelease: (e, gs) => {
-      if (gs.dy > 0 && gs.vy > 2) {
-        return GoToModal.show(GoToModal.items)
+  _panResponder: PanResponderInstance
+
+  constructor(props: {}) {
+    super(props)
+    this._panResponder = PanResponder.create({
+      onMoveShouldSetPanResponder: (e, gs) => Math.abs(gs.dx) > 30 || Math.abs(gs.dy) > 30,
+      onPanResponderMove: (e, gs) => {
+        if(gs.dy > 0) {
+          GoToModal.yOffset.setValue(gs.dy)
+        }
+      },
+      onPanResponderRelease: (e, gs) => {
+        if (gs.dy > GoToModal.height / 3 || gs.vy > 0.45) {
+          return GoToModal.hide()
+        }
+        return GoToModal.showAnimation()
       }
-      return GoToModal.hide()
-    }
-  })
+    })
+  }
 
   renderBars = () => {
     if (_.isEmpty(GoToModal.items)) {
@@ -112,7 +131,7 @@ export default class GoToModal extends React.Component {
       GoToModal.isVisible && (
         <>
           <Animated.View onTouchEnd={() => GoToModal.hide()} style={[styles.container, { opacity: GoToModal.opacity }]} />
-          <Animated.View  {...this._panResponders}  style={[styles.bottomContainer, transform]}>
+          <Animated.View  {...this._panResponder.panHandlers}  style={[styles.bottomContainer, transform]}>
             <View style={styles.dragBar}>
               <View style={styles.dragIndicator} />
             </View>
@@ -164,7 +183,8 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
     flexDirection: "row",
     borderBottomColor: colors.black,
-    backgroundColor: colors.graphite
+    backgroundColor: colors.graphite,
+    alignItems: "center"
   },
   dragIndicator: {
     height: 3,
