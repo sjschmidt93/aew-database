@@ -7,6 +7,8 @@ import _ from "lodash"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { navigateToRosterMember, RosterMember } from "./screens/RosterScreen"
 import { Fontisto } from '@expo/vector-icons'
+import { isTagTeam } from "./components/MatchList"
+import { Wrestler } from "./types"
 
 const dims = Dimensions.get("screen")
 const HEIGHT = dims.height
@@ -42,6 +44,8 @@ export default class GoToModal extends React.Component {
         GoToModal.isVisible = false
         navigateToRosterMember(item)()
       }
+      
+      const isTeam = isTagTeam(item)
 
       const icon = !_.isNil(item.image_url)
         ? <Image source={{ uri: item.image_url }} style={styles.image} />
@@ -51,13 +55,19 @@ export default class GoToModal extends React.Component {
           </View>
         )
 
+      const variableStyle = {
+        height: isTeam ? TAG_TEAM_BAR_CONTAINER_HEIGHT: BAR_CONTAINER_HEIGHT,
+        borderBottomColor: isTeam ? colors.black : colors.black,
+        borderBottomWidth: isTeam ? 3 : 1
+      }
+
       return (
         <TouchableOpacity
           onPress={onPress}
-          style={styles.barContainer}
+          style={[styles.barContainer, variableStyle]}
         >
           {icon}
-          <Text style={sharedStyles.h3}>Go to {item.name}</Text>
+          <BarBody item={item} />
         </TouchableOpacity>
       )
     })
@@ -77,7 +87,23 @@ export default class GoToModal extends React.Component {
   }
 }
 
+const BarBody = ({ item }: { item: RosterMember }) => (
+  isTagTeam(item)
+    ? (
+      <View>
+        <Text style={sharedStyles.h2}>{item.name}</Text>
+        <Text style={[sharedStyles.h3, { color: colors.silver }]}>{tagTeamMembersString(item.wrestlers)}</Text>
+      </View>
+    )
+    : <Text style={sharedStyles.h3}>Go to {item.name}</Text>
+)
+
+const tagTeamMembersString = (wrestlers: Wrestler[]) => wrestlers.map(wrestler => wrestler.name).join(" & ")
+
 const IMAGE_WIDTH = 40
+
+const BAR_CONTAINER_HEIGHT = 80
+const TAG_TEAM_BAR_CONTAINER_HEIGHT = 120
 
 const styles = StyleSheet.create({
   container: {
@@ -94,11 +120,8 @@ const styles = StyleSheet.create({
     width: WIDTH
   },
   barContainer: {
-    height: 80,
     paddingLeft: 20,
     alignItems: "center",
-    borderBottomColor: colors.black,
-    borderBottomWidth: 1,
     flexDirection: "row"
   },
   image: {
