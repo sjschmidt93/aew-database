@@ -39,9 +39,10 @@ export default class Picker extends React.Component<PickerProps> {
           data={this.props.options}
           horizontal={true}
           renderItem={this.renderItem}
+          showsHorizontalScrollIndicator={false}
           ItemSeparatorComponent={() => <View style={{ width: 10 }}/>}
           extraData={this.props.selectedIndex}
-          contentContainerStyle={{ backgroundColor: colors.aewYellow, flex: 1, paddingLeft: 15 }}
+          contentContainerStyle={{ backgroundColor: colors.aewYellow, paddingHorizontal: 15 }}
         />
       </View>
     )
