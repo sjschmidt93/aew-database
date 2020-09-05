@@ -195,7 +195,7 @@ const Star = observer(({ member }: { member: RosterMember }) => {
       <AntDesign
         name={ isFavorited ? "star" : "staro" }
         size={30}
-        color={ isFavorited ? "yellow" : "black" }
+        color={ isFavorited ? colors.gold : colors.black }
         style={{ paddingRight: 15 }}
       />
     </TouchableOpacity>

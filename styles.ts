@@ -30,6 +30,8 @@ export const colors = {
   white: "#ffffff",
   black: "#000000",
   graphite: "#454343",
+  gray: "#888888",
   aewYellow: "#A18931",
-  silver: "#C0C0C0"
+  silver: "#C0C0C0",
+  gold: "#CFB53B"
 }

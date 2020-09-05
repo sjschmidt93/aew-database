@@ -12,7 +12,7 @@ import { Wrestler } from "./types"
 
 const dims = Dimensions.get("screen")
 const SCREEN_HEIGHT = dims.height
-const SCREEN_WIDTH = dims.height
+const SCREEN_WIDTH = dims.width
 
 const HIDDEN_Y_OFFSET = 200 // TODO: calculate height of bars
 
@@ -54,7 +54,7 @@ export default class GoToModal extends React.Component {
       return null
     }
 
-    return GoToModal.items.map(item => {
+    return GoToModal.items.map((item, index) => {
       const onPress = () => GoToModal.hide(navigateToRosterMember(item))
 
       const isTeam = isTagTeam(item)
@@ -68,7 +68,7 @@ export default class GoToModal extends React.Component {
         )
 
       const variableStyle = {
-        height: isTeam ? TAG_TEAM_BAR_CONTAINER_HEIGHT: BAR_CONTAINER_HEIGHT,
+        height: (isTeam ? TAG_TEAM_BAR_CONTAINER_HEIGHT: BAR_CONTAINER_HEIGHT) - (index === 0 ? 20 : 0),
         borderBottomWidth: isTeam ? 3 : 1
       }
 
@@ -92,6 +92,9 @@ export default class GoToModal extends React.Component {
         <>
           <View onTouchEnd={() => GoToModal.hide()} style={styles.container} />
           <Animated.View style={[styles.bottomContainer, transform]}>
+            <View style={styles.dragBar}>
+              <View style={styles.dragIndicator} />
+            </View>
             {this.renderBars()}
           </Animated.View>
         </>
@@ -117,6 +120,7 @@ const IMAGE_WIDTH = 40
 
 const BAR_CONTAINER_HEIGHT = 80
 const TAG_TEAM_BAR_CONTAINER_HEIGHT = 120
+const DRAG_BAR_HEIGHT = 20
 
 const styles = StyleSheet.create({
   container: {
@@ -127,7 +131,6 @@ const styles = StyleSheet.create({
     width: SCREEN_WIDTH
   },
   bottomContainer: {
-    backgroundColor: colors.graphite,
     position: "absolute",
     width: SCREEN_WIDTH,
     bottom: 0
@@ -137,6 +140,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     borderBottomColor: colors.black,
+    backgroundColor: colors.graphite
+  },
+  dragIndicator: {
+    height: 3,
+    width: 30,
+    backgroundColor: colors.gray
   },
   image: {
     height: IMAGE_WIDTH,
@@ -149,5 +158,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginRight: 10
+  },
+  dragBar: {
+    height: DRAG_BAR_HEIGHT,
+    backgroundColor: colors.graphite,
+    borderTopRightRadius: 12,
+    borderTopLeftRadius: 12,
+    width: SCREEN_WIDTH,
+    alignItems: "center",
+    justifyContent: "center"
   }
 })
