@@ -1,13 +1,12 @@
-import { View, StyleSheet, Dimensions, Text } from "react-native"
+import { View, StyleSheet, Dimensions, Text, Image } from "react-native"
 import { observable, action } from "mobx"
 import React from "react"
 import { observer } from "mobx-react"
 import { colors, sharedStyles } from "./styles"
-import { TagTeam, Wrestler } from "./types"
 import _ from "lodash"
 import { TouchableOpacity } from "react-native-gesture-handler"
-import { navigate, navigationRef, push } from "./RootNavigation"
 import { navigateToRosterMember, RosterMember } from "./screens/RosterScreen"
+import { Fontisto } from '@expo/vector-icons'
 
 const dims = Dimensions.get("screen")
 const HEIGHT = dims.height
@@ -44,11 +43,20 @@ export default class GoToModal extends React.Component {
         navigateToRosterMember(item)()
       }
 
+      const icon = !_.isNil(item.image_url)
+        ? <Image source={{ uri: item.image_url }} style={styles.image} />
+        : (
+          <View style={styles.iconContainer}>
+            <Fontisto size={IMAGE_WIDTH / 2} name="navigate" color={colors.aewYellow} />
+          </View>
+        )
+
       return (
         <TouchableOpacity
           onPress={onPress}
           style={styles.barContainer}
         >
+          {icon}
           <Text style={sharedStyles.h3}>Go to {item.name}</Text>
         </TouchableOpacity>
       )
@@ -60,7 +68,7 @@ export default class GoToModal extends React.Component {
       GoToModal.isVisible && (
         <>
           <View onTouchEnd={GoToModal.hide} style={styles.container} />
-          <View style={[styles.bottomContainer]}>
+          <View style={styles.bottomContainer}>
             {this.renderBars()}
           </View>
         </>
@@ -68,6 +76,8 @@ export default class GoToModal extends React.Component {
     )
   }
 }
+
+const IMAGE_WIDTH = 40
 
 const styles = StyleSheet.create({
   container: {
@@ -86,8 +96,21 @@ const styles = StyleSheet.create({
   barContainer: {
     height: 80,
     paddingLeft: 20,
-    justifyContent: "center",
+    alignItems: "center",
     borderBottomColor: colors.black,
-    borderBottomWidth: 1
+    borderBottomWidth: 1,
+    flexDirection: "row"
+  },
+  image: {
+    height: IMAGE_WIDTH,
+    width: IMAGE_WIDTH,
+    borderRadius: 50,
+    marginRight: 10
+  },
+  iconContainer: {
+    width: IMAGE_WIDTH,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 10
   }
 })

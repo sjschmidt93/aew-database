@@ -56,6 +56,7 @@ class FavoritesStore {
       console.warn("Attemped to favorite a wrestler that is already in favorites")
       return false
     }
+    
     this.favoriteWrestlers.push(wrestler.id)
     await this.saveWrestlers()
     return true
@@ -69,6 +70,7 @@ class FavoritesStore {
       await this.saveWrestlers()
       return true
     }
+
     console.warn("Attempted to unfavorite a wrestler that is not in favorites")
     return false
   } 
@@ -79,6 +81,7 @@ class FavoritesStore {
       console.warn("Attemped to favorite a tag team that is already in favorites")
       return false
     }
+
     this.favoriteTagTeams.push(tagTeam.id)
     await this.saveTagTeams()
     return true
@@ -92,6 +95,7 @@ class FavoritesStore {
       await this.saveTagTeams()
       return true
     }
+
     console.warn("Attempted to unfavorite a tag team that is not in favorites")
     return false
   }
