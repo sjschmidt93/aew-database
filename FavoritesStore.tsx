@@ -14,6 +14,7 @@ class FavoritesStore {
   constructor() {
     this.fetchFavoriteWrestlers()
     this.fetchFavoriteTagTeams()
+    //this.resetFavorites()
   }
 
   @observable
@@ -107,6 +108,14 @@ class FavoritesStore {
 
   isWrestlerFavorited = (wrestler: Wrestler) => this.favoriteWrestlers.includes(wrestler.id)
   isTagTeamFavorited = (tagTeam: TagTeam) => this.favoriteTagTeams.includes(tagTeam.id)
+
+  // for debugging
+  resetFavorites = () => {
+    this.favoriteWrestlers = []
+    this.favoriteTagTeams = []
+    this.saveWrestlers()
+    this.saveTagTeams()
+  }
 }
 
 export const storeContext = React.createContext<FavoritesStore | null>(null)
