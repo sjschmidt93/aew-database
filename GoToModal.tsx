@@ -4,7 +4,7 @@ import React from "react"
 import { observer } from "mobx-react"
 import { colors, sharedStyles } from "./styles"
 import _ from "lodash"
-import { TouchableOpacity } from "react-native-gesture-handler"
+import { TouchableOpacity, TouchableWithoutFeedback } from "react-native-gesture-handler"
 import { navigateToRosterMember, RosterMember } from "./screens/RosterScreen"
 import { Fontisto } from '@expo/vector-icons'
 import { isTagTeam } from "./components/MatchList"
@@ -27,20 +27,35 @@ export default class GoToModal extends React.Component {
   @observable
   static yOffset = new Animated.Value(HIDDEN_Y_OFFSET)
 
+  @observable
+  static opacity = new Animated.Value(0)
+
   @action
   static show = (items: RosterMember[]) => {
     GoToModal.items = items
     GoToModal.isVisible = true
-    Animated.timing(
-      GoToModal.yOffset, { toValue: 0 }
-    ).start()
+    Animated.parallel([
+      Animated.timing(
+        GoToModal.yOffset, { toValue: 0 }
+      ),
+      Animated.timing(
+        GoToModal.opacity, { toValue: 0.6 }
+      )
+    ])
+    
+    .start()
   }
 
   @action
   static hide = (callback: () => void = () => null) => {
-    Animated.timing(
-      GoToModal.yOffset, { toValue: HIDDEN_Y_OFFSET }
-    ).start(({ finished }) => {
+    Animated.parallel([
+      Animated.timing(
+        GoToModal.yOffset, { toValue: HIDDEN_Y_OFFSET }
+      ),
+      Animated.timing(
+        GoToModal.opacity, { toValue: 0 }
+      )
+    ]).start(({ finished }) => {
       if (finished) {
         GoToModal.isVisible = false
         GoToModal.items = []
@@ -69,17 +84,17 @@ export default class GoToModal extends React.Component {
 
       const variableStyle = {
         height: (isTeam ? TAG_TEAM_BAR_CONTAINER_HEIGHT: BAR_CONTAINER_HEIGHT) - (index === 0 ? 20 : 0),
-        borderBottomWidth: isTeam ? 3 : 1
+        borderBottomWidth: isTeam ? 2 : 1
       }
 
       return (
-        <TouchableOpacity
+        <TouchableWithoutFeedback
           onPress={onPress}
           style={[styles.barContainer, variableStyle]}
         >
           {icon}
           <BarBody item={item} />
-        </TouchableOpacity>
+        </TouchableWithoutFeedback>
       )
     })
   }
@@ -90,7 +105,7 @@ export default class GoToModal extends React.Component {
     return (
       GoToModal.isVisible && (
         <>
-          <View onTouchEnd={() => GoToModal.hide()} style={styles.container} />
+          <Animated.View onTouchEnd={() => GoToModal.hide()} style={[styles.container, { opacity: GoToModal.opacity }]} />
           <Animated.View style={[styles.bottomContainer, transform]}>
             <View style={styles.dragBar}>
               <View style={styles.dragIndicator} />
@@ -124,7 +139,7 @@ const DRAG_BAR_HEIGHT = 20
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'rgba(0,0,0,.6)',
+    backgroundColor: colors.black,
     position: 'absolute',
     top: 0,
     height: SCREEN_HEIGHT,
