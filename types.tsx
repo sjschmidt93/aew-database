@@ -10,8 +10,13 @@ export type Wrestler = {
   image_url: string
   num_wins: number
   num_losses: number
-  division: string
+  division: DIVISION
   reigns: Reign[]
+}
+
+export enum Division {
+  MENS = "mens",
+  WOMENS = "womens"
 }
 
 export type TagTeam = {
@@ -30,10 +35,10 @@ export type Match = {
   tag_teams: TagTeam[]
   event: Event
   winner: string
-  type: MATCH_TYPE
+  type: MatchType
 }
 
-export enum MATCH_TYPE {
+export enum MatchType {
   SINGLES = "singles",
   TAG = "tag"
 }

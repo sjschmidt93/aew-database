@@ -4,7 +4,7 @@ import { observable, computed } from 'mobx'
 import { observer } from "mobx-react"
 import { sharedStyles, colors } from "../styles"
 import { push } from "../RootNavigation"  
-import { Wrestler, TagTeam } from "../types"
+import { Wrestler, TagTeam, Division } from "../types"
 import Picker from "../components/Picker"
 import { AewApi } from "../aew_api"
 import _ from "lodash"
@@ -13,6 +13,7 @@ import { StackNavigationProp } from "@react-navigation/stack"
 import { RootStackParamList } from "../App"
 import { isTagTeam } from "../components/MatchList"
 import { storeContext, useStore } from "../FavoritesStore"
+import { FavoritesList } from "../components/FavoritesList"
 
 type RosterScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -20,8 +21,12 @@ type RosterScreenNavigationProp = StackNavigationProp<
 >;
 
 const ROSTER_ROW_HEIGHT = 75
+const FAVORITES_STR = "FAVORITES"
 
 export type RosterMember = Wrestler | TagTeam
+
+export const isMan = (wrestler: Wrestler) => wrestler.division === Division.MENS
+export const isWoman = (wrestler: Wrestler) => wrestler.division === Division.WOMENS
 
 @observer
 export default class RosterScreen extends React.Component<RosterPageProps> {
@@ -46,7 +51,7 @@ export default class RosterScreen extends React.Component<RosterPageProps> {
       "MEN'S",
       "WOMEN'S",
       "TAG TEAMS",
-      "FAVORITES"
+      FAVORITES_STR
       //"STABLES"
     ]
   }
@@ -70,17 +75,22 @@ export default class RosterScreen extends React.Component<RosterPageProps> {
 
   @computed
   get mensDivision() {
-    return this.wrestlers.filter(wrestler => wrestler.division === "mens")
+    return this.wrestlers.filter(isMan)
   }
 
   @computed
   get womensDivision() {
-    return this.wrestlers.filter(wrestler => wrestler.division === "womens")
+    return this.wrestlers.filter(isWoman)
   }
 
   @computed
   get favorites(): RosterMember[] {
     return this.wrestlers.concat(this.tagTeams).filter(wrestler => this.context.isFavorited(wrestler))
+  }
+
+  @computed
+  get isFavoritesSelected() {
+    return this.pickerData.indexOf(FAVORITES_STR) === this.selectedPickerIndex
   }
 
   componentDidMount() {
@@ -117,7 +127,10 @@ export default class RosterScreen extends React.Component<RosterPageProps> {
           }
         </View>
         <ScrollView style={sharedStyles.scrollViewContainer}>
-          <RosterMemberList members={this.filteredData} />
+          { this.isFavoritesSelected
+            ? <FavoritesList />
+            : <RosterMemberList members={this.filteredData} />
+          }
         </ScrollView>
       </View>
     )
@@ -188,7 +201,6 @@ const Star = observer(({ member }: { member: RosterMember }) => {
         }
       })
   )
-
 
   return (
     <TouchableOpacity onPress={onPress}>

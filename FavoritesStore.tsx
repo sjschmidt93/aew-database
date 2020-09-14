@@ -1,11 +1,12 @@
-import { observable, action } from "mobx"
+import { observable, action, computed } from "mobx"
 import _ from "lodash"
 import AsyncStorage from "@react-native-community/async-storage"
-import { Wrestler, TagTeam } from "./types"
+import { Wrestler, TagTeam, Division } from "./types"
 import React from "react"
 import { useLocalStore } from "mobx-react"
-import { RosterMember } from "./screens/RosterScreen"
+import { isMan, isWoman, RosterMember } from "./screens/RosterScreen"
 import { isTagTeam } from "./components/MatchList"
+import { TouchableHighlightBase } from "react-native"
 
 const FAV_WRESTLERS_KEY = "@fav_wrestlers_key"
 const FAV_TAG_TEAMS_KEY  = "@fav_tag_teams_key"
@@ -14,15 +15,42 @@ class FavoritesStore {
   constructor() {
     this.fetchFavoriteWrestlers()
     this.fetchFavoriteTagTeams()
-    //this.resetFavorites()
+    this.resetFavorites()
   }
 
   @observable
-  favoriteWrestlers: number[] = []
+  favoriteWrestlers: Wrestler[] = []
 
   @observable
-  favoriteTagTeams: number[] = []
+  favoriteTagTeams: TagTeam[] = []
 
+  @computed
+  get wrestlerIds() {
+    return this.favoriteWrestlers.map(wrestler => wrestler.id)
+  }
+
+  @computed
+  get tagTeamIds() {
+    return this.favoriteTagTeams.map(tagTeam => tagTeam.id)
+  }
+
+  @computed
+  get hasFavorites() {
+    return this.favoriteTagTeams.concat(this.favoriteWrestlers).length > 0
+  }
+
+  @computed
+  get favoriteMen() {
+    console.log(this.favoriteWrestlers)
+    return this.favoriteWrestlers.filter(isMan)
+  }
+
+  @computed
+  get favoriteWomen() {
+    return this.favoriteWrestlers.filter(isWoman)
+  }
+
+  @action
   fetchFavoriteWrestlers = async () => {
     try {
       const jsonValue = await AsyncStorage.getItem(FAV_WRESTLERS_KEY)
@@ -32,6 +60,7 @@ class FavoritesStore {
     }
   }
 
+  @action
   fetchFavoriteTagTeams = async () => {
     try {
       const jsonValue = await AsyncStorage.getItem(FAV_TAG_TEAMS_KEY)
@@ -41,16 +70,6 @@ class FavoritesStore {
     }
   }
 
-  modifyMember = (member: RosterMember) => {
-    return isTagTeam(member)
-      ? this.isTagTeamFavorited(member)
-        ? this.removeTagTeam(member)
-        : this.addTagTeam(member)
-      : this.isWrestlerFavorited(member)
-        ? this.removeWrestler(member)
-        : this.addWrestler(member)
-  }
-
   @action
   addWrestler = async (wrestler: Wrestler) => {
     if (this.isWrestlerFavorited(wrestler)) {
@@ -58,14 +77,14 @@ class FavoritesStore {
       return false
     }
     
-    this.favoriteWrestlers.push(wrestler.id)
+    this.favoriteWrestlers.push(wrestler)
     await this.saveWrestlers()
     return true
   }
 
   @action
   removeWrestler = async (wrestler: Wrestler) => {
-    const index = this.favoriteWrestlers.indexOf(wrestler.id)
+    const index = this.wrestlerIds.indexOf(wrestler.id)
     if (index > -1) {
       this.favoriteWrestlers.splice(index, 1)
       await this.saveWrestlers()
@@ -83,14 +102,14 @@ class FavoritesStore {
       return false
     }
 
-    this.favoriteTagTeams.push(tagTeam.id)
+    this.favoriteTagTeams.push(tagTeam)
     await this.saveTagTeams()
     return true
   }
 
   @action
-  removeTagTeam = async (tagTeam: Wrestler) => {
-    const index = this.favoriteTagTeams.indexOf(tagTeam.id)
+  removeTagTeam = async (tagTeam: TagTeam) => {
+    const index = this.tagTeamIds.indexOf(tagTeam.id)
     if (index > -1) {
       this.favoriteTagTeams.splice(index, 1)
       await this.saveTagTeams()
@@ -101,13 +120,23 @@ class FavoritesStore {
     return false
   }
 
+  modifyMember = (member: RosterMember) => {
+    return isTagTeam(member)
+      ? this.isTagTeamFavorited(member)
+        ? this.removeTagTeam(member)
+        : this.addTagTeam(member)
+      : this.isWrestlerFavorited(member)
+        ? this.removeWrestler(member)
+        : this.addWrestler(member)
+  }
+
   saveWrestlers = async () => await AsyncStorage.setItem(FAV_WRESTLERS_KEY, JSON.stringify(this.favoriteWrestlers))
   saveTagTeams = async () => await AsyncStorage.setItem(FAV_TAG_TEAMS_KEY, JSON.stringify(this.favoriteTagTeams))
 
   isFavorited = (member: RosterMember) => isTagTeam(member) ? this.isTagTeamFavorited(member) : this.isWrestlerFavorited(member)
 
-  isWrestlerFavorited = (wrestler: Wrestler) => this.favoriteWrestlers.includes(wrestler.id)
-  isTagTeamFavorited = (tagTeam: TagTeam) => this.favoriteTagTeams.includes(tagTeam.id)
+  isWrestlerFavorited = (wrestler: Wrestler) => this.wrestlerIds.includes(wrestler.id)
+  isTagTeamFavorited = (tagTeam: TagTeam) => this.tagTeamIds.includes(tagTeam.id)
 
   // for debugging
   resetFavorites = () => {

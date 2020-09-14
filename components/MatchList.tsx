@@ -3,7 +3,7 @@ import { computed } from "mobx"
 import { navigate, navigationRef } from "../RootNavigation"
 import React from "react"
 import { sharedStyles, colors } from "../styles"
-import { Match, Wrestler, TagTeam, MATCH_TYPE } from "../types"
+import { Match, Wrestler, TagTeam, MatchType } from "../types"
 import _ from "lodash"
 import GoToModal from "../GoToModal"
 import { observer } from "mobx-react"
@@ -52,7 +52,7 @@ class MatchRow extends React.Component<MatchRowProps> {
 
   @computed
   get sideKey() {
-    return this.match.type === MATCH_TYPE.SINGLES ? "wrestlers" : "tag_teams"
+    return this.match.type === MatchType.SINGLES ? "wrestlers" : "tag_teams"
   }
 
   render() {
@@ -171,8 +171,8 @@ class SideWithImages extends React.Component<SideWithImagesProps> {
 const SINGLES_MATCH_IMAGE_DIM = 75
 const TAG_MATCH_IMAGE_DIM = 60
 
-function ImageRow({ wrestlers, matchType }: { wrestlers: Wrestler[], matchType: MATCH_TYPE }) {
-  const dim = matchType == MATCH_TYPE.SINGLES ? SINGLES_MATCH_IMAGE_DIM : TAG_MATCH_IMAGE_DIM
+function ImageRow({ wrestlers, matchType }: { wrestlers: Wrestler[], matchType: MatchType }) {
+  const dim = matchType == MatchType.SINGLES ? SINGLES_MATCH_IMAGE_DIM : TAG_MATCH_IMAGE_DIM
   const imageStyle = {
     height: dim,
     width: dim,
