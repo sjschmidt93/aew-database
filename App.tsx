@@ -28,7 +28,7 @@ export type RootStackParamList = {
   Event: { event: Event },
   Championship: { championship: Championship }
   TagTeam: { tagTeam: TagTeam },
-  TaleOfTheTape: { wrestler: Wrestler }
+  TaleOfTheTape: { wrestler1: Wrestler, wrestler2: Wrestler }
 }
 
 const RootStack = createStackNavigator<RootStackParamList>()
@@ -83,7 +83,12 @@ function RosterStack() {
         options={({ route }) => ({
           title: route.params.wrestler.name,
           headerRight: () => (
-            <TouchableOpacity onPress={() => navigate("TaleOfTheTape", { wrestler: route.params.wrestler })}>
+            <TouchableOpacity
+              onPress={() => navigate("TaleOfTheTape", {
+                wrestler1: route.params.wrestler,
+                wrestler2: route.params.wrestler
+              })}
+            >
              <Ionicons name="md-people" size={32} color="white" style={{ paddingRight: 10 }} />
             </TouchableOpacity>
           )
@@ -92,6 +97,7 @@ function RosterStack() {
       <RootStack.Screen
         name="TaleOfTheTape"
         component={TaleOfTheTape}
+        options={{ title: "Tale of the Tape" }}
       />
       <RootStack.Screen
         name="Event"
