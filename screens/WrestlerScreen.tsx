@@ -33,17 +33,9 @@ export default class WrestlerScreen extends React.Component<Props> {
 
   componentDidMount() {
     this.fetchMatches()
-    // this.fetchWrestler()
   }
-
-  // @action
-  // fetchWrestler = async () => {
-  //   console.log(this.wrestler)
-  //   if (this.wrestler.id !== this.props.route.params.wrestler.id || _.isNil(this.wrestler.reigns)) {
-  //     this.wrestler = await AewApi.fetchWrestler(this.props.route.params.wrestler.id)
-  //   }
-  // }
   
+  @action
   fetchMatches = async () => this.matches = await AewApi.fetchWrestlerMatches(this.wrestler.id)
 
   @action

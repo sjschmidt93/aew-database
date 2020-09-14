@@ -41,7 +41,6 @@ class FavoritesStore {
 
   @computed
   get favoriteMen() {
-    console.log(this.favoriteWrestlers)
     return this.favoriteWrestlers.filter(isMan)
   }
 
