@@ -34,7 +34,7 @@ export default class Picker extends React.Component<PickerProps> {
 
   render() {
     return (
-      <View>
+      <View style={{ backgroundColor: colors.aewYellow }}>
         <FlatList
           data={this.props.options}
           horizontal={true}
@@ -42,7 +42,7 @@ export default class Picker extends React.Component<PickerProps> {
           showsHorizontalScrollIndicator={false}
           ItemSeparatorComponent={() => <View style={{ width: 10 }}/>}
           extraData={this.props.selectedIndex}
-          contentContainerStyle={{ backgroundColor: colors.aewYellow, paddingHorizontal: 15 }}
+          contentContainerStyle={{ paddingHorizontal: 15 }}
         />
       </View>
     )
