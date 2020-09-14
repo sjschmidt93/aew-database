@@ -50,6 +50,21 @@ class FavoritesStore {
     return this.favoriteWrestlers.filter(isWoman)
   }
 
+  @computed
+  get hasFavoriteMen() {
+    return this.favoriteMen.length > 0
+  }
+
+  @computed
+  get hasFavoriteWomen() {
+    return this.favoriteWomen.length > 0
+  }
+
+  @computed
+  get hasFavoriteTagTeams() {
+    return this.favoriteTagTeams.length > 0
+  }
+
   @action
   fetchFavoriteWrestlers = async () => {
     try {

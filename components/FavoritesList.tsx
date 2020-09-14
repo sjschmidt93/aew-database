@@ -19,21 +19,31 @@ export const FavoritesList = observer(() => {
 
   return (
     <>
-      <Text style={sharedStyles.h2}>MEN</Text>
-      <RosterMemberList members={store.favoriteMen} />
-      <Text style={sharedStyles.h2}>WOMEN</Text>
-      <RosterMemberList members={store.favoriteWomen} />
-      <Text style={sharedStyles.h2}>TAG TEAMS</Text>
-      <RosterMemberList members={store.favoriteTagTeams} />
+      {store.hasFavoriteMen && (
+        <>
+          <Text style={styles.text}>MEN</Text>
+          <RosterMemberList members={store.favoriteMen} />
+        </>
+      )}
+      {store.hasFavoriteWomen && (
+        <>
+          <Text style={styles.text}>WOMEN</Text>
+          <RosterMemberList members={store.favoriteWomen} />
+        </>
+      )}
+      {store.hasFavoriteTagTeams && (
+        <>
+          <Text style={styles.text}>TAG TEAMS</Text>
+          <RosterMemberList members={store.favoriteTagTeams} />
+        </>
+      )}
     </>
   )
 })
 
 const styles = StyleSheet.create({
-  container: {
-
-  },
-  scrollView: {
-
+  text: {
+    ...sharedStyles.h2,
+    paddingBottom: 10
   }
 })
