@@ -1,12 +1,13 @@
 import { View, TouchableOpacity, Text, FlatList, StyleSheet, Image } from "react-native"
 import { computed } from "mobx"
-import { navigate, navigationRef } from "../RootNavigation"
+import { navigate, navigationRef, push } from "../RootNavigation"
 import React from "react"
 import { sharedStyles, colors } from "../styles"
 import { Match, Wrestler, TagTeam, MatchType } from "../types"
 import _ from "lodash"
 import GoToModal from "../GoToModal"
 import { observer } from "mobx-react"
+import { RosterMember } from "../screens/RosterScreen"
 
 type MatchListProps = {
   matches: Match[]
@@ -151,7 +152,7 @@ class SideWithImages extends React.Component<SideWithImagesProps> {
         }
         GoToModal.show(items)
       } else {
-        navigate("Wrestler", { wrestler: this.side })
+        push("Wrestler", { wrestler: this.side })
       }
     }
     

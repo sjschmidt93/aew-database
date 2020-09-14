@@ -1,13 +1,13 @@
 import React from 'react'
-import { Image } from 'react-native'
+import { Image, TouchableHighlightBase, TouchableOpacity } from 'react-native'
 import EventsScreen from './screens/EventsScreen'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator, StackNavigationOptions } from '@react-navigation/stack'
 import RosterScreen from './screens/RosterScreen'
 import WrestlerScreen from './screens/WrestlerScreen'
-import { navigationRef } from './RootNavigation'
-import { Wrestler, Event, Championship } from './types'
+import { navigate, navigationRef } from './RootNavigation'
+import { Wrestler, Event, Championship, TagTeam } from './types'
 import HomeScreen from './screens/HomeScreen'
 import EventPage from './screens/EventPage'
 import { images } from './assets'
@@ -17,15 +17,18 @@ import { Ionicons, MaterialIcons } from '@expo/vector-icons'
 import { colors } from './styles'
 import GoToModal from './GoToModal'
 import { observer, Provider } from 'mobx-react'
-import favoritesStore, { StoreProvider } from "./FavoritesStore"
+import { StoreProvider } from "./FavoritesStore"
+import TaleOfTheTape from './screens/TaleOfTheTape'
 
 export type RootStackParamList = {
   Home: undefined, 
   Roster: undefined,
+  Events: undefined,
   Wrestler: { wrestler: Wrestler },
   Event: { event: Event },
   Championship: { championship: Championship }
-  TagTeam: { tagTeam: TagTeam }
+  TagTeam: { tagTeam: TagTeam },
+  TaleOfTheTape: { wrestler: Wrestler }
 }
 
 const RootStack = createStackNavigator<RootStackParamList>()
@@ -77,7 +80,18 @@ function RosterStack() {
       <RootStack.Screen
         name="Wrestler"
         component={WrestlerScreen}
-        options={({ route }) => ({ title: route.params.wrestler.name })}
+        options={({ route }) => ({
+          title: route.params.wrestler.name,
+          headerRight: () => (
+            <TouchableOpacity onPress={() => navigate("TaleOfTheTape", { wrestler: route.params.wrestler })}>
+             <Ionicons name="md-people" size={32} color="white" style={{ paddingRight: 10 }} />
+            </TouchableOpacity>
+          )
+        })}
+      />
+      <RootStack.Screen
+        name="TaleOfTheTape"
+        component={TaleOfTheTape}
       />
       <RootStack.Screen
         name="Event"

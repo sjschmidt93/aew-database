@@ -170,7 +170,7 @@ export const StoreProvider = ({ children }: any) => {
 
 export const useStore = () => {
   const store = React.useContext(storeContext)
-  if (!store) {
+  if (_.isNil(store)) {
     throw new Error('useStore must be used within a StoreProvider.')
   }
   return store

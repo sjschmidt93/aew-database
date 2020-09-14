@@ -15,11 +15,6 @@ import { isTagTeam } from "../components/MatchList"
 import { storeContext, useStore } from "../FavoritesStore"
 import { FavoritesList } from "../components/FavoritesList"
 
-type RosterScreenNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  "Roster"
->;
-
 const ROSTER_ROW_HEIGHT = 75
 const FAVORITES_STR = "FAVORITES"
 
@@ -29,7 +24,7 @@ export const isMan = (wrestler: Wrestler) => wrestler.division === Division.MENS
 export const isWoman = (wrestler: Wrestler) => wrestler.division === Division.WOMENS
 
 @observer
-export default class RosterScreen extends React.Component<RosterPageProps> {
+export default class RosterScreen extends React.Component {
   @observable
   wrestlers: Wrestler[] = []
 
