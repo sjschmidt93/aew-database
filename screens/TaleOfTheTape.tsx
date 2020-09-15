@@ -1,12 +1,12 @@
 import { RouteProp } from "@react-navigation/native"
 import { action, computed, observable } from "mobx"
 import { observer } from "mobx-react"
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { View, StyleSheet, Text, Image, Dimensions, Animated } from "react-native"
 import { RootStackParamList } from "../App"
 import { colors, sharedStyles } from "../styles"
 import { Ionicons, Feather, MaterialIcons, AntDesign } from "@expo/vector-icons"
-import _ from "lodash"
+import _, { first } from "lodash"
 import { Wrestler } from "../types"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { AewApi } from "../aew_api"
@@ -75,7 +75,7 @@ const TotpImage = observer(({ wrestler, onSelectWrestler }: TotpImageProps) => {
             <Ionicons name="ios-person" size={0.5 * IMAGE_WIDTH} color={colors.white} />
           </View>
         </View>
-        <SearchBar onSelectWrestler={onSelectWrestler} onCancelSearch={onCancelSearch} />
+        <SearchBar onSelectWrestler={onSelectWrestler} onCancelSearch={onCancelSearch} isWrestlerNil={true} />
       </View>
     )
   }
@@ -99,31 +99,46 @@ const SEARCH_RESULT_MAX = 10
 interface SearchBarProps {
   onSelectWrestler: (wrestler: Wrestler) => void
   onCancelSearch: () => void
+  isWrestlerNil: boolean
 }
 
-const SearchBar = observer(({ onSelectWrestler, onCancelSearch }: SearchBarProps ) => {
+const SearchBar = observer(({ onSelectWrestler, onCancelSearch, isWrestlerNil = false }: SearchBarProps ) => {
   const [wrestlers, setWrestlers] = useState([])
   const [resultingWrestlers, setResultingWrestlers] = useState([])
   const [searchInput, setSearchInput] = useState("")
-  const [isSelected, setIsSelected] = useState(false)
-
-  const width = new Animated.Value(IMAGE_WIDTH)
-  const left = new Animated.Value(0)
+  const [isExpanded, setIsExpanded] = useState(false)
 
   const animatedValue = new Animated.Value(0)
 
   const store = useStore()
 
-  useEffect(() => {
-    Animated.timing(
-      animatedValue, {
-        toValue: isSelected ? 1 : 0
-      }).start(() => {
-      if(!isSelected) {
-        // do stuff
-      }
+  // const firstUpdate = useRef(true)
+  // useEffect(() => {
+  //   if (firstUpdate.current) {
+  //     firstUpdate.current = false
+  //     return
+  //   }
+  //   Animated.timing(
+  //     animatedValue, {
+  //       toValue: isExpanded ? 1 : 0
+  //     }).start(() => {
+  //       if(isExpanded) {
+        
+  //       } else {
+  //         onCancelSearch()
+  //       }
+  //   })
+  // }, [isExpanded])
+
+  const expand = () => Animated.timing(animatedValue, { toValue: 1 }).start(() => setIsExpanded(true))
+  const collapse = (callback: () => void = () => null) => (
+    Animated.timing(animatedValue, {
+      toValue: 0
+    }).start(() => { 
+      onCancelSearch()
+      callback()
     })
-  }, [isSelected])
+  )
 
   useEffect(() => {
     AewApi.fetchWrestlers()
@@ -155,35 +170,40 @@ const SearchBar = observer(({ onSelectWrestler, onCancelSearch }: SearchBarProps
           styles.searchBarContainer, {
           left: animatedValue.interpolate({
             inputRange: [0,1],
-            outputRange: [0, (IMAGE_WIDTH - 0.95 * WIDTH_MINUS_PADDING)  / 2]
+            outputRange: [0, (IMAGE_WIDTH - FULL_SEARCH_BAR_WIDTH)  / 2]
           }),
           width: animatedValue.interpolate({
             inputRange: [0,1],
-            outputRange: [IMAGE_WIDTH, 0.95 * WIDTH_MINUS_PADDING]
+            outputRange: [IMAGE_WIDTH, FULL_SEARCH_BAR_WIDTH]
           })
         }]}
       >
-        <TouchableOpacity onPress={() => setIsSelected(true)}>
+        <TouchableOpacity onPress={expand}>
           <Text>Search</Text>
         </TouchableOpacity>
         <View style={{ flexDirection: "row" }}>
-          <TouchableOpacity onPress={() => setIsSelected(false)} style={[styles.iconContainer, styles.xContainer]}>
-            <MaterialIcons name="cancel" size={24} color="white" />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => setIsSelected(true)} style={[styles.iconContainer, styles.searchIconContainer]}>
+          {!isWrestlerNil && (
+            <TouchableOpacity onPress={collapse} style={[styles.iconContainer, styles.xContainer]}>
+              <MaterialIcons name="cancel" size={24} color="white" />
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity onPress={expand} style={[styles.iconContainer, styles.searchIconContainer]}>
             <AntDesign name="search1" size={24} color="white" />
           </TouchableOpacity>
         </View>
       </Animated.View>
-      <View style={styles.searchResults}>
-        {resultingWrestlers.map(wrestler => {
-          return (
-            <TouchableOpacity onPress={() => onSelectWrestler(wrestler)} style={styles.wrestlerSearchContainer}>
-              <Text style={{ color: colors.white }}>{wrestler.name}</Text>
-            </TouchableOpacity>
-          )
-        })}
-      </View>
+      {isExpanded && (
+        <View style={styles.searchResults}>
+          {resultingWrestlers.map(wrestler => {
+            const onSelect = () => collapse(() => onSelectWrestler(wrestler))
+            return (
+              <TouchableOpacity onPress={() => collapse(onSelect)} style={styles.wrestlerSearchContainer}>
+                <Text style={{ color: colors.white }}>{wrestler.name}</Text>
+              </TouchableOpacity>
+            )
+          })}
+        </View>
+      )}
     </View>
   )
 })
