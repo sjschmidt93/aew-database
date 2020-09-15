@@ -61,28 +61,28 @@ interface TotpImageProps {
 }
 
 const TotpImage = observer(({ wrestler, onSelectWrestler }: TotpImageProps) => {
+  if (_.isNil(wrestler)) {
+    return (
+      <View style={styles.imageContainer}>
+        <View style={styles.imageBackground}>
+          <View style={styles.imageCircle}>
+            <Ionicons name="ios-person" size={0.5 * IMAGE_WIDTH} color={colors.white} />
+          </View>
+        </View>
+        {/* <SearchBar /> */}
+      </View>
+    )
+  }
+
   const [isSearching, setIsSearching] = useState(false)
-  
+
   return (
     <View style={styles.imageContainer}>
-      {!_.isNil(wrestler)
-        ? (
-          <>
-            <Image source={{ uri: wrestler.image_url }} style={styles.image} />
-            <TouchableOpacity onPress={() => onSelectWrestler(wrestler)} style={styles.nameContainer}>
-              <Text style={sharedStyles.h3}>{wrestler.name}</Text>
-              <Feather name="edit" size={16} color={colors.white} style={{ marginLeft: 5 }} />
-            </TouchableOpacity>
-          </>
-        ) 
-        : (
-          <View style={styles.imageBackground}>
-            <View style={styles.imageCircle}>
-              <Ionicons name="ios-person" size={0.5 * IMAGE_WIDTH} color={colors.white} />
-            </View>
-          </View>
-        )
-      }
+      <Image source={{ uri: wrestler.image_url }} style={styles.image} />
+      <TouchableOpacity onPress={() => onSelectWrestler(wrestler)} style={styles.nameContainer}>
+        <Text style={sharedStyles.h3}>{wrestler.name}</Text>
+        <Feather name="edit" size={16} color={colors.white} style={{ marginLeft: 5 }} />
+      </TouchableOpacity>
     </View>
   )
 })
