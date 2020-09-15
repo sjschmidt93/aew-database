@@ -85,8 +85,7 @@ function RosterStack() {
           headerRight: () => (
             <TouchableOpacity
               onPress={() => navigate("TaleOfTheTape", {
-                wrestler1: route.params.wrestler,
-                wrestler2: route.params.wrestler
+                wrestler1: route.params.wrestler
               })}
             >
              <Ionicons name="md-people" size={32} color="white" style={{ paddingRight: 10 }} />
