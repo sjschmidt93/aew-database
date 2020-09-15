@@ -2,13 +2,13 @@ import { RouteProp } from "@react-navigation/native"
 import { action, computed, observable } from "mobx"
 import { observer } from "mobx-react"
 import React, { useEffect, useState } from "react"
-import { View, StyleSheet, Text, Image, Dimensions } from "react-native"
+import { View, StyleSheet, Text, Image, Dimensions, Animated } from "react-native"
 import { RootStackParamList } from "../App"
 import { colors, sharedStyles } from "../styles"
 import { Ionicons, Feather, MaterialIcons, AntDesign } from "@expo/vector-icons"
 import _ from "lodash"
 import { Wrestler } from "../types"
-import { FlatList, TouchableOpacity } from "react-native-gesture-handler"
+import { TouchableOpacity } from "react-native-gesture-handler"
 import { AewApi } from "../aew_api"
 import { useStore } from "../FavoritesStore"
 
@@ -65,6 +65,8 @@ interface TotpImageProps {
 const TotpImage = observer(({ wrestler, onSelectWrestler }: TotpImageProps) => {
   const [isSearching, setIsSearching] = useState(false)
 
+  const onCancelSearch = () => setIsSearching(false)
+
   if (_.isNil(wrestler)) {
     return (
       <View style={styles.imageContainer}>
@@ -73,7 +75,7 @@ const TotpImage = observer(({ wrestler, onSelectWrestler }: TotpImageProps) => {
             <Ionicons name="ios-person" size={0.5 * IMAGE_WIDTH} color={colors.white} />
           </View>
         </View>
-        <SearchBar onSelectWrestler={onSelectWrestler} />
+        <SearchBar onSelectWrestler={onSelectWrestler} onCancelSearch={onCancelSearch} />
       </View>
     )
   }
@@ -86,7 +88,7 @@ const TotpImage = observer(({ wrestler, onSelectWrestler }: TotpImageProps) => {
             <Text style={sharedStyles.h3}>{wrestler.name}</Text>
             <Feather name="edit" size={16} color={colors.white} style={{ marginLeft: 5 }} />
           </TouchableOpacity>
-        ) : <SearchBar onSelectWrestler={onSelectWrestler} />
+        ) : <SearchBar onSelectWrestler={onSelectWrestler} onCancelSearch={onCancelSearch} />
       }
     </View>
   )
@@ -94,55 +96,93 @@ const TotpImage = observer(({ wrestler, onSelectWrestler }: TotpImageProps) => {
 
 const SEARCH_RESULT_MAX = 10
 
-const SearchBar = observer(({ onSelectWrestler }: { onSelectWrestler: (wrestler: Wrestler) => void} ) => {
+interface SearchBarProps {
+  onSelectWrestler: (wrestler: Wrestler) => void
+  onCancelSearch: () => void
+}
+
+const SearchBar = observer(({ onSelectWrestler, onCancelSearch }: SearchBarProps ) => {
   const [wrestlers, setWrestlers] = useState([])
   const [resultingWrestlers, setResultingWrestlers] = useState([])
   const [searchInput, setSearchInput] = useState("")
+  const [isSelected, setIsSelected] = useState(false)
+
+  const width = new Animated.Value(IMAGE_WIDTH)
+  const left = new Animated.Value(0)
+
+  const animatedValue = new Animated.Value(0)
+
   const store = useStore()
+
+  useEffect(() => {
+    Animated.timing(
+      animatedValue, {
+        toValue: isSelected ? 1 : 0
+      }).start(() => {
+      if(!isSelected) {
+        // do stuff
+      }
+    })
+  }, [isSelected])
 
   useEffect(() => {
     AewApi.fetchWrestlers()
       .then(res => setWrestlers(res))
+      .catch(e => console.warn("Error fetching wrestlers", e))
   }, [])
 
-  // useEffect(() => {
-  //   if (searchInput === "") {
-  //     if (store.favoriteWrestlers.length > SEARCH_RESULT_MAX) {
-  //       setResultingWrestlers(store.favoriteWrestlers.slice(0,SEARCH_RESULT_MAX))
-  //     } else {
-  //       const candidates = store.favoriteWrestlers.concat(wrestlers.slice(0, SEARCH_RESULT_MAX))
-  //       const candidatesWithoutDupes = candidates.filter((wrestler, index) => {
-  //         const i = candidates.reverse().findIndex(candidate => candidate.id === wrestler.id)
-  //         return index > i
-  //       })
-  //       setResultingWrestlers(candidatesWithoutDupes)
-  //     }
-  //   } else {
+  useEffect(() => {
+    if (searchInput === "") {
+      if (store.favoriteWrestlers.length > SEARCH_RESULT_MAX) {
+        setResultingWrestlers(store.favoriteWrestlers.slice(0,SEARCH_RESULT_MAX))
+      } else {
+        const candidates = store.favoriteWrestlers.concat(wrestlers.slice(0, SEARCH_RESULT_MAX))
+        console.log(candidates)
+        const candidatesWithoutDupes = candidates.filter((wrestler, index, self) => {
+          return self.findIndex(candidate => candidate.id === wrestler.id) === index
+        })
+        setResultingWrestlers(candidatesWithoutDupes)
+      }
+    } else {
 
-  //   }
-  // })
+    }
+  }, [searchInput, wrestlers])
 
   return (
     <View>
-      <View style={styles.searchBarContainer}>
-        <Text>Search</Text>
+      <Animated.View
+        style={[
+          styles.searchBarContainer, {
+          left: animatedValue.interpolate({
+            inputRange: [0,1],
+            outputRange: [0, (IMAGE_WIDTH - 0.95 * WIDTH_MINUS_PADDING)  / 2]
+          }),
+          width: animatedValue.interpolate({
+            inputRange: [0,1],
+            outputRange: [IMAGE_WIDTH, 0.95 * WIDTH_MINUS_PADDING]
+          })
+        }]}
+      >
+        <TouchableOpacity onPress={() => setIsSelected(true)}>
+          <Text>Search</Text>
+        </TouchableOpacity>
         <View style={{ flexDirection: "row" }}>
-          <View style={[styles.iconContainer, styles.xContainer]}>
+          <TouchableOpacity onPress={() => setIsSelected(false)} style={[styles.iconContainer, styles.xContainer]}>
             <MaterialIcons name="cancel" size={24} color="white" />
-          </View>
-          <View style={[styles.iconContainer, styles.searchIconContainer]}>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setIsSelected(true)} style={[styles.iconContainer, styles.searchIconContainer]}>
             <AntDesign name="search1" size={24} color="white" />
-          </View>
+          </TouchableOpacity>
         </View>
-      </View>
-        <View style={styles.searchResults}>
-          {wrestlers.map(wrestler => {
-            return (
-              <TouchableOpacity onPress={() => onSelectWrestler(wrestler)} style={styles.wrestlerSearchContainer}>
-                <Text style={{ color: colors.white }}>{wrestler.name}</Text>
-              </TouchableOpacity>
-            )
-          })}
+      </Animated.View>
+      <View style={styles.searchResults}>
+        {resultingWrestlers.map(wrestler => {
+          return (
+            <TouchableOpacity onPress={() => onSelectWrestler(wrestler)} style={styles.wrestlerSearchContainer}>
+              <Text style={{ color: colors.white }}>{wrestler.name}</Text>
+            </TouchableOpacity>
+          )
+        })}
       </View>
     </View>
   )
@@ -154,8 +194,11 @@ const Column = ({ wrestler }: { wrestler: Wrestler }) => {
   )
 }
 
-const IMAGE_WIDTH = 0.45 * (Dimensions.get('window').width - sharedStyles.scrollViewContainer.paddingHorizontal * 2)
+const WIDTH_MINUS_PADDING = Dimensions.get('window').width - sharedStyles.scrollViewContainer.paddingHorizontal * 2
+const IMAGE_WIDTH = 0.45 * WIDTH_MINUS_PADDING
 const BORDER_RADIUS = 12
+const SEARCH_BAR_HEIGHT = 40
+const FULL_SEARCH_BAR_WIDTH = 0.95 * WIDTH_MINUS_PADDING
 
 const styles = StyleSheet.create({
   container: {
@@ -180,17 +223,16 @@ const styles = StyleSheet.create({
   },
   searchBarContainer: {
     backgroundColor: colors.gray,
-    width: IMAGE_WIDTH,
     flexDirection: "row",
     justifyContent: "space-between",
-    height: 30,
+    height: SEARCH_BAR_HEIGHT,
     borderRadius: 12,
     alignItems: "center",
     paddingLeft: 10
   },
   iconContainer: {
-    width: 40,
-    height: 30,
+    width: 35,
+    height: SEARCH_BAR_HEIGHT,
     alignItems: "center",
     justifyContent: "center"
   },
@@ -201,7 +243,7 @@ const styles = StyleSheet.create({
   },
   searchResults: {
     position: "absolute",
-    top: 40
+    top: 50
   },
   xContainer: {
     backgroundColor: "red"
