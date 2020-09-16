@@ -2,7 +2,7 @@ import { RouteProp } from "@react-navigation/native"
 import { action, computed, observable } from "mobx"
 import { observer } from "mobx-react"
 import React, { useEffect, useRef, useState } from "react"
-import { View, StyleSheet, Text, Image, Dimensions, Animated } from "react-native"
+import { View, StyleSheet, Text, Image, Dimensions, Animated, StyleProp, Keyboard } from "react-native"
 import { RootStackParamList } from "../App"
 import { colors, sharedStyles } from "../styles"
 import { Ionicons, Feather, MaterialIcons, AntDesign } from "@expo/vector-icons"
@@ -41,39 +41,57 @@ export default class TaleOfTheTape extends React.Component<Props> {
   @observable isSearchBar1Visible = false
   @observable isSearchBar1Expanded = false
   @observable searchBar1AnimatedValue = new Animated.Value(0)
+  @observable isSearchBar1Animating = false
 
   @observable isSearchBar2Visible = _.isNil(this.wrestler2)
   @observable isSearchBar2Expanded = false
   @observable searchBar2AnimatedValue = new Animated.Value(0)
+  @observable isSearchBar2Animating = false
 
 
-  collapseSearchBar1 = () => (
+  collapseSearchBar1 = () => {
+    this.isSearchBar1Animating = true
+    this.isSearchBar1Expanded = false
     Animated.timing(this.searchBar1AnimatedValue, { toValue: 0 })
       .start(() => {
+        this.isSearchBar1Animating = false
         this.isSearchBar1Visible = false
         this.isSearchBar1Expanded = false
       })
-  )
-  expandSearchBar1 = () => (
+  }
+
+  expandSearchBar1 = () => {
+    this.isSearchBar1Animating = true
     Animated.timing(this.searchBar1AnimatedValue, { toValue: 1 })
-      .start(() => this.isSearchBar1Expanded = true)
-  )
+      .start(() => {
+        this.isSearchBar1Animating = false
+        this.isSearchBar1Expanded = true
+      })
+  }
 
   onCancelSearchBar1Search = () => this.collapseSearchBar1()
   onPressEditWrestler1 = () => this.isSearchBar1Visible = true
   
   collapseSearchBar2 = () => {
+    this.isSearchBar2Animating = true
     this.isSearchBar2Expanded = false
     Animated.timing(this.searchBar2AnimatedValue, { toValue: 0 })
       .start(() => {
-        this.isSearchBar2Visible = false
+        this.isSearchBar2Animating = false
+        if (!_.isNil(this.wrestler2)) {
+          this.isSearchBar2Visible = false
+        }
       })
   }
 
-  expandSearchBar2 = () => (
+  expandSearchBar2 = () => {
+    this.isSearchBar2Animating = true
     Animated.timing(this.searchBar2AnimatedValue, { toValue: 1 })
-      .start(() => this.isSearchBar2Expanded = true)
-  )
+      .start(() => {
+        this.isSearchBar2Animating = false
+        this.isSearchBar2Expanded = true
+      })
+  }
 
   onCancelSearchBar2Search = () => this.collapseSearchBar2()
   onPressEditWrestler2 = () => this.isSearchBar2Visible = true
@@ -81,6 +99,11 @@ export default class TaleOfTheTape extends React.Component<Props> {
   @computed
   get hasNonNullWrestler() {
     return !_.isNil(this.wrestler1) || !_.isNil(this.wrestler2)
+  }
+
+  @computed
+  get animatedValueSum () {
+    return Animated.add(this.searchBar1AnimatedValue, this.searchBar2AnimatedValue)
   }
 
   @action onSelectWrestler1 = (wrestler: Wrestler) => {
@@ -92,11 +115,28 @@ export default class TaleOfTheTape extends React.Component<Props> {
     this.collapseSearchBar2()
   }
 
+  fadeTransform = (animatedValue: Animated.Value | Animated.AnimatedAddition) => ({
+    transform: [
+      { 
+        translateY: animatedValue.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0, EXPANDED_SEARCH_BAR_HEIGHT]
+        })
+      }
+    ],
+    opacity: animatedValue.interpolate({
+      inputRange: [0, 1],
+      outputRange: [1, 0.5]
+    })
+  })
+
   render() {
+    const transform = this.fadeTransform(this.animatedValueSum)
     return (
       <View style={sharedStyles.scrollViewContainer}>
         <Animated.View style ={[
           styles.floatingSearchBar,
+          this.fadeTransform(this.searchBar2AnimatedValue),
           {
             left: COLLAPSED_FLOATING_BAR_1_LEFT,
             width: this.searchBar1AnimatedValue.interpolate({
@@ -125,12 +165,14 @@ export default class TaleOfTheTape extends React.Component<Props> {
               isExpanded={this.isSearchBar1Expanded}
               isWrestlerNil={_.isNil(this.wrestler1)}
               animatedValue={this.searchBar1AnimatedValue}
+              disabled={this.isSearchBar1Animating || this.isSearchBar2Animating || this.isSearchBar2Expanded}
             />
           )}
         </Animated.View>
 
         <Animated.View style ={[
           styles.floatingSearchBar,
+          this.fadeTransform(this.searchBar1AnimatedValue),
           {
             left: this.searchBar2AnimatedValue.interpolate({
               inputRange: [0, 1],
@@ -162,24 +204,13 @@ export default class TaleOfTheTape extends React.Component<Props> {
               isExpanded={this.isSearchBar2Expanded}
               isWrestlerNil={_.isNil(this.wrestler2)}
               animatedValue={this.searchBar2AnimatedValue}
+              disabled={this.isSearchBar2Animating || this.isSearchBar1Animating || this.isSearchBar1Expanded}
             />
           )}
         </Animated.View>
 
 
-        <Animated.View style={[
-          styles.imagesContainer,
-          {
-            transform: [
-              { 
-                translateY: Animated.add(this.searchBar1AnimatedValue, this.searchBar2AnimatedValue).interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0, EXPANDED_SEARCH_BAR_HEIGHT]
-                })
-              }
-            ]
-          }
-        ]}>
+        <Animated.View style={[styles.imagesContainer, this.fadeTransform(this.animatedValueSum)]}>
           <TotpImage
             wrestler={this.wrestler1}
             onSelectWrestler={this.onSelectWrestler1}
@@ -191,9 +222,9 @@ export default class TaleOfTheTape extends React.Component<Props> {
             onPressEdit={this.onPressEditWrestler2}
           />
         </Animated.View>
-
-        {!this.isSearchBar1Expanded && !this.isSearchBar2Expanded &&
-          <WrestlerColumns wrestler1={this.wrestler1} wrestler2={this.wrestler2} /> }
+        <Animated.View style={this.fadeTransform(this.animatedValueSum)}>
+          <WrestlerColumns wrestler1={this.wrestler1} wrestler2={this.wrestler2} />
+        </Animated.View>
       </View>
     )
   }
@@ -275,10 +306,11 @@ interface SearchBarProps {
   isExpanded: boolean
   isWrestlerNil: boolean
   animatedValue: Animated.Value
+  disabled: boolean
 }
 
 const SearchBar = observer((props: SearchBarProps ) => {
-  const { onSelectWrestler, onPressSearch, onCancelSearch, isExpanded, isWrestlerNil, animatedValue } = props
+  const { onSelectWrestler, onPressSearch, onCancelSearch, isExpanded, isWrestlerNil, animatedValue, disabled } = props
   const [wrestlers, setWrestlers] = useState([])
   const [resultingWrestlers, setResultingWrestlers] = useState([])
   const [searchInput, setSearchInput] = useState("")
@@ -295,17 +327,9 @@ const SearchBar = observer((props: SearchBarProps ) => {
 
   useEffect(() => {
     if (searchInput === "") {
-      if (store.favoriteWrestlers.length > SEARCH_RESULT_MAX) {
-        setResultingWrestlers(store.favoriteWrestlers.slice(0,SEARCH_RESULT_MAX))
-      } else {
-        const candidates = store.favoriteWrestlers.concat(wrestlers.slice(0, SEARCH_RESULT_MAX))
-        const candidatesWithoutDupes = candidates.filter((wrestler, index, self) => {
-          return self.findIndex(candidate => candidate.id === wrestler.id) === index
-        })
-        setResultingWrestlers(candidatesWithoutDupes)
-      }
+      setResultingWrestlers(wrestlers.slice(0, SEARCH_RESULT_MAX))
     } else {
-
+      setResultingWrestlers(wrestlers.filter(wrestler => wrestler.name.startsWith(searchInput)))
     }
   }, [searchInput, wrestlers])
 
@@ -315,10 +339,8 @@ const SearchBar = observer((props: SearchBarProps ) => {
     }
   }, [isExpanded])
 
-  const width = animatedValue.interpolate({
-    inputRange: [0, 1],
-    outputRange: [35, 50]
-  })
+  const onPressStar = () => setResultingWrestlers(store.favoriteWrestlers.slice(0, SEARCH_RESULT_MAX))
+
   return (
     <View>
       <View style={styles.searchBarContainer}>
@@ -331,25 +353,44 @@ const SearchBar = observer((props: SearchBarProps ) => {
           />
         </TouchableOpacity>
         <View style={styles.iconsContainer}>
-          {!isWrestlerNil && (
-            <Animated.View style={{ width }}>
-                <TouchableOpacity onPress={onCancelSearch} style={[styles.iconContainer, styles.xContainer]}>
-                  <MaterialIcons name="cancel" size={24} color="white" />
-                </TouchableOpacity>
-            </Animated.View>
-          )}
-          <Animated.View style ={{ width }}>
-            <TouchableOpacity onPress={onPressSearch} style={[styles.iconContainer, styles.searchIconContainer]}>
-              <AntDesign name="search1" size={24} color="white" />
-            </TouchableOpacity>
-          </Animated.View>
+          <SearchBarIcon
+            animatedValue={animatedValue}
+            color={colors.gold}
+            visible={isExpanded && store.favoriteWrestlers.length > 0}
+            onPress={onPressStar}
+            disabled={disabled}
+            icon={<AntDesign name="staro" size={24} />}
+          />
+          <SearchBarIcon
+            animatedValue={animatedValue}
+            color="red"
+            visible={isExpanded}
+            onPress={() => {
+              onCancelSearch()
+              Keyboard.dismiss()
+            }}
+            disabled={disabled}
+            icon={<MaterialIcons name="cancel" size={24} color="white" />}
+          />
+          <SearchBarIcon
+            animatedValue={animatedValue}
+            color={colors.graphite}
+            onPress={onPressSearch}
+            disabled={disabled}
+            icon={<AntDesign name="search1" size={24} color="white" />}
+            style={styles.searchIconContainer}
+          />
         </View>
       </View>
       {isExpanded && (
         <View style={styles.searchResults}>
           {resultingWrestlers.map(wrestler => {
+            const onSelect = () => {
+              onSelectWrestler(wrestler)
+              Keyboard.dismiss()
+            }
             return (
-              <TouchableOpacity onPress={() => onSelectWrestler(wrestler)} style={styles.wrestlerSearchContainer}>
+              <TouchableOpacity onPress={onSelect} style={styles.wrestlerSearchContainer}>
                 <Text style={{ color: colors.white }}>{wrestler.name}</Text>
               </TouchableOpacity>
             )
@@ -359,6 +400,35 @@ const SearchBar = observer((props: SearchBarProps ) => {
     </View>
   )
 })
+
+interface SearchBarIconProps {
+  animatedValue: Animated.Value
+  color: string
+  disabled: boolean
+  onPress: () => void
+  icon: React.ReactNode
+  visible?: boolean
+  style?: StyleProp<View>
+}
+
+const SearchBarIcon = ({ animatedValue, color, onPress, disabled, icon, visible = true, style = null }: SearchBarIconProps) => {
+  if (!visible) {
+    return null
+  }
+
+  const width = animatedValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [35, 50]
+  })
+
+  return (
+    <Animated.View style={{ width }}>
+      <TouchableOpacity onPress={onPress} disabled={disabled} style={[styles.iconContainer, style, { backgroundColor: color }]}>
+        {icon}
+      </TouchableOpacity>
+    </Animated.View>
+  )
+}
 
 const ROW_HEIGHT = 50
 
@@ -429,16 +499,12 @@ const styles = StyleSheet.create({
     justifyContent: "center"
   },
   searchIconContainer: {
-    backgroundColor: colors.graphite,
     borderTopRightRadius: BORDER_RADIUS,
     borderBottomRightRadius: BORDER_RADIUS
   },
   searchResults: {
     position: "absolute",
     top: EXPANDED_SEARCH_BAR_HEIGHT + 5
-  },
-  xContainer: {
-    backgroundColor: "red"
   },
   imagesContainer: {
     justifyContent: "space-between",

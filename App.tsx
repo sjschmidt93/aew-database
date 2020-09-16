@@ -88,7 +88,7 @@ function RosterStack() {
                 wrestler1: route.params.wrestler
               })}
             >
-             <Ionicons name="md-people" size={32} color="white" style={{ paddingRight: 10 }} />
+             <Ionicons name="md-people" size={32} color="white" style={{ paddingRight: 15 }} />
             </TouchableOpacity>
           )
         })}
