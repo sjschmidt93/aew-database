@@ -52,7 +52,7 @@ export default class WrestlerScreen extends React.Component<Props> {
         <View style={styles.wrestlerInfoContainer}>
           <Image source={{ uri: this.wrestler.image_url }} style={styles.image} />
           <View style={styles.basicInfoContainer}>
-            <LabelValue label="AEW Record" value={`${this.wrestler.num_wins}-${this.wrestler.num_losses}`} />
+            <LabelValue label="AEW Record" value={toRecordString(this.wrestler)} />
             <LabelValue label={`${new Date().getFullYear()} Record`} value={"TODO"} />
           </View>
         </View>
@@ -102,7 +102,9 @@ function ReignList({ reigns }: { reigns: Reign[] }) {
   )
 }
 
-const toHeightString = (height: number): string => `${Math.floor(height/12)}'${height % 12}"`
+export const toHeightString = (height: number): string => `${Math.floor(height/12)}'${height % 12}"`
+export const toRecordString = (wrestler: Wrestler) => `${wrestler.num_wins} - ${wrestler.num_losses}`
+export const toWeightString = (weight: number) => `${weight} lbs`
 
 function LabelValue({ label, value }: { label: string, value: string }) {
   return !_.isNil(value) && (

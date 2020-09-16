@@ -6,11 +6,12 @@ import { View, StyleSheet, Text, Image, Dimensions, Animated } from "react-nativ
 import { RootStackParamList } from "../App"
 import { colors, sharedStyles } from "../styles"
 import { Ionicons, Feather, MaterialIcons, AntDesign } from "@expo/vector-icons"
-import _, { first } from "lodash"
+import _, { Dictionary, first } from "lodash"
 import { Wrestler } from "../types"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { AewApi } from "../aew_api"
 import { useStore } from "../FavoritesStore"
+import { toHeightString, toRecordString, toWeightString } from "./WrestlerScreen"
 
 type WrestlerScreenRouteProp = RouteProp<RootStackParamList, "TaleOfTheTape">
 type Props = {
@@ -60,13 +61,13 @@ export default class TaleOfTheTape extends React.Component<Props> {
   onCancelSearchBar1Search = () => this.collapseSearchBar1()
   onPressEditWrestler1 = () => this.isSearchBar1Visible = true
   
-  collapseSearchBar2 = () => (
+  collapseSearchBar2 = () => {
+    this.isSearchBar2Expanded = false
     Animated.timing(this.searchBar2AnimatedValue, { toValue: 0 })
       .start(() => {
         this.isSearchBar2Visible = false
-        this.isSearchBar2Expanded = false
       })
-  )
+    }
   expandSearchBar2 = () => (
     Animated.timing(this.searchBar2AnimatedValue, { toValue: 1 })
       .start(() => this.isSearchBar2Expanded = true)
@@ -169,19 +170,47 @@ export default class TaleOfTheTape extends React.Component<Props> {
           </Animated.View>
         </View>
 
-        <View style={styles.container}>
-          <Column wrestler={this.wrestler1} />
-
-          <View style={styles.middleColumnContainer}>
-
-          </View>
-
-          <Column wrestler={this.wrestler2} /> 
-        </View>
-
+        <WrestlerColumns wrestler1={this.wrestler1} wrestler2={this.wrestler2} />
       </View>
     )
   }
+}
+
+interface WrestlerColumnsProp{
+  wrestler1: Wrestler
+  wrestler2: Wrestler
+}
+
+interface AtttributeDictionary {
+  [key: string]: (wrestler: Wrestler) => void
+}
+
+const WrestlerColumns = ({ wrestler1, wrestler2 }: WrestlerColumnsProp) => {
+  const attributes: AtttributeDictionary = {
+    "height": (wrestler: Wrestler) => toHeightString(wrestler.height),
+    "weight": (wrestler: Wrestler) => toWeightString(wrestler.weight),
+    "record": (wrestler: Wrestler) => toRecordString(wrestler),
+    "hometown": (wrestler: Wrestler) => wrestler.hometown,
+    "nickname": (wrestler: Wrestler) => wrestler.nickname
+  }
+
+  return (
+    <View style={styles.tableContainer}>
+      {Object.keys(attributes).map(key => (
+        <View style={styles.rowContainer}>
+          <View style={styles.outerColumnContainer}>
+            <Text style={sharedStyles.body}>{attributes[key](wrestler1)}</Text>
+          </View>
+          <View style={styles.middleColumnContainer}>
+            <Text style={sharedStyles.body}>{key}</Text>
+          </View>
+          <View style={styles.outerColumnContainer}>
+            <Text style={sharedStyles.body}>{wrestler2? attributes[key](wrestler2) : "N/A"}</Text>
+          </View>
+        </View>
+      ))}
+    </View>
+  )
 }
 
 interface TotpImageProps {
@@ -296,23 +325,40 @@ const SearchBar = observer((props: SearchBarProps ) => {
   )
 })
 
-const Column = ({ wrestler }: { wrestler: Wrestler }) => {
-  return (
-    null
-  )
-}
+const ROW_HEIGHT = 50
 
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row"
   },
+  tableContainer: {
+
+  },
+  rowContainer: {
+    flexDirection: "row",
+    borderBottomColor: colors.graphite,
+    borderBottomWidth: 1,
+    height: ROW_HEIGHT,
+    marginBottom: 5
+  },
+  middleColumnContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: colors.gray
+  },
+  outerColumnContainer: {
+    flex: 2,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: colors.graphite
+  },
   nameContainer: {
     alignItems: "center",
     flexDirection: "row"
   },
-  columnContainer: {
-    flex: 2,
-    alignItems: "center"
+  columnValueText: {
+    paddingBottom: 10
   },
   floatingSearchBar: {
     position: "absolute"
@@ -324,7 +370,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderBottomColor: colors.black,
-    borderBottomWidth: 1
+    borderBottomWidth: 1,
+    borderRadius: 12
   },
   searchBarContainer: {
     backgroundColor: colors.gray,
@@ -352,7 +399,7 @@ const styles = StyleSheet.create({
   },
   searchResults: {
     position: "absolute",
-    top: 65
+    top: EXPANDED_SEARCH_BAR_HEIGHT
   },
   xContainer: {
     backgroundColor: "red"
@@ -361,7 +408,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     flexDirection: "row",
     width: "100%",
-    alignContent: "space-between"
+    alignContent: "space-between",
+    paddingBottom: 40
   },
   imageContainer: {
     flex: 1,
@@ -382,9 +430,6 @@ const styles = StyleSheet.create({
     width: IMAGE_WIDTH,
     backgroundColor: colors.graphite,
     marginBottom: 10
-  },
-  middleColumnContainer: {
-    flex: 1
   },
   image: {
     width: IMAGE_WIDTH,
