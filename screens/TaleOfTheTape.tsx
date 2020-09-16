@@ -17,6 +17,15 @@ type Props = {
   route: WrestlerScreenRouteProp
 }
 
+const WIDTH_MINUS_PADDING = Dimensions.get('window').width - sharedStyles.scrollViewContainer.paddingHorizontal * 2
+const IMAGE_WIDTH = 0.45 * WIDTH_MINUS_PADDING
+const BORDER_RADIUS = 12
+const SEARCH_BAR_HEIGHT = 40
+const EXPANDED_SEARCH_BAR_WIDTH = 0.95 * WIDTH_MINUS_PADDING
+
+const COLLAPSED_FLOATING_BAR_1_LEFT = WIDTH_MINUS_PADDING * 0.025
+const COLLAPSED_FLOATING_BAR_2_LEFT = IMAGE_WIDTH + (WIDTH_MINUS_PADDING * 0.075)
+
 @observer
 export default class TaleOfTheTape extends React.Component<Props> {
   @observable
@@ -25,6 +34,28 @@ export default class TaleOfTheTape extends React.Component<Props> {
   @observable
   wrestler2 = this.props.route.params.wrestler2
 
+  @observable
+  isSearchBar1Visible = false
+
+  @observable
+  searchBar1AnimatedValue = new Animated.Value(0)
+
+  @observable
+  isSearchBar1Expanded = false
+
+  collapseSearchBar1 = () => (
+    Animated.timing(this.searchBar1AnimatedValue, { toValue: 0 })
+      .start(() => {
+        this.isSearchBar1Visible = false
+        this.isSearchBar1Expanded = false
+      })
+  )
+
+  expandSearchBar1 = () => (
+    Animated.timing(this.searchBar1AnimatedValue, { toValue: 1 })
+      .start(() => this.isSearchBar1Expanded = true)
+  )
+
   @computed
   get hasNonNullWrestler() {
     return !_.isNil(this.wrestler1) || !_.isNil(this.wrestler2)
@@ -32,14 +63,45 @@ export default class TaleOfTheTape extends React.Component<Props> {
 
   @action onSelectWrestler1 = (wrestler: Wrestler) => this.wrestler1 = wrestler
   @action onSelectWrestler2 = (wrestler: Wrestler) => this.wrestler2 = wrestler
+
+  onCancelSearchBar1Search = () => this.collapseSearchBar1()
+  
+  onPressEditWrestler1 = () => this.isSearchBar1Visible = true
   
   render() {
     return (
       <View style={sharedStyles.scrollViewContainer}>
 
         <View style={styles.imagesContainer}>
-          <TotpImage wrestler={this.wrestler1} onSelectWrestler={this.onSelectWrestler1} />
+          <TotpImage
+            wrestler={this.wrestler1}
+            onSelectWrestler={this.onSelectWrestler1}
+            onPressEdit={this.onPressEditWrestler1}
+          />
           <TotpImage wrestler={this.wrestler2} onSelectWrestler={this.onSelectWrestler2} />
+          <Animated.View style ={[
+            styles.floatingSearchBar1,
+            {
+              left: COLLAPSED_FLOATING_BAR_1_LEFT,
+              width: this.searchBar1AnimatedValue.interpolate({
+                inputRange: [0,1],
+                outputRange: [IMAGE_WIDTH, EXPANDED_SEARCH_BAR_WIDTH]
+              }),
+              top: IMAGE_WIDTH + 15
+            }
+          ]}>
+            {this.isSearchBar1Visible && (
+              <SearchBar
+                onSelectWrestler={this.onSelectWrestler1}
+                onCancelSearch={this.onCancelSearchBar1Search}
+                onPressSearch={this.expandSearchBar1}
+                isExpanded={this.isSearchBar1Expanded}
+              />
+            )}
+          </Animated.View>
+          {/* <View style = {styles.floatingSearchBar2}>
+            <SearchBar />
+          </View> */}
         </View>
 
         <View style={styles.container}>
@@ -60,9 +122,10 @@ export default class TaleOfTheTape extends React.Component<Props> {
 interface TotpImageProps {
   wrestler: Wrestler | null
   onSelectWrestler: (wrestler: Wrestler) => void
+  onPressEdit: () => void
 }
 
-const TotpImage = observer(({ wrestler, onSelectWrestler }: TotpImageProps) => {
+const TotpImage = observer(({ wrestler, onSelectWrestler, onPressEdit }: TotpImageProps) => {
   const [isSearching, setIsSearching] = useState(false)
 
   const onCancelSearch = () => setIsSearching(false)
@@ -75,7 +138,7 @@ const TotpImage = observer(({ wrestler, onSelectWrestler }: TotpImageProps) => {
             <Ionicons name="ios-person" size={0.5 * IMAGE_WIDTH} color={colors.white} />
           </View>
         </View>
-        <SearchBar onSelectWrestler={onSelectWrestler} onCancelSearch={onCancelSearch} isWrestlerNil={true} />
+        {/* <SearchBar onSelectWrestler={onSelectWrestler} onCancelSearch={onCancelSearch} isWrestlerNil={true} /> */}
       </View>
     )
   }
@@ -84,11 +147,11 @@ const TotpImage = observer(({ wrestler, onSelectWrestler }: TotpImageProps) => {
     <View style={styles.imageContainer}>
       <Image source={{ uri: wrestler.image_url }} style={styles.image} />
       { !isSearching ? (
-          <TouchableOpacity onPress={() => setIsSearching(!isSearching)} style={styles.nameContainer}>
+          <TouchableOpacity onPress={onPressEdit} style={styles.nameContainer}>
             <Text style={sharedStyles.h3}>{wrestler.name}</Text>
             <Feather name="edit" size={16} color={colors.white} style={{ marginLeft: 5 }} />
           </TouchableOpacity>
-        ) : <SearchBar onSelectWrestler={onSelectWrestler} onCancelSearch={onCancelSearch} />
+        ) : null //<SearchBar onSelectWrestler={onSelectWrestler} onCancelSearch={onCancelSearch} />
       }
     </View>
   )
@@ -98,47 +161,31 @@ const SEARCH_RESULT_MAX = 10
 
 interface SearchBarProps {
   onSelectWrestler: (wrestler: Wrestler) => void
+  onPressSearch: () => void
   onCancelSearch: () => void
+  isExpanded: boolean
   isWrestlerNil: boolean
 }
 
-const SearchBar = observer(({ onSelectWrestler, onCancelSearch, isWrestlerNil = false }: SearchBarProps ) => {
+const SearchBar = observer((props: SearchBarProps ) => {
+  const { onSelectWrestler, onPressSearch, onCancelSearch, isExpanded, isWrestlerNil } = props
   const [wrestlers, setWrestlers] = useState([])
   const [resultingWrestlers, setResultingWrestlers] = useState([])
   const [searchInput, setSearchInput] = useState("")
-  const [isExpanded, setIsExpanded] = useState(false)
 
-  const animatedValue = new Animated.Value(0)
+  // const animatedValue = new Animated.Value(0)
 
   const store = useStore()
 
-  // const firstUpdate = useRef(true)
-  // useEffect(() => {
-  //   if (firstUpdate.current) {
-  //     firstUpdate.current = false
-  //     return
-  //   }
-  //   Animated.timing(
-  //     animatedValue, {
-  //       toValue: isExpanded ? 1 : 0
-  //     }).start(() => {
-  //       if(isExpanded) {
-        
-  //       } else {
-  //         onCancelSearch()
-  //       }
+  // const expand = () => Animated.timing(animatedValue, { toValue: 1 }).start(() => setIsExpanded(true))
+  // const collapse = (callback: () => void = () => null) => (
+  //   Animated.timing(animatedValue, {
+  //     toValue: 0
+  //   }).start(() => { 
+  //     onCancelSearch()
+  //     callback()
   //   })
-  // }, [isExpanded])
-
-  const expand = () => Animated.timing(animatedValue, { toValue: 1 }).start(() => setIsExpanded(true))
-  const collapse = (callback: () => void = () => null) => (
-    Animated.timing(animatedValue, {
-      toValue: 0
-    }).start(() => { 
-      onCancelSearch()
-      callback()
-    })
-  )
+  // )
 
   useEffect(() => {
     AewApi.fetchWrestlers()
@@ -168,26 +215,26 @@ const SearchBar = observer(({ onSelectWrestler, onCancelSearch, isWrestlerNil = 
       <Animated.View
         style={[
           styles.searchBarContainer, {
-          left: animatedValue.interpolate({
-            inputRange: [0,1],
-            outputRange: [0, (IMAGE_WIDTH - FULL_SEARCH_BAR_WIDTH)  / 2]
-          }),
-          width: animatedValue.interpolate({
-            inputRange: [0,1],
-            outputRange: [IMAGE_WIDTH, FULL_SEARCH_BAR_WIDTH]
-          })
+          // left: animatedValue.interpolate({
+          //   inputRange: [0,1],
+          //   outputRange: [0, (IMAGE_WIDTH - EXPANDED_SEARCH_BAR_WIDTH)  / 2]
+          // }),
+          // width: animatedValue.interpolate({
+          //   inputRange: [0,1],
+          //   outputRange: [IMAGE_WIDTH, EXPANDED_SEARCH_BAR_WIDTH]
+          // })
         }]}
       >
-        <TouchableOpacity onPress={expand}>
+        <TouchableOpacity onPress={onPressSearch}>
           <Text>Search</Text>
         </TouchableOpacity>
         <View style={{ flexDirection: "row" }}>
           {!isWrestlerNil && (
-            <TouchableOpacity onPress={collapse} style={[styles.iconContainer, styles.xContainer]}>
+            <TouchableOpacity onPress={onCancelSearch} style={[styles.iconContainer, styles.xContainer]}>
               <MaterialIcons name="cancel" size={24} color="white" />
             </TouchableOpacity>
           )}
-          <TouchableOpacity onPress={expand} style={[styles.iconContainer, styles.searchIconContainer]}>
+          <TouchableOpacity onPress={onPressSearch} style={[styles.iconContainer, styles.searchIconContainer]}>
             <AntDesign name="search1" size={24} color="white" />
           </TouchableOpacity>
         </View>
@@ -195,9 +242,9 @@ const SearchBar = observer(({ onSelectWrestler, onCancelSearch, isWrestlerNil = 
       {isExpanded && (
         <View style={styles.searchResults}>
           {resultingWrestlers.map(wrestler => {
-            const onSelect = () => collapse(() => onSelectWrestler(wrestler))
+            //const onSelect = () => collapse(() => onSelectWrestler(wrestler))
             return (
-              <TouchableOpacity onPress={() => collapse(onSelect)} style={styles.wrestlerSearchContainer}>
+              <TouchableOpacity onPress={() => onSelectWrestler(wrestler)} style={styles.wrestlerSearchContainer}>
                 <Text style={{ color: colors.white }}>{wrestler.name}</Text>
               </TouchableOpacity>
             )
@@ -214,12 +261,6 @@ const Column = ({ wrestler }: { wrestler: Wrestler }) => {
   )
 }
 
-const WIDTH_MINUS_PADDING = Dimensions.get('window').width - sharedStyles.scrollViewContainer.paddingHorizontal * 2
-const IMAGE_WIDTH = 0.45 * WIDTH_MINUS_PADDING
-const BORDER_RADIUS = 12
-const SEARCH_BAR_HEIGHT = 40
-const FULL_SEARCH_BAR_WIDTH = 0.95 * WIDTH_MINUS_PADDING
-
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row"
@@ -231,6 +272,9 @@ const styles = StyleSheet.create({
   columnContainer: {
     flex: 2,
     alignItems: "center"
+  },
+  floatingSearchBar1: {
+    position: "absolute"
   },
   wrestlerSearchContainer: {
     backgroundColor: colors.graphite,
