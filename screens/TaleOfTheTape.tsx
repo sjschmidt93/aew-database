@@ -80,11 +80,15 @@ export default class TaleOfTheTape extends React.Component<Props> {
     return !_.isNil(this.wrestler1) || !_.isNil(this.wrestler2)
   }
 
-  @action onSelectWrestler1 = (wrestler: Wrestler) => this.wrestler1 = wrestler
-  @action onSelectWrestler2 = (wrestler: Wrestler) => this.wrestler2 = wrestler
+  @action onSelectWrestler1 = (wrestler: Wrestler) => {
+    this.wrestler1 = wrestler
+    this.collapseSearchBar1()
+  }
+  @action onSelectWrestler2 = (wrestler: Wrestler) => {
+    this.wrestler2 = wrestler
+    this.collapseSearchBar2()
+  }
 
-
-  
   render() {
     return (
       <View style={sharedStyles.scrollViewContainer}>
@@ -95,7 +99,11 @@ export default class TaleOfTheTape extends React.Component<Props> {
             onSelectWrestler={this.onSelectWrestler1}
             onPressEdit={this.onPressEditWrestler1}
           />
-          <TotpImage wrestler={this.wrestler2} onSelectWrestler={this.onSelectWrestler2} />
+          <TotpImage
+            wrestler={this.wrestler2}
+            onSelectWrestler={this.onSelectWrestler2}
+            onPressEdit={this.onPressEditWrestler2}
+          />
           <Animated.View style ={[
             styles.floatingSearchBar,
             {
@@ -312,7 +320,7 @@ const styles = StyleSheet.create({
   wrestlerSearchContainer: {
     backgroundColor: colors.graphite,
     height: 40,
-    width: IMAGE_WIDTH,
+    width: EXPANDED_SEARCH_BAR_WIDTH,
     alignItems: "center",
     justifyContent: "center",
     borderBottomColor: colors.black,
