@@ -126,10 +126,6 @@ interface TotpImageProps {
 }
 
 const TotpImage = observer(({ wrestler, onSelectWrestler, onPressEdit }: TotpImageProps) => {
-  const [isSearching, setIsSearching] = useState(false)
-
-  const onCancelSearch = () => setIsSearching(false)
-
   if (_.isNil(wrestler)) {
     return (
       <View style={styles.imageContainer}>
@@ -138,7 +134,6 @@ const TotpImage = observer(({ wrestler, onSelectWrestler, onPressEdit }: TotpIma
             <Ionicons name="ios-person" size={0.5 * IMAGE_WIDTH} color={colors.white} />
           </View>
         </View>
-        {/* <SearchBar onSelectWrestler={onSelectWrestler} onCancelSearch={onCancelSearch} isWrestlerNil={true} /> */}
       </View>
     )
   }
@@ -146,13 +141,10 @@ const TotpImage = observer(({ wrestler, onSelectWrestler, onPressEdit }: TotpIma
   return (
     <View style={styles.imageContainer}>
       <Image source={{ uri: wrestler.image_url }} style={styles.image} />
-      { !isSearching ? (
-          <TouchableOpacity onPress={onPressEdit} style={styles.nameContainer}>
-            <Text style={sharedStyles.h3}>{wrestler.name}</Text>
-            <Feather name="edit" size={16} color={colors.white} style={{ marginLeft: 5 }} />
-          </TouchableOpacity>
-        ) : null //<SearchBar onSelectWrestler={onSelectWrestler} onCancelSearch={onCancelSearch} />
-      }
+      <TouchableOpacity onPress={onPressEdit} style={styles.nameContainer}>
+        <Text style={sharedStyles.h3}>{wrestler.name}</Text>
+        <Feather name="edit" size={16} color={colors.white} style={{ marginLeft: 5 }} />
+      </TouchableOpacity>
     </View>
   )
 })
@@ -173,19 +165,7 @@ const SearchBar = observer((props: SearchBarProps ) => {
   const [resultingWrestlers, setResultingWrestlers] = useState([])
   const [searchInput, setSearchInput] = useState("")
 
-  // const animatedValue = new Animated.Value(0)
-
   const store = useStore()
-
-  // const expand = () => Animated.timing(animatedValue, { toValue: 1 }).start(() => setIsExpanded(true))
-  // const collapse = (callback: () => void = () => null) => (
-  //   Animated.timing(animatedValue, {
-  //     toValue: 0
-  //   }).start(() => { 
-  //     onCancelSearch()
-  //     callback()
-  //   })
-  // )
 
   useEffect(() => {
     AewApi.fetchWrestlers()
@@ -212,19 +192,7 @@ const SearchBar = observer((props: SearchBarProps ) => {
 
   return (
     <View>
-      <Animated.View
-        style={[
-          styles.searchBarContainer, {
-          // left: animatedValue.interpolate({
-          //   inputRange: [0,1],
-          //   outputRange: [0, (IMAGE_WIDTH - EXPANDED_SEARCH_BAR_WIDTH)  / 2]
-          // }),
-          // width: animatedValue.interpolate({
-          //   inputRange: [0,1],
-          //   outputRange: [IMAGE_WIDTH, EXPANDED_SEARCH_BAR_WIDTH]
-          // })
-        }]}
-      >
+      <View style={styles.searchBarContainer}>
         <TouchableOpacity onPress={onPressSearch}>
           <Text>Search</Text>
         </TouchableOpacity>
@@ -238,11 +206,10 @@ const SearchBar = observer((props: SearchBarProps ) => {
             <AntDesign name="search1" size={24} color="white" />
           </TouchableOpacity>
         </View>
-      </Animated.View>
+      </View>
       {isExpanded && (
         <View style={styles.searchResults}>
           {resultingWrestlers.map(wrestler => {
-            //const onSelect = () => collapse(() => onSelectWrestler(wrestler))
             return (
               <TouchableOpacity onPress={() => onSelectWrestler(wrestler)} style={styles.wrestlerSearchContainer}>
                 <Text style={{ color: colors.white }}>{wrestler.name}</Text>
