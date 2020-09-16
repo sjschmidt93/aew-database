@@ -8,7 +8,7 @@ import { colors, sharedStyles } from "../styles"
 import { Ionicons, Feather, MaterialIcons, AntDesign } from "@expo/vector-icons"
 import _, { Dictionary, first } from "lodash"
 import { Wrestler } from "../types"
-import { TouchableOpacity } from "react-native-gesture-handler"
+import { TextInput, TouchableOpacity } from "react-native-gesture-handler"
 import { AewApi } from "../aew_api"
 import { useStore } from "../FavoritesStore"
 import { toHeightString, toRecordString, toWeightString } from "./WrestlerScreen"
@@ -18,7 +18,8 @@ type Props = {
   route: WrestlerScreenRouteProp
 }
 
-const WIDTH_MINUS_PADDING = Dimensions.get('window').width - sharedStyles.scrollViewContainer.paddingHorizontal * 2
+const PADDING = sharedStyles.scrollViewContainer.paddingHorizontal * 2
+const WIDTH_MINUS_PADDING = Dimensions.get('window').width - PADDING
 const IMAGE_WIDTH = 0.45 * WIDTH_MINUS_PADDING
 const BORDER_RADIUS = 12
 
@@ -27,8 +28,8 @@ const EXPANDED_SEARCH_BAR_HEIGHT = COLLAPSED_SEARCH_BAR_HEIGHT * 1.5
 
 const EXPANDED_SEARCH_BAR_WIDTH = 0.95 * WIDTH_MINUS_PADDING
 
-const COLLAPSED_FLOATING_BAR_1_LEFT = WIDTH_MINUS_PADDING * 0.025
-const COLLAPSED_FLOATING_BAR_2_LEFT = IMAGE_WIDTH + (WIDTH_MINUS_PADDING * 0.075) // incorrect but close
+const COLLAPSED_FLOATING_BAR_1_LEFT = PADDING / 2 + WIDTH_MINUS_PADDING * 0.025
+const COLLAPSED_FLOATING_BAR_2_LEFT = COLLAPSED_FLOATING_BAR_1_LEFT + IMAGE_WIDTH + WIDTH_MINUS_PADDING * 0.05
 
 const SEARCH_BAR_TOP = IMAGE_WIDTH + 15
 
@@ -67,7 +68,8 @@ export default class TaleOfTheTape extends React.Component<Props> {
       .start(() => {
         this.isSearchBar2Visible = false
       })
-    }
+  }
+
   expandSearchBar2 = () => (
     Animated.timing(this.searchBar2AnimatedValue, { toValue: 1 })
       .start(() => this.isSearchBar2Expanded = true)
@@ -93,8 +95,91 @@ export default class TaleOfTheTape extends React.Component<Props> {
   render() {
     return (
       <View style={sharedStyles.scrollViewContainer}>
+        <Animated.View style ={[
+          styles.floatingSearchBar,
+          {
+            left: COLLAPSED_FLOATING_BAR_1_LEFT,
+            width: this.searchBar1AnimatedValue.interpolate({
+              inputRange: [0,1],
+              outputRange: [IMAGE_WIDTH, EXPANDED_SEARCH_BAR_WIDTH]
+            }),
+            top: this.searchBar1AnimatedValue.interpolate({
+              inputRange: [0, 1],
+              outputRange: [SEARCH_BAR_TOP, 0]
+            }),
+            zIndex: this.searchBar1AnimatedValue.interpolate({
+              inputRange: [0, 1],
+              outputRange: [2, 5000]
+            }),
+            height: this.searchBar1AnimatedValue.interpolate({
+              inputRange: [0, 1],
+              outputRange: [COLLAPSED_SEARCH_BAR_HEIGHT, EXPANDED_SEARCH_BAR_HEIGHT]
+            })
+          }
+        ]}>
+          {this.isSearchBar1Visible && (
+            <SearchBar
+              onSelectWrestler={this.onSelectWrestler1}
+              onCancelSearch={this.onCancelSearchBar1Search}
+              onPressSearch={this.expandSearchBar1}
+              isExpanded={this.isSearchBar1Expanded}
+              isWrestlerNil={_.isNil(this.wrestler1)}
+              animatedValue={this.searchBar1AnimatedValue}
+            />
+          )}
+        </Animated.View>
 
-        <View style={styles.imagesContainer}>
+        <Animated.View style ={[
+          styles.floatingSearchBar,
+          {
+            left: this.searchBar2AnimatedValue.interpolate({
+              inputRange: [0, 1],
+              outputRange: [COLLAPSED_FLOATING_BAR_2_LEFT, COLLAPSED_FLOATING_BAR_1_LEFT]
+            }),
+            width: this.searchBar2AnimatedValue.interpolate({
+              inputRange: [0,1],
+              outputRange: [IMAGE_WIDTH, EXPANDED_SEARCH_BAR_WIDTH]
+            }),
+            top: this.searchBar2AnimatedValue.interpolate({
+              inputRange: [0, 1],
+              outputRange: [SEARCH_BAR_TOP, 0]
+            }),
+            zIndex: this.searchBar2AnimatedValue.interpolate({
+              inputRange: [0, 1],
+              outputRange: [2, 5000]
+            }),
+            height: this.searchBar2AnimatedValue.interpolate({
+              inputRange: [0, 1],
+              outputRange: [COLLAPSED_SEARCH_BAR_HEIGHT, EXPANDED_SEARCH_BAR_HEIGHT]
+            })
+          }
+        ]}>
+          {this.isSearchBar2Visible && (
+            <SearchBar
+              onSelectWrestler={this.onSelectWrestler2}
+              onCancelSearch={this.onCancelSearchBar2Search}
+              onPressSearch={this.expandSearchBar2}
+              isExpanded={this.isSearchBar2Expanded}
+              isWrestlerNil={_.isNil(this.wrestler2)}
+              animatedValue={this.searchBar2AnimatedValue}
+            />
+          )}
+        </Animated.View>
+
+
+        <Animated.View style={[
+          styles.imagesContainer,
+          {
+            transform: [
+              { 
+                translateY: Animated.add(this.searchBar1AnimatedValue, this.searchBar2AnimatedValue).interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0, EXPANDED_SEARCH_BAR_HEIGHT]
+                })
+              }
+            ]
+          }
+        ]}>
           <TotpImage
             wrestler={this.wrestler1}
             onSelectWrestler={this.onSelectWrestler1}
@@ -105,72 +190,10 @@ export default class TaleOfTheTape extends React.Component<Props> {
             onSelectWrestler={this.onSelectWrestler2}
             onPressEdit={this.onPressEditWrestler2}
           />
-          <Animated.View style ={[
-            styles.floatingSearchBar,
-            {
-              left: COLLAPSED_FLOATING_BAR_1_LEFT,
-              width: this.searchBar1AnimatedValue.interpolate({
-                inputRange: [0,1],
-                outputRange: [IMAGE_WIDTH, EXPANDED_SEARCH_BAR_WIDTH]
-              }),
-              top: SEARCH_BAR_TOP,
-              zIndex: this.searchBar1AnimatedValue.interpolate({
-                inputRange: [0, 1],
-                outputRange: [2, 5000]
-              }),
-              height: this.searchBar1AnimatedValue.interpolate({
-                inputRange: [0, 1],
-                outputRange: [COLLAPSED_SEARCH_BAR_HEIGHT, EXPANDED_SEARCH_BAR_HEIGHT]
-              })
-            }
-          ]}>
-            {this.isSearchBar1Visible && (
-              <SearchBar
-                onSelectWrestler={this.onSelectWrestler1}
-                onCancelSearch={this.onCancelSearchBar1Search}
-                onPressSearch={this.expandSearchBar1}
-                isExpanded={this.isSearchBar1Expanded}
-                isWrestlerNil={_.isNil(this.wrestler1)}
-                animatedValue={this.searchBar1AnimatedValue}
-              />
-            )}
-          </Animated.View>
-          <Animated.View style ={[
-            styles.floatingSearchBar,
-            {
-              left: this.searchBar2AnimatedValue.interpolate({
-                inputRange: [0, 1],
-                outputRange: [COLLAPSED_FLOATING_BAR_2_LEFT, 0]
-              }),
-              width: this.searchBar2AnimatedValue.interpolate({
-                inputRange: [0,1],
-                outputRange: [IMAGE_WIDTH, EXPANDED_SEARCH_BAR_WIDTH]
-              }),
-              top: IMAGE_WIDTH + 15,
-              zIndex: this.searchBar2AnimatedValue.interpolate({
-                inputRange: [0, 1],
-                outputRange: [2, 5000]
-              }),
-              height: this.searchBar2AnimatedValue.interpolate({
-                inputRange: [0, 1],
-                outputRange: [COLLAPSED_SEARCH_BAR_HEIGHT, EXPANDED_SEARCH_BAR_HEIGHT]
-              })
-            }
-          ]}>
-            {this.isSearchBar2Visible && (
-              <SearchBar
-                onSelectWrestler={this.onSelectWrestler2}
-                onCancelSearch={this.onCancelSearchBar2Search}
-                onPressSearch={this.expandSearchBar2}
-                isExpanded={this.isSearchBar2Expanded}
-                isWrestlerNil={_.isNil(this.wrestler2)}
-                animatedValue={this.searchBar2AnimatedValue}
-              />
-            )}
-          </Animated.View>
-        </View>
+        </Animated.View>
 
-        <WrestlerColumns wrestler1={this.wrestler1} wrestler2={this.wrestler2} />
+        {!this.isSearchBar1Expanded && !this.isSearchBar2Expanded &&
+          <WrestlerColumns wrestler1={this.wrestler1} wrestler2={this.wrestler2} /> }
       </View>
     )
   }
@@ -199,13 +222,13 @@ const WrestlerColumns = ({ wrestler1, wrestler2 }: WrestlerColumnsProp) => {
       {Object.keys(attributes).map(key => (
         <View style={styles.rowContainer}>
           <View style={styles.outerColumnContainer}>
-            <Text style={sharedStyles.body}>{attributes[key](wrestler1)}</Text>
+            <Text numberOfLines={1} style={sharedStyles.body}>{attributes[key](wrestler1)}</Text>
           </View>
           <View style={styles.middleColumnContainer}>
             <Text style={sharedStyles.body}>{key}</Text>
           </View>
           <View style={styles.outerColumnContainer}>
-            <Text style={sharedStyles.body}>{wrestler2? attributes[key](wrestler2) : "N/A"}</Text>
+            <Text numberOfLines={1} style={[sharedStyles.body, { paddingHorizontal: 5}]}>{wrestler2? attributes[key](wrestler2) : "N/A"}</Text>
           </View>
         </View>
       ))}
@@ -243,7 +266,7 @@ const TotpImage = observer(({ wrestler, onSelectWrestler, onPressEdit }: TotpIma
   )
 })
 
-const SEARCH_RESULT_MAX = 10
+const SEARCH_RESULT_MAX = 6
 
 interface SearchBarProps {
   onSelectWrestler: (wrestler: Wrestler) => void
@@ -262,6 +285,8 @@ const SearchBar = observer((props: SearchBarProps ) => {
 
   const store = useStore()
 
+  const textInputRef = useRef(null)
+
   useEffect(() => {
     AewApi.fetchWrestlers()
       .then(res => setWrestlers(res))
@@ -274,7 +299,6 @@ const SearchBar = observer((props: SearchBarProps ) => {
         setResultingWrestlers(store.favoriteWrestlers.slice(0,SEARCH_RESULT_MAX))
       } else {
         const candidates = store.favoriteWrestlers.concat(wrestlers.slice(0, SEARCH_RESULT_MAX))
-        console.log(candidates)
         const candidatesWithoutDupes = candidates.filter((wrestler, index, self) => {
           return self.findIndex(candidate => candidate.id === wrestler.id) === index
         })
@@ -285,6 +309,12 @@ const SearchBar = observer((props: SearchBarProps ) => {
     }
   }, [searchInput, wrestlers])
 
+  useEffect(() => {
+    if (isExpanded) {
+      textInputRef.current.focus()
+    }
+  }, [isExpanded])
+
   const width = animatedValue.interpolate({
     inputRange: [0, 1],
     outputRange: [35, 50]
@@ -293,7 +323,12 @@ const SearchBar = observer((props: SearchBarProps ) => {
     <View>
       <View style={styles.searchBarContainer}>
         <TouchableOpacity onPress={onPressSearch}>
-          <Text>Search</Text>
+          <TextInput
+            ref={textInputRef}
+            value={searchInput}
+            placeholder="Search"
+            onChangeText={text => setSearchInput(text)}
+          />
         </TouchableOpacity>
         <View style={styles.iconsContainer}>
           {!isWrestlerNil && (
@@ -351,7 +386,8 @@ const styles = StyleSheet.create({
     flex: 2,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: colors.graphite
+    backgroundColor: colors.graphite,
+    paddingHorizontal: 3
   },
   nameContainer: {
     alignItems: "center",
@@ -371,7 +407,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderBottomColor: colors.black,
     borderBottomWidth: 1,
-    borderRadius: 12
+    //borderRadius: 12
   },
   searchBarContainer: {
     backgroundColor: colors.gray,
@@ -399,7 +435,7 @@ const styles = StyleSheet.create({
   },
   searchResults: {
     position: "absolute",
-    top: EXPANDED_SEARCH_BAR_HEIGHT
+    top: EXPANDED_SEARCH_BAR_HEIGHT + 5
   },
   xContainer: {
     backgroundColor: "red"
@@ -408,7 +444,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     flexDirection: "row",
     width: "100%",
-    alignContent: "space-between",
     paddingBottom: 40
   },
   imageContainer: {
