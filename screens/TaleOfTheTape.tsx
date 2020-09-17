@@ -97,11 +97,6 @@ export default class TaleOfTheTape extends React.Component<Props> {
   onPressEditWrestler2 = () => this.isSearchBar2Visible = true
 
   @computed
-  get hasNonNullWrestler() {
-    return !_.isNil(this.wrestler1) || !_.isNil(this.wrestler2)
-  }
-
-  @computed
   get animatedValueSum () {
     return Animated.add(this.searchBar1AnimatedValue, this.searchBar2AnimatedValue)
   }
@@ -225,6 +220,7 @@ export default class TaleOfTheTape extends React.Component<Props> {
         <Animated.View style={this.fadeTransform(this.animatedValueSum)}>
           <WrestlerColumns wrestler1={this.wrestler1} wrestler2={this.wrestler2} />
         </Animated.View>
+
       </View>
     )
   }
@@ -314,10 +310,10 @@ const SearchBar = observer((props: SearchBarProps ) => {
   const [wrestlers, setWrestlers] = useState([])
   const [resultingWrestlers, setResultingWrestlers] = useState([])
   const [searchInput, setSearchInput] = useState("")
+  const textInputRef = useRef(null)
 
   const store = useStore()
 
-  const textInputRef = useRef(null)
 
   useEffect(() => {
     AewApi.fetchWrestlers()
@@ -418,7 +414,7 @@ const SearchBarIcon = ({ animatedValue, color, onPress, disabled, icon, visible 
 
   const width = animatedValue.interpolate({
     inputRange: [0, 1],
-    outputRange: [35, 50]
+    outputRange: [35, ROW_HEIGHT]
   })
 
   return (
@@ -435,9 +431,6 @@ const ROW_HEIGHT = 50
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row"
-  },
-  tableContainer: {
-
   },
   rowContainer: {
     flexDirection: "row",
@@ -463,9 +456,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row"
   },
-  columnValueText: {
-    paddingBottom: 10
-  },
   floatingSearchBar: {
     position: "absolute"
   },
@@ -476,8 +466,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderBottomColor: colors.black,
-    borderBottomWidth: 1,
-    //borderRadius: 12
+    borderBottomWidth: 1
   },
   searchBarContainer: {
     backgroundColor: colors.gray,
