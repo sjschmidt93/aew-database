@@ -21,10 +21,10 @@ export default function MatchList({ matches, showEvents = true, wrestler, tagTea
     <FlatList
       renderItem={({item}) => (
         <MatchRow
-          match={item}  
-          showEvent={showEvents}  
+          match={item}
+          showEvent={showEvents}
           wrestler={wrestler}
-          tagTeam={tagTeam} 
+          tagTeam={tagTeam}
         />
       )}
       data={matches}
@@ -119,6 +119,24 @@ class SideWithImages extends React.Component<SideWithImagesProps> {
   }
 
   @computed
+  get members(): RosterMember[] {
+    if (!isTagTeam(this.side)) {
+      return this.wrestlers
+    } else {
+      const filteredWrestlers = Array.from(this.wrestlers)
+      this.side.sub_teams.forEach(subTeam => {
+        subTeam.wrestlers.forEach(wrestler => {
+          const index = filteredWrestlers.findIndex(w => wrestler.id === w.id)
+          if (index > -1) {
+            filteredWrestlers.splice(index, 1)
+          }
+        })
+      })
+      return [...this.side.sub_teams, ...filteredWrestlers]
+    }
+  }
+
+  @computed
   get rows(): Wrestler[][] {
     return _.chunk(this.wrestlers, this.wrestlers.length <= 4 ? 2 : 3)
   }
@@ -126,16 +144,17 @@ class SideWithImages extends React.Component<SideWithImagesProps> {
   @computed
   get body() {
     return (
-      this.wrestlers.map(wrestler => {
-        const isBold = this.props.wrestler?.name === wrestler.name || this.props.tagTeam?.name === this.side.name
+      this.members.map(member => {
+        const isBold = this.props.wrestler?.name === member.name || this.props.tagTeam?.name === this.side.name
         return (
           <Text
             style={[
               sharedStyles.body,
-              isBold && { fontWeight: "bold", fontSize: 13 }
+              { textAlign: "center" },
+              isBold && { fontWeight: "bold", fontSize: 13 },
             ]}
           >
-            {wrestler.name}
+            {member.name}
           </Text>
         )
       })

@@ -23,7 +23,6 @@ export default function ChampionshipPage({ route }: Props) {
     <ScrollView style={sharedStyles.scrollViewContainer}>
       <Text style={[sharedStyles.h2, styles.header]}>Title History</Text>
       <FlatList
-        //contentContainerStyle={sharedStyles.scrollViewContainer}
         data={championship.reigns}
         renderItem={({item}) => <ReignRow reign={item} />}
       />
