@@ -1,20 +1,23 @@
 import { View, StyleSheet, Dimensions, Text, Image, Animated, PanResponder, PanResponderInstance } from "react-native"
-import { observable, action, reaction, computed } from "mobx"
+import { observable, action } from "mobx"
 import React from "react"
 import { observer } from "mobx-react"
 import { colors, sharedStyles } from "./styles"
 import _ from "lodash"
-import { TouchableOpacity, TouchableWithoutFeedback } from "react-native-gesture-handler"
+import { TouchableOpacity } from "react-native-gesture-handler"
 import { navigateToRosterMember, RosterMember } from "./screens/RosterScreen"
-import { Fontisto } from '@expo/vector-icons'
+import { Fontisto, Ionicons } from '@expo/vector-icons'
 import { isTagTeam } from "./components/MatchList"
-import { Wrestler } from "./types"
+import { TagTeam, Wrestler } from "./types"
+import { PersonIcon } from "./components/PersonIcon"
 
 const dims = Dimensions.get("screen")
 const SCREEN_HEIGHT = dims.height
 const SCREEN_WIDTH = dims.width
 
-const HIDDEN_Y_OFFSET = 200 // TODO: calculate height of bars
+function hasSubTeams(tagTeam: TagTeam) {
+  return !_.isEmpty(tagTeam.sub_teams)
+}
 
 @observer
 export default class GoToModal extends React.Component {
@@ -37,9 +40,7 @@ export default class GoToModal extends React.Component {
   static show = (items: RosterMember[]) => {
     GoToModal.items = items
     GoToModal.isVisible = true
-    GoToModal.height = isTagTeam(GoToModal.items[0])
-      ? TAG_TEAM_BAR_CONTAINER_HEIGHT + BAR_CONTAINER_HEIGHT * (GoToModal.items.length - 1)
-      : GoToModal.items.length * BAR_CONTAINER_HEIGHT
+    GoToModal.height = GoToModal.items.length * BAR_CONTAINER_HEIGHT
     GoToModal.yOffset.setValue(GoToModal.height)
     GoToModal.showAnimation()
   }
@@ -98,23 +99,13 @@ export default class GoToModal extends React.Component {
       return null
     }
 
-    return GoToModal.items.map((item, index) => {
+    return GoToModal.items.map(item => {
       const icon = !_.isNil(item.image_url)
         ? <Image source={{ uri: item.image_url }} style={styles.image} />
-        : (
-          <View style={styles.iconContainer}>
-            <Fontisto size={IMAGE_WIDTH / 2} name="navigate" color={colors.aewYellow} />
-          </View>
-        )
-
-      const isTeam = isTagTeam(item)
-      const variableStyle = {
-        height: (isTeam ? TAG_TEAM_BAR_CONTAINER_HEIGHT: BAR_CONTAINER_HEIGHT) - (index === 0 ? 20 : 0),
-        borderBottomWidth: isTeam ? 2 : 1
-      }
+        : <PersonIcon size={IMAGE_WIDTH} style={{ marginRight: 10 }}/>
 
       return (
-        <View style={[styles.outerBarContainer, variableStyle]}>
+        <View style={styles.outerBarContainer}>
           <TouchableOpacity style={styles.barContainer} onPress={() => GoToModal.hide(navigateToRosterMember(item))}>
             {icon}
             <BarBody item={item} />
@@ -144,22 +135,15 @@ export default class GoToModal extends React.Component {
 }
 
 const BarBody = ({ item }: { item: RosterMember }) => (
-  isTagTeam(item)
-    ? (
-      <View>
-        <Text style={sharedStyles.h2}>{item.name}</Text>
-        <Text style={[sharedStyles.h3, { color: colors.silver }]}>{tagTeamMembersString(item.wrestlers)}</Text>
-      </View>
-    )
-    : <Text style={sharedStyles.h3}>Go to {item.name}</Text>
+  <View>
+    <Text style={styles.barBodyText}>Go To {isTagTeam(item) ? "Tag Team" : "Wrestler"}</Text>
+    <Text style={[sharedStyles.body, { color: colors.silver }]}>{item.name}</Text>
+  </View>
 )
-
-const tagTeamMembersString = (wrestlers: Wrestler[]) => wrestlers.map(wrestler => wrestler.name).join(" & ")
 
 const IMAGE_WIDTH = 40
 
-const BAR_CONTAINER_HEIGHT = 80
-const TAG_TEAM_BAR_CONTAINER_HEIGHT = 120
+const BAR_CONTAINER_HEIGHT = 70
 const DRAG_BAR_HEIGHT = 20
 
 const styles = StyleSheet.create({
@@ -170,6 +154,10 @@ const styles = StyleSheet.create({
     height: SCREEN_HEIGHT,
     width: SCREEN_WIDTH
   },
+  barBodyText: {
+    fontSize: 14,
+    color: colors.white
+  },
   bottomContainer: {
     position: "absolute",
     width: SCREEN_WIDTH,
@@ -177,7 +165,8 @@ const styles = StyleSheet.create({
   },
   outerBarContainer: {
     justifyContent: "center",
-    backgroundColor: colors.graphite
+    backgroundColor: colors.graphite,
+    height: BAR_CONTAINER_HEIGHT
   },
   barContainer: {
     paddingLeft: 20,

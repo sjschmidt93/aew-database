@@ -12,6 +12,7 @@ import { TouchableOpacity } from "react-native-gesture-handler"
 import { AewApi } from "../aew_api"
 import { useStore } from "../FavoritesStore"
 import { toHeightString, toRecordString, toWeightString } from "./WrestlerScreen"
+import { PersonIcon } from "../components/PersonIcon"
 
 type WrestlerScreenRouteProp = RouteProp<RootStackParamList, "TaleOfTheTape">
 type Props = {
@@ -208,12 +209,10 @@ export default class TaleOfTheTape extends React.Component<Props> {
         <Animated.View style={[styles.imagesContainer, this.fadeTransform(this.animatedValueSum)]}>
           <TotpImage
             wrestler={this.wrestler1}
-            onSelectWrestler={this.onSelectWrestler1}
             onPressEdit={this.onPressEditWrestler1}
           />
           <TotpImage
             wrestler={this.wrestler2}
-            onSelectWrestler={this.onSelectWrestler2}
             onPressEdit={this.onPressEditWrestler2}
           />
         </Animated.View>
@@ -265,18 +264,15 @@ const WrestlerColumns = ({ wrestler1, wrestler2 }: WrestlerColumnsProp) => {
 
 interface TotpImageProps {
   wrestler: Wrestler | null
-  onSelectWrestler: (wrestler: Wrestler) => void
   onPressEdit: () => void
 }
 
-const TotpImage = observer(({ wrestler, onSelectWrestler, onPressEdit }: TotpImageProps) => {
+const TotpImage = observer(({ wrestler, onPressEdit }: TotpImageProps) => {
   if (_.isNil(wrestler)) {
     return (
       <View style={styles.imageContainer}>
         <View style={styles.imageBackground}>
-          <View style={styles.imageCircle}>
-            <Ionicons name="ios-person" size={0.5 * IMAGE_WIDTH} color={colors.white} />
-          </View>
+          <PersonIcon size={0.75 * IMAGE_WIDTH} />
         </View>
       </View>
     )
@@ -406,7 +402,7 @@ interface SearchBarIconProps {
   onPress: () => void
   icon: React.ReactNode
   visible?: boolean
-  style?: StyleProp<View>
+  style?: StyleProp<ViewStyle>
 }
 
 const SearchBarIcon = ({ animatedValue, color, onPress, disabled, icon, visible = true, style = null }: SearchBarIconProps) => {
@@ -506,14 +502,6 @@ const styles = StyleSheet.create({
   imageContainer: {
     flex: 1,
     alignItems: "center"
-  },
-  imageCircle: {
-    alignItems: "center",
-    justifyContent: "center",
-    height: 0.75 * IMAGE_WIDTH,
-    width: 0.75 * IMAGE_WIDTH,
-    backgroundColor: colors.silver,
-    borderRadius: 100
   },
   imageBackground: {
     alignItems: "center",

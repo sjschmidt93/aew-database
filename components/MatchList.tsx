@@ -88,6 +88,7 @@ export function isTagTeam(side: TagTeam | Wrestler): side is TagTeam {
   return (side as TagTeam).wrestlers !== undefined
 }
 
+
 type SideWithImagesProps = {
   side: TagTeam | Wrestler
   match: Match
@@ -145,10 +146,11 @@ class SideWithImages extends React.Component<SideWithImagesProps> {
     const isPressable = isTagTeam(this.side) || this.props.wrestler?.id !== this.side.id
     const onPress = () => {
       if (isTagTeam(this.side)) {
+        // filter out the wrestler whose page is currently
         const wrestlers = this.side.wrestlers.filter(wrestler => wrestler.id !== this.props.wrestler?.id)
-        let items: RosterMember[] = wrestlers
+        let items: RosterMember[] = [...this.side.sub_teams, ...wrestlers]
         if (this.side.is_official) {
-          items = [this.side, ...wrestlers]
+          items.unshift(this.side)
         }
         GoToModal.show(items)
       } else {
@@ -167,23 +169,6 @@ class SideWithImages extends React.Component<SideWithImagesProps> {
       </View>
     )
   }
-}
-
-const SINGLES_MATCH_IMAGE_DIM = 75
-const TAG_MATCH_IMAGE_DIM = 60
-
-function ImageRow({ wrestlers, matchType }: { wrestlers: Wrestler[], matchType: MatchType }) {
-  const dim = matchType == MatchType.SINGLES ? SINGLES_MATCH_IMAGE_DIM : TAG_MATCH_IMAGE_DIM
-  const imageStyle = {
-    height: dim,
-    width: dim,
-    marginRight: 5
-  }
-  return (
-    <View style={{ flexDirection: "row", paddingBottom: 5 }}>
-      { wrestlers.map(wrestler => <Image style={imageStyle} source={{ uri: wrestler.image_url }} />) }
-    </View>
-  )
 }
 
 const styles = StyleSheet.create({
