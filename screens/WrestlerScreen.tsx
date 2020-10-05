@@ -45,7 +45,7 @@ const showMoreConfig: LabelValueConfig[] = [
     label: "Hometown", 
     valueFunc: wrestler => wrestler.hometown,
     dependentField: "hometown"
-  },
+  }
 ]
 
 
@@ -105,7 +105,6 @@ export default class WrestlerScreen extends React.Component<Props> {
   }
 
   render() {
-    console.log(this.showingMore)
     return (
       <ScrollView style={sharedStyles.scrollViewContainer}>
         <View style={styles.wrestlerInfoContainer}>
