@@ -1,6 +1,6 @@
 
 //const API_URL = 'localhost:3000/'
-const API_URL = 'http://0bfe43954d5f.ngrok.io' // for dev
+const API_URL = 'http://68c64d449813.ngrok.io' // for dev
 //const API_URL = 'https://aew-api.herokuapp.com/'
 //const API_URL = 'https://morning-coast-52689.herokuapp.com/' // staging
 

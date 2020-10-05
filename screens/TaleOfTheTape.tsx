@@ -225,22 +225,22 @@ export default class TaleOfTheTape extends React.Component<Props> {
   }
 }
 
-interface WrestlerColumnsProp{
+interface WrestlerColumnsProp {
   wrestler1: Wrestler
   wrestler2: Wrestler
 }
 
 interface AtttributeDictionary {
-  [key: string]: (wrestler: Wrestler) => void
+  [key: string]: (wrestler: Wrestler) => string
 }
 
 const WrestlerColumns = ({ wrestler1, wrestler2 }: WrestlerColumnsProp) => {
   const attributes: AtttributeDictionary = {
-    "height": (wrestler: Wrestler) => toHeightString(wrestler.height),
-    "weight": (wrestler: Wrestler) => toWeightString(wrestler.weight),
-    "record": (wrestler: Wrestler) => toRecordString(wrestler),
-    "hometown": (wrestler: Wrestler) => wrestler.hometown,
-    "nickname": (wrestler: Wrestler) => wrestler.nickname
+    "height": wrestler => toHeightString(wrestler.height),
+    "weight": wrestler => toWeightString(wrestler.weight),
+    "record": wrestler => toRecordString(wrestler),
+    "hometown": wrestler => wrestler.hometown,
+    "nickname": wrestler => wrestler.nickname
   }
 
   return (

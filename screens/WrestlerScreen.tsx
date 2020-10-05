@@ -1,5 +1,5 @@
 import React from "react"
-import { Text, ScrollView, View, StyleSheet, Image, FlatList } from "react-native"
+import { Text, ScrollView, View, StyleSheet, Image, FlatList, Animated } from "react-native"
 import { observable, _interceptReads, action, reaction, computed } from "mobx"
 import { sharedStyles, colors } from "../styles"
 import { RootStackParamList } from "../App"
@@ -18,35 +18,94 @@ type Props = {
   route: WrestlerScreenRouteProp
 }
 
+// better name?
+interface LabelValueConfig {
+  label: string
+  valueFunc: (wrestler: Wrestler) => string
+  dependentField: keyof Wrestler
+}
+
+const showMoreConfig: LabelValueConfig[] = [
+  {
+    label: "Nickname", 
+    valueFunc: wrestler => wrestler.nickname,
+    dependentField: "nickname"
+  },
+  {
+    label: "Height", 
+    valueFunc: wrestler => toHeightString(wrestler.height),
+    dependentField: "height"
+  },
+  {
+    label: "Weight", 
+    valueFunc: wrestler => `${wrestler.weight} lbs.`,
+    dependentField: "weight"
+  },
+  {
+    label: "Hometown", 
+    valueFunc: wrestler => wrestler.hometown,
+    dependentField: "hometown"
+  },
+]
+
+
+const renderLabelValue = (config: LabelValueConfig, wrestler: Wrestler) => {
+  if (_.isNil(config.dependentField)) {
+    return null
+  }
+  return <LabelValue label={config.label} value={config.valueFunc(wrestler)} />
+}
+
 @observer
 export default class WrestlerScreen extends React.Component<Props> {
   @observable
   matches: Match[] = []
 
+  @observable
+  showingMore = false
+
+  @observable
+  showMoreHeight = new Animated.Value(0)
+
+  labels = showMoreConfig.map(config => renderLabelValue(config, this.wrestler))
+  
   @computed
   get wrestler() {
     return this.props.route.params.wrestler
   }
 
-  @observable
-  showingMore = false
-
-  componentDidMount() {
-    this.fetchMatches()
-  }
-  
   @action
   fetchMatches = async () => this.matches = await AewApi.fetchWrestlerMatches(this.wrestler.id)
 
   @action
   onPressViewMore = () => this.showingMore = !this.showingMore
 
-  reaction = reaction(
+  heightReaction = reaction(
+    () => this.showingMore,
+    showingMore => (
+      Animated.timing(
+        this.showMoreHeight,
+        { toValue: showingMore ? this.labels.length * LABEL_VALUE_HEIGHT + SHOW_MORE_MARGIN_BOTTOM : 0 }
+      ).start()
+    )
+  )
+
+  wrestlerReaction = reaction(
     () => this.wrestler,
     this.fetchMatches
   )
 
+  componentDidMount() {
+    this.fetchMatches()
+  }
+
+  componentWillUnmount() {
+    this.heightReaction()
+    this.wrestlerReaction()
+  }
+
   render() {
+    console.log(this.showingMore)
     return (
       <ScrollView style={sharedStyles.scrollViewContainer}>
         <View style={styles.wrestlerInfoContainer}>
@@ -56,17 +115,14 @@ export default class WrestlerScreen extends React.Component<Props> {
             <LabelValue label={`${new Date().getFullYear()} Record`} value={"TODO"} />
           </View>
         </View>
-        { this.showingMore && (
-          <View style={styles.moreContainer}>
-            <LabelValue label="Nickname" value={this.wrestler.nickname} />
-            <LabelValue label="Height" value={toHeightString(this.wrestler.height)} />
-            <LabelValue label="Weight" value={`${this.wrestler.weight} lbs.`} />
-            <LabelValue label="Hometown" value={this.wrestler.hometown} />
-          </View>
-        )}
+        <View style={styles.moreContainer}>
+          <Animated.View style={[styles.animatedContainer, { height: this.showMoreHeight }]}>
+            {this.labels}
+          </Animated.View>
+        </View>
         <TouchableOpacity style={styles.viewMoreButton} onPress={this.onPressViewMore}>
           <View style={styles.buttonContainer}>
-            <Text style={styles.viewMoreText}>{this.showingMore ? "View Less" : "View More"}</Text>
+            <Text style={styles.viewMoreText}>{`View ${this.showingMore ? "Less" : "More"}`}</Text>
             <AntDesign name={this.showingMore ? "caretup" : "caretdown"} color={colors.white} size={16} />
           </View>
         </TouchableOpacity>
@@ -106,9 +162,12 @@ export const toHeightString = (height: number): string => `${Math.floor(height/1
 export const toRecordString = (wrestler: Wrestler) => `${wrestler.num_wins} - ${wrestler.num_losses}`
 export const toWeightString = (weight: number) => `${weight} lbs`
 
-function LabelValue({ label, value }: { label: string, value: string }) {
-  return !_.isNil(value) && (
-    <View>
+const LABEL_VALUE_HEIGHT = 50
+const SHOW_MORE_MARGIN_BOTTOM = 5
+
+const LabelValue = ({ label, value }: { label: string, value: string }) => {
+  return (
+    <View style={{ height: LABEL_VALUE_HEIGHT }}>
       <Text style={styles.label}>{label}</Text>
       <Text style={styles.value}>{value}</Text>
     </View>
@@ -121,8 +180,11 @@ const styles = StyleSheet.create({
     paddingBottom: 10
   },
   moreContainer: {
-    paddingLeft: 30,
-    paddingBottom: 20
+    paddingLeft: 30
+  },
+  animatedContainer: {
+    overflow: "hidden",
+    marginBottom: SHOW_MORE_MARGIN_BOTTOM
   },
   basicInfoContainer: {
     flex: 1,
