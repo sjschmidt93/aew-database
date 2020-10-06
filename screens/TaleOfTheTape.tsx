@@ -126,7 +126,7 @@ export default class TaleOfTheTape extends React.Component<Props> {
   })
 
   render() {
-    const transform = this.fadeTransform(this.animatedValueSum)
+    const sumTransform = this.fadeTransform(this.animatedValueSum)
     return (
       <View style={sharedStyles.scrollViewContainer}>
         <Animated.View style ={[
@@ -206,7 +206,7 @@ export default class TaleOfTheTape extends React.Component<Props> {
           )}
         </Animated.View>
 
-        <Animated.View style={[styles.imagesContainer, this.fadeTransform(this.animatedValueSum)]}>
+        <Animated.View style={[styles.imagesContainer, sumTransform]}>
           <TotpImage
             wrestler={this.wrestler1}
             onPressEdit={this.onPressEditWrestler1}
@@ -216,7 +216,7 @@ export default class TaleOfTheTape extends React.Component<Props> {
             onPressEdit={this.onPressEditWrestler2}
           />
         </Animated.View>
-        <Animated.View style={this.fadeTransform(this.animatedValueSum)}>
+        <Animated.View style={sumTransform}>
           <WrestlerColumns wrestler1={this.wrestler1} wrestler2={this.wrestler2} />
         </Animated.View>
 

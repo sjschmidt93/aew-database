@@ -1,5 +1,5 @@
 import React from 'react'
-import { Image, TouchableHighlightBase, TouchableOpacity } from 'react-native'
+import { Image, TouchableOpacity, StyleSheet, View, Text, Animated, Dimensions } from 'react-native'
 import EventsScreen from './screens/EventsScreen'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { NavigationContainer } from '@react-navigation/native'
@@ -16,9 +16,10 @@ import TagTeamScreen from './screens/TagTeamScreen'
 import { Ionicons, MaterialIcons } from '@expo/vector-icons'
 import { colors } from './styles'
 import GoToModal from './GoToModal'
-import { observer, Provider } from 'mobx-react'
+import { observer } from 'mobx-react'
 import { StoreProvider } from "./FavoritesStore"
 import TaleOfTheTape from './screens/TaleOfTheTape'
+import { observable } from 'mobx'
 
 export type RootStackParamList = {
   Home: undefined, 
@@ -132,9 +133,45 @@ function EventsStack() {
 
 const Tab = createBottomTabNavigator()
 
+const SPLASH_SCREEN_TIMEOUT = 3000
+const CIRCLE_ANIMATION_DURATION = 1000
+const MAX_CIRCLE_RADIUS = 1.25 * Dimensions.get("window").height
+
 @observer
 export default class App extends React.Component {
+  @observable
+  appIsReady = false
+  
+  @observable
+  circleRadius = new Animated.Value(0)
+
+  componentDidMount() {
+    setTimeout(() => {
+      Animated.timing(
+        this.circleRadius,
+        {
+          toValue: MAX_CIRCLE_RADIUS,
+          duration: CIRCLE_ANIMATION_DURATION
+        }
+      ).start(() => this.appIsReady = true)
+    }, SPLASH_SCREEN_TIMEOUT)
+  }
+
   render() {
+    if (!this.appIsReady) {
+      return (
+        <View style={styles.container}>
+          <Image source={images.aewLogo} style={styles.logo} />
+          <Animated.View
+            style={[
+              styles.circle,
+              { height: this.circleRadius, width: this.circleRadius }
+             ]}
+          />
+        </View>
+      )
+    }
+
     return (
       <StoreProvider>
         <NavigationContainer ref={navigationRef}>
@@ -175,3 +212,22 @@ export default class App extends React.Component {
     )
   }
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: "black" // make a gradient
+  },
+  logo: {
+    height: 150,
+    width: 200
+  },
+  circle: {
+    zIndex: 100,
+    backgroundColor: colors.graphite,
+    borderRadius: 1000,
+    position: "absolute"
+  }
+})
