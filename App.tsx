@@ -20,6 +20,7 @@ import { observer } from 'mobx-react'
 import { StoreProvider } from "./FavoritesStore"
 import TaleOfTheTape from './screens/TaleOfTheTape'
 import { observable } from 'mobx'
+import { WrestlerProvider } from './WrestlerContext'
 
 export type RootStackParamList = {
   Home: undefined, 
@@ -137,8 +138,18 @@ const SPLASH_SCREEN_TIMEOUT = 3000
 const CIRCLE_ANIMATION_DURATION = 1000
 const MAX_CIRCLE_RADIUS = 1.25 * Dimensions.get("window").height
 
+export default function App() {
+  return (
+    <StoreProvider> 
+      <WrestlerProvider>
+        <Root />
+      </WrestlerProvider>
+    </StoreProvider>
+  )
+}
+
 @observer
-export default class App extends React.Component {
+export class Root extends React.Component {
   @observable
   appIsReady = false
   

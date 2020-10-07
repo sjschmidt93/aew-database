@@ -1,7 +1,7 @@
 import { RouteProp } from "@react-navigation/native"
 import { action, computed, observable } from "mobx"
 import { observer } from "mobx-react"
-import React, { useEffect, useRef, useState } from "react"
+import React, { useContext, useEffect, useRef, useState } from "react"
 import { View, StyleSheet, Text, Image, Dimensions, Animated, StyleProp, Keyboard, TextInput, ViewStyle } from "react-native"
 import { RootStackParamList } from "../App"
 import { colors, sharedStyles } from "../styles"
@@ -13,6 +13,7 @@ import { AewApi } from "../aew_api"
 import { useStore } from "../FavoritesStore"
 import { toHeightString, toRecordString, toWeightString } from "./WrestlerScreen"
 import { PersonIcon } from "../components/PersonIcon"
+import { WrestlerContext } from "../WrestlerContext"
 
 type WrestlerScreenRouteProp = RouteProp<RootStackParamList, "TaleOfTheTape">
 type Props = {
@@ -310,13 +311,16 @@ const SearchBar = observer((props: SearchBarProps) => {
   const textInputRef = useRef<TextInput>()
 
   const store = useStore()
+  //const wrestlers = useContext(WrestlerContext)
 
-  // move wrestler fetch to parent?
+  //move wrestler fetch to parent?
   useEffect(() => {
     AewApi.fetchWrestlers()
       .then(res => setWrestlers(res))
       .catch(e => console.warn("Error fetching wrestlers", e))
   }, [])
+
+
 
   useEffect(() => {
     const filteredWrestlers = wrestlers.filter(wrestler => wrestler.id !== props.otherWrestler?.id)

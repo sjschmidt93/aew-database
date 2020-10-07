@@ -37,6 +37,7 @@ export default class RosterScreen extends React.Component {
   @observable
   searchInput = ""
 
+  // TODO: make a single context to use in class compnents OR convert this into a function component
   static contextType = storeContext
 
   @computed
