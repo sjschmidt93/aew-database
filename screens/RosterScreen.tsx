@@ -9,8 +9,6 @@ import Picker from "../components/Picker"
 import { AewApi } from "../aew_api"
 import _ from "lodash"
 import { AntDesign } from "@expo/vector-icons"
-import { StackNavigationProp } from "@react-navigation/stack"
-import { RootStackParamList } from "../App"
 import { isTagTeam } from "../components/MatchList"
 import { storeContext, useStore } from "../FavoritesStore"
 import { FavoritesList } from "../components/FavoritesList"
@@ -37,7 +35,7 @@ export default class RosterScreen extends React.Component {
   @observable
   searchInput = ""
 
-  // TODO: make a single context to use in class compnents OR convert this into a function component
+  // TODO: make a single context to use in class compnents OR convert this into a functional component
   static contextType = storeContext
 
   @computed
