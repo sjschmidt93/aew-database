@@ -30,6 +30,7 @@ export default class ChampionList extends React.Component {
         data={this.championships}
         renderItem={({item}) => <ChampionRow championship={item} />}
         contentContainerStyle={sharedStyles.listContainer}
+        keyExtractor={(item, index) => index.toString()}
       />
     )
   }

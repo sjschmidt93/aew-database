@@ -43,6 +43,7 @@ export default class Picker extends React.Component<PickerProps> {
           ItemSeparatorComponent={() => <View style={{ width: 10 }}/>}
           extraData={this.props.selectedIndex}
           contentContainerStyle={{ paddingHorizontal: 15 }}
+          keyExtractor={(item, index) => index.toString()}
         />
       </View>
     )

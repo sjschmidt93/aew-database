@@ -99,13 +99,13 @@ export default class GoToModal extends React.Component {
       return null
     }
 
-    return GoToModal.items.map(item => {
+    return GoToModal.items.map((item, index) => {
       const icon = !_.isNil(item.image_url)
         ? <Image source={{ uri: item.image_url }} style={styles.image} />
         : <PersonIcon size={IMAGE_WIDTH} style={{ marginRight: 10 }}/>
 
       return (
-        <View style={styles.outerBarContainer}>
+        <View key={`item-${index}`} style={styles.outerBarContainer}>
           <TouchableOpacity style={styles.barContainer} onPress={() => GoToModal.hide(navigateToRosterMember(item))}>
             {icon}
             <BarBody item={item} />

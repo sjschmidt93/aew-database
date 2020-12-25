@@ -29,6 +29,7 @@ export default function MatchList({ matches, showEvents = true, wrestler, tagTea
       )}
       data={matches}
       contentContainerStyle={sharedStyles.listContainer}
+      keyExtractor={(item, index) => index.toString()}
     />
   )
 }
@@ -144,10 +145,11 @@ class SideWithImages extends React.Component<SideWithImagesProps> {
   @computed
   get body() {
     return (
-      this.members.map(member => {
+      this.members.map((member, index) => {
         const isBold = this.props.wrestler?.name === member.name || this.props.tagTeam?.name === this.side.name
         return (
           <Text
+            key={`member-${index}`}
             style={[
               sharedStyles.body,
               { textAlign: "center" },

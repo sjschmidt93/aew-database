@@ -25,6 +25,7 @@ export default function ChampionshipPage({ route }: Props) {
       <FlatList
         data={championship.reigns}
         renderItem={({item}) => <ReignRow reign={item} />}
+        keyExtractor={(item, index) => index.toString()}
       />
       <Text style={sharedStyles.h2}>Match History</Text>
       <MatchList matches={championship.matches} />

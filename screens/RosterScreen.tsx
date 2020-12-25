@@ -138,6 +138,7 @@ export function RosterMemberList({ members }: { members: RosterMember[] }) {
       data={members}
       ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
       contentContainerStyle={{ marginBottom: 10 }}
+      keyExtractor={(item, index) => index.toString()}
     />
   )
 }

@@ -246,8 +246,8 @@ const WrestlerColumns = ({ wrestler1, wrestler2 }: WrestlerColumnsProp) => {
 
   return (
     <View>
-      {Object.keys(attributes).map(key => (
-        <View style={styles.rowContainer}>
+      {Object.keys(attributes).map((key, index) => (
+        <View key={`column-${index}`}style={styles.rowContainer}>
           <View style={styles.outerColumnContainer}>
             <Text numberOfLines={1} style={sharedStyles.body}>{attributes[key](wrestler1)}</Text>
           </View>

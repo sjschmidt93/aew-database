@@ -93,6 +93,7 @@ export function EventList({ events }: { events: Event[] }) {
       data={events}
       ItemSeparatorComponent={() => <View style={{ height: 20 }} />}
       contentContainerStyle={{ paddingBottom: 20 }}
+      keyExtractor={(item, index) => index.toString()}
     />
   )
 }

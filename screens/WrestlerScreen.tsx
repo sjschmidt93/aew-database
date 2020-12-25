@@ -152,6 +152,7 @@ function ReignList({ reigns }: { reigns: Reign[] }) {
         data={reigns}
         renderItem={({item}: { item: Reign }) => <ReignRow reign={item}/ > }
         contentContainerStyle={{ paddingTop: 10, paddingBottom: 20 }}
+        keyExtractor={(item, index) => index.toString()}
       />
     </View>
   )
