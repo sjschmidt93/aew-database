@@ -1,5 +1,5 @@
 import React from 'react'
-import { Image, TouchableOpacity, StyleSheet, View, Text, Animated, Dimensions } from 'react-native'
+import { Image, TouchableOpacity, StyleSheet, View, Animated, Dimensions } from 'react-native'
 import EventsScreen from './screens/EventsScreen'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { NavigationContainer } from '@react-navigation/native'
@@ -158,13 +158,11 @@ export class Root extends React.Component {
 
   componentDidMount() {
     setTimeout(() => {
-      Animated.timing(
-        this.circleRadius,
-        {
-          toValue: MAX_CIRCLE_RADIUS,
-          duration: CIRCLE_ANIMATION_DURATION
-        }
-      ).start(() => this.appIsReady = true)
+      Animated.timing(this.circleRadius, {
+        toValue: MAX_CIRCLE_RADIUS,
+        duration: CIRCLE_ANIMATION_DURATION,
+        useNativeDriver: false
+      }).start(() => this.appIsReady = true)
     }, SPLASH_SCREEN_TIMEOUT)
   }
 
@@ -175,8 +173,10 @@ export class Root extends React.Component {
           <Image source={images.aewLogo} style={styles.logo} />
           <Animated.View
             style={[
-              styles.circle,
-              { height: this.circleRadius, width: this.circleRadius }
+              styles.circle, {
+                height: this.circleRadius,
+                width: this.circleRadius
+              }
              ]}
           />
         </View>

@@ -6,9 +6,8 @@ import { colors, sharedStyles } from "./styles"
 import _ from "lodash"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { navigateToRosterMember, RosterMember } from "./screens/RosterScreen"
-import { Fontisto, Ionicons } from '@expo/vector-icons'
 import { isTagTeam } from "./components/MatchList"
-import { TagTeam, Wrestler } from "./types"
+import { TagTeam } from "./types"
 import { PersonIcon } from "./components/PersonIcon"
 
 const dims = Dimensions.get("screen")
@@ -47,24 +46,28 @@ export default class GoToModal extends React.Component {
 
   static showAnimation = () => {
     Animated.parallel([
-      Animated.timing(
-        GoToModal.yOffset, { toValue: 0 }
-      ),
-      Animated.timing(
-        GoToModal.opacity, { toValue: 0.6 }
-      )
+      Animated.timing(GoToModal.yOffset, {
+        toValue: 0,
+        useNativeDriver: true
+      }),
+      Animated.timing(GoToModal.opacity, {
+        toValue: 0.6,
+        useNativeDriver: true
+      })
     ]).start()
   }
 
   @action
   static hide = (callback: () => void = () => null) => {
     Animated.parallel([
-      Animated.timing(
-        GoToModal.yOffset, { toValue: GoToModal.height }
-      ),
-      Animated.timing(
-        GoToModal.opacity, { toValue: 0 }
-      )
+      Animated.timing(GoToModal.yOffset, {
+        toValue: GoToModal.height,
+        useNativeDriver: true
+      }),
+      Animated.timing(GoToModal.opacity, {
+        toValue: 0,
+        useNativeDriver: true
+      })
     ]).start(({ finished }) => {
       if (finished) {
         GoToModal.isVisible = false
