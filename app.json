@@ -1,6 +1,7 @@
 {
   "expo": {
     "name": "aew-db",
+    "description": "An unofficial mobile application for browsing All Elite Wrestling wrestlers, tag teams, matches, championships, events etc.",
     "slug": "aew-db",
     "platforms": [
       "ios",

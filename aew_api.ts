@@ -1,4 +1,4 @@
-//const API_URL = 'https://2287a959ec1d.ngrok.io' // for dev
+//const API_URL = 'https://bbffcd5b2e99.ngrok.io'
 const API_URL = 'https://morning-coast-52689.herokuapp.com/'
 
 function aewApiFetch(path: string, errorMessage: string, requestParams = "") {

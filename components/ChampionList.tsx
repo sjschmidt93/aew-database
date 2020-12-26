@@ -41,10 +41,10 @@ function ChampionRow({ championship }: { championship: Championship }) {
   return !_.isNil(reign) && (
     <TouchableOpacity style={styles.championRowContainer} onPress={() => navigate("Championship", { championship })}>
       <View style={{ flexDirection: "row", flex: 1 }}>
-        <Image source={{ uri: reign.competitor.image_url }} style={styles.image} />
+        <Image source={{ uri: reign.competitor.image_url }} style={styles.image} resizeMode="stretch" />
         <View style={styles.championInfoContainer}>
           <Text style={sharedStyles.h3}>{reign.competitor.name}</Text>
-          <Text style={[sharedStyles.h3, { color: colors.silver }]}>{championship.name}</Text>
+          <Text style={[sharedStyles.h3, styles.championshipName]}>{championship.name}</Text>
           <Text style={sharedStyles.body}>Reign began {formatDate(reign.start_date)} ({reign.length} days)</Text>
         </View>
       </View>
@@ -55,15 +55,22 @@ function ChampionRow({ championship }: { championship: Championship }) {
 const styles = StyleSheet.create({
   championRowContainer: {
     backgroundColor: colors.graphite,
-    marginBottom: 10
+    marginBottom: 10,
+    minHeight: 85
   },
   image: {
-    height: 85,
-    width: 85
+    height: "100%",
+    aspectRatio: 1
   },
   championInfoContainer: {
     alignItems: "center",
     justifyContent: "center",
-    flex: 1
+    flex: 1,
+    marginVertical: 10,
+    paddingVertical: 10
+  },
+  championshipName: {
+    color: colors.silver,
+    textAlign: "center"
   }
 })

@@ -23,7 +23,7 @@ export default function ChampionshipPage({ route }: Props) {
     <ScrollView style={sharedStyles.scrollViewContainer}>
       <Text style={[sharedStyles.h2, styles.header]}>Title History</Text>
       <FlatList
-        data={championship.reigns}
+        data={championship.reigns.slice().reverse()}
         renderItem={({item}) => <ReignRow reign={item} />}
         keyExtractor={(item, index) => index.toString()}
       />
@@ -71,7 +71,7 @@ class ReignRow extends React.Component<ReignRowProps> {
         <View style={{ flexDirection: "row", flex: 1 }}>
           <Image source={{ uri: this.reign.competitor.image_url }} style={styles.image} />
           <View style={styles.reignInfoRowContainer}>
-            <Text style={sharedStyles.h3}>{this.reign.competitor.name}</Text>
+            <Text style={[sharedStyles.h3, { textAlign: "center" }]}>{this.reign.competitor.name}</Text>
             <Text style={sharedStyles.body}>{reignText(this.reign)}</Text>
           </View>
         </View>
@@ -88,7 +88,8 @@ const styles = {
   reignInfoRowContainer: {
     alignItems: "center",
     justifyContent: "center",
-    flex: 1
+    flex: 1,
+    paddingHorizontal: 20
   },
   image: {
     height: 85,

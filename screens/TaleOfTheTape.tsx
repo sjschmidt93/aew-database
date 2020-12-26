@@ -241,7 +241,7 @@ const WrestlerColumns = ({ wrestler1, wrestler2 }: WrestlerColumnsProp) => {
     "weight": wrestler => toWeightString(wrestler.weight),
     "record": wrestler => toRecordString(wrestler),
     "hometown": wrestler => wrestler.hometown,
-    "nickname": wrestler => wrestler.nickname
+    "nickname": wrestler => wrestler.nickname || "N/A"
   }
 
   return (

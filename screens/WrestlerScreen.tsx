@@ -50,7 +50,7 @@ const showMoreConfig: LabelValueConfig[] = [
 
 
 const renderLabelValue = (config: LabelValueConfig, wrestler: Wrestler) => {
-  if (_.isNil(config.dependentField)) {
+  if (_.isNil(wrestler[config.dependentField])) {
     return null
   }
   return <LabelValue label={config.label} value={config.valueFunc(wrestler)} />
@@ -67,7 +67,7 @@ export default class WrestlerScreen extends React.Component<Props> {
   @observable
   showMoreHeight = new Animated.Value(0)
 
-  labels = showMoreConfig.map(config => renderLabelValue(config, this.wrestler))
+  labels = showMoreConfig.map(config => renderLabelValue(config, this.wrestler)).filter(label => !_.isNil(label))
   
   @computed
   get wrestler() {
