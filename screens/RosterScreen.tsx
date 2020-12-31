@@ -13,7 +13,7 @@ import { isTagTeam } from "../components/MatchList"
 import { storeContext, useStore } from "../FavoritesStore"
 import { FavoritesList } from "../components/FavoritesList"
 
-const ROSTER_ROW_HEIGHT = 75
+const ROSTER_ROW_HEIGHT = 90
 const FAVORITES_STR = "FAVORITES"
 
 export type RosterMember = Wrestler | TagTeam
@@ -35,15 +35,15 @@ export default class RosterScreen extends React.Component {
   @observable
   searchInput = ""
 
-  // TODO: make a single context to use in class compnents OR convert this into a functional component
+  // TODO: make a single context to use in class components OR convert this into a functional component
   static contextType = storeContext
 
   @computed
   get pickerData(): string[] {
     return [
       "ALL",
-      "MEN'S",
-      "WOMEN'S",
+      "MEN",
+      "WOMEN",
       "TAG TEAMS",
       FAVORITES_STR
       //"STABLES"
@@ -79,7 +79,11 @@ export default class RosterScreen extends React.Component {
 
   @computed
   get favorites(): RosterMember[] {
-    return this.wrestlers.concat(this.tagTeams).filter(wrestler => this.context.isFavorited(wrestler))
+    return this.wrestlers.concat(this.tagTeams).filter(wrestler =>
+      _.isNil(this.context)
+        ? false
+        : this.context.isFavorited(wrestler)
+    )
   }
 
   @computed
@@ -171,15 +175,27 @@ function RosterRow({ member }: { member: RosterMember }) {
 
   return (
     <View style={styles.wrestlerOuterContainer}>
-      <Image style={styles.image} source={{ uri: member.image_url }} />
-      <TouchableOpacity
-        style={styles.wrestlerContainer}
-        onPress={navigateToRosterMember(member)}
-      >
-        <Text style={sharedStyles.h2}>{primaryName}</Text>
-        { !_.isNil(secondaryName) && <Text style={[sharedStyles.h3, { color: colors.silver }]}>{secondaryName}</Text> }
-      </TouchableOpacity>
-      <Star member={member} />
+        <Image style={styles.image} source={{ uri: member.image_url }} />
+        <TouchableOpacity
+          style={styles.wrestlerContainer}
+          onPress={navigateToRosterMember(member)}
+        >
+          <Text style={[sharedStyles.h2, { textAlign: "center" }]}>{primaryName}</Text>
+          { !_.isNil(secondaryName) && (
+            <Text
+              style={[
+                sharedStyles.h3,
+                { 
+                  color: colors.silver,
+                  textAlign: "center"
+                }
+              ]}
+            >
+              {secondaryName}
+            </Text>
+          )}
+        </TouchableOpacity>
+        <Star member={member} />
     </View>
   )
 }
@@ -222,7 +238,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.graphite
   },
   wrestlerContainer: {
-    padding: 5,
+    padding: 10,
     alignItems: 'center',
     flex: 1
   },

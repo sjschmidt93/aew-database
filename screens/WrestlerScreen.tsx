@@ -193,12 +193,12 @@ const styles = StyleSheet.create({
   },
   viewMoreButton: {
     alignSelf: "center",
-    borderColor: colors.aewYellow,
+    backgroundColor: colors.aewYellow,
     borderWidth: 3,
     paddingVertical: 5,
     paddingHorizontal: 10,
     marginBottom: 15,
-    borderRadius: 20
+    borderRadius: 10
   },
   buttonContainer: {
     flexDirection: "row",

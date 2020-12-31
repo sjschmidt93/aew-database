@@ -327,7 +327,7 @@ const SearchBar = observer((props: SearchBarProps) => {
     if (searchInput === "") {
       setResultingWrestlers(filteredWrestlers.slice(0, SEARCH_RESULT_MAX))
     } else {
-      setResultingWrestlers(filteredWrestlers.filter(wrestler => wrestler.name.startsWith(searchInput)))
+      setResultingWrestlers(filteredWrestlers.filter(wrestler => wrestler.name.toLowerCase().startsWith(searchInput.toLowerCase())))
     }
   }, [searchInput, wrestlers])
 

@@ -22,6 +22,8 @@ import TaleOfTheTape from './screens/TaleOfTheTape'
 import { observable } from 'mobx'
 import { WrestlerProvider } from './WrestlerContext'
 
+console.disableYellowBox = true;
+
 export type RootStackParamList = {
   Home: undefined, 
   Roster: undefined,
@@ -134,7 +136,7 @@ function EventsStack() {
 
 const Tab = createBottomTabNavigator()
 
-const SPLASH_SCREEN_TIMEOUT = 3000
+const SPLASH_SCREEN_TIMEOUT = 2000
 const CIRCLE_ANIMATION_DURATION = 1000
 const MAX_CIRCLE_RADIUS = 1.25 * Dimensions.get("window").height
 
