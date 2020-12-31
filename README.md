@@ -1,6 +1,8 @@
 # All Elite Wrestling: Database
 An unofficial mobile application for browsing All Elite Wrestling wrestlers, tag teams, matches, championships, events etc.
 
+The app is available via Expo: https://expo.io/@sjschmidt93/projects/aew-db
+
 # Screenshots
 Higher resolution photos are available in `screenshots/`
 
