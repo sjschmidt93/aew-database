@@ -37,16 +37,14 @@ export const RosterScreen = () => {
 
   useEffect(() => {
     AewApi.fetchOfficialTagTeams()
-      .then(teams => setTagTeams(teams))
+      .then(teams => setTagTeams(teams || []))
       .catch(console.error)
   })
 
   const { wrestlers } = useContext(DataContext)
-  const store = useContext(storeContext)
 
   const men = wrestlers.filter(isMan)
   const women = wrestlers.filter(isWoman)
-  //const favorites: RosterMember[] = wrestlers.concat(tagTeams).filter(wrestler => store?.isFavorited(wrestler))
 
   const dataArr = [
     wrestlers,
