@@ -304,23 +304,13 @@ interface SearchBarProps {
 }
 
 const SearchBar = observer((props: SearchBarProps) => {
-  const [wrestlers, setWrestlers] = useState<Wrestler[]>([])
   const [resultingWrestlers, setResultingWrestlers] = useState<Wrestler[]>([])
   const [searchInput, setSearchInput] = useState("")
 
   const textInputRef = useRef<TextInput>()
 
   const store = useStore()
-  //const wrestlers = useContext(WrestlerContext)
-
-  //move wrestler fetch to parent?
-  useEffect(() => {
-    AewApi.fetchWrestlers()
-      .then(res => setWrestlers(res))
-      .catch(e => console.warn("Error fetching wrestlers", e))
-  }, [])
-
-
+  const wrestlers = useContext(WrestlerContext)
 
   useEffect(() => {
     const filteredWrestlers = wrestlers.filter(wrestler => wrestler.id !== props.otherWrestler?.id)

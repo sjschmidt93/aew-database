@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useState } from "react"  
+import React, { useEffect, useState } from "react"  
 import { AewApi } from "./aew_api"
 import { Wrestler } from "./types"
 
