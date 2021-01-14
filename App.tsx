@@ -20,7 +20,7 @@ import { observer } from 'mobx-react'
 import { StoreProvider } from "./FavoritesStore"
 import TaleOfTheTape from './screens/TaleOfTheTape'
 import { observable } from 'mobx'
-import { WrestlerProvider } from './WrestlerContext'
+import { DataProvider } from './DataContext'
 
 console.disableYellowBox = true;
 
@@ -143,9 +143,9 @@ const MAX_CIRCLE_RADIUS = 1.25 * Dimensions.get("window").height
 export default function App() {
   return (
     <StoreProvider> 
-      <WrestlerProvider>
+      <DataProvider>
         <Root />
-      </WrestlerProvider>
+      </DataProvider>
     </StoreProvider>
   )
 }

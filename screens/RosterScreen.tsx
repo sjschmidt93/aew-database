@@ -11,7 +11,7 @@ import { AntDesign } from "@expo/vector-icons"
 import { isTagTeam } from "../components/MatchList"
 import { storeContext, useStore } from "../FavoritesStore"
 import { FavoritesList } from "../components/FavoritesList"
-import { WrestlerContext } from "../WrestlerContext"
+import { DataContext } from "../DataContext"
 
 const ROSTER_ROW_HEIGHT = 90
 const FAVORITES_STR = "FAVORITES"
@@ -40,7 +40,7 @@ export const RosterScreen = () => {
       .catch(console.error)
   })
 
-  const wrestlers = useContext(WrestlerContext)
+  const { wrestlers } = useContext(DataContext)
   const store = useContext(storeContext)
 
   const men = wrestlers.filter(isMan)

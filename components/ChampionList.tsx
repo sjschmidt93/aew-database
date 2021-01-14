@@ -1,39 +1,26 @@
-import { observer } from "mobx-react"
-import React from "react"
-import { observable, computed } from "mobx"
-import { AewApi } from "../aew_api"
-import { View, Image, Text, StyleSheet, FlatList } from "react-native"
+import React, { useContext } from "react"
+import { View, Image, Text, StyleSheet, FlatList, ActivityIndicator } from "react-native"
 import { colors, sharedStyles } from "../styles"
 import { formatDate } from "../utils"
 import { Championship } from "../types"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import _ from "lodash"
 import { navigate } from "../RootNavigation"
+import DataContext from "../DataContext"
 
-@observer
-export default class ChampionList extends React.Component {
-  @observable
-  reigns = []
+const ChampionshipList = () => {
+  const { championships } = useContext(DataContext)
 
-  @observable
-  championships = []
-
-  componentDidMount() {
-    this.fetchChampionships()
-  }
-
-  fetchChampionships = async () => this.championships = await AewApi.fetchChampionships()
-
-  render() {
-    return (
+  return _.isEmpty(championships)
+    ? <ActivityIndicator size="large" color={colors.aewYellow} />
+    : (
       <FlatList
-        data={this.championships}
+        data={championships}
         renderItem={({item}) => <ChampionRow championship={item} />}
         contentContainerStyle={sharedStyles.listContainer}
         keyExtractor={(item, index) => index.toString()}
       />
     )
-  }
 }
 
 function ChampionRow({ championship }: { championship: Championship }) {
@@ -74,3 +61,5 @@ const styles = StyleSheet.create({
     textAlign: "center"
   }
 })
+
+export default ChampionshipList
