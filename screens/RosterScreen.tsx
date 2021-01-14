@@ -1,6 +1,5 @@
-import React, { useState } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import { View, StyleSheet, FlatList, Text, Image, TouchableOpacity, ScrollView, StatusBar, TextInput } from "react-native"
-import { observable, computed } from 'mobx'
 import { observer } from "mobx-react"
 import { sharedStyles, colors } from "../styles"
 import { push } from "../RootNavigation"  
@@ -12,127 +11,91 @@ import { AntDesign } from "@expo/vector-icons"
 import { isTagTeam } from "../components/MatchList"
 import { storeContext, useStore } from "../FavoritesStore"
 import { FavoritesList } from "../components/FavoritesList"
+import { WrestlerContext } from "../WrestlerContext"
 
 const ROSTER_ROW_HEIGHT = 90
 const FAVORITES_STR = "FAVORITES"
+const PICKER_DATA = [
+  "ALL",
+  "MEN",
+  "WOMEN",
+  "TAG TEAMS",
+  FAVORITES_STR
+  //"STABLES"
+]
 
 export type RosterMember = Wrestler | TagTeam
 
 export const isMan = (wrestler: Wrestler) => wrestler.division === Division.MENS
 export const isWoman = (wrestler: Wrestler) => wrestler.division === Division.WOMENS
 
-@observer
-export default class RosterScreen extends React.Component {
-  @observable
-  wrestlers: Wrestler[] = []
+export const RosterScreen = () => {
+  const [selectedPickerIndex, setSelectedPickerIndex] = useState(0)
+  const [searchInput, setSearchInput] = useState("")
+  const [tagTeams, setTagTeams] = useState<TagTeam[]>([])
 
-  @observable
-  tagTeams: TagTeam[] = []
+  useEffect(() => {
+    AewApi.fetchOfficialTagTeams()
+      .then(teams => setTagTeams(teams))
+      .catch(console.error)
+  })
 
-  @observable
-  selectedPickerIndex = 0
+  const wrestlers = useContext(WrestlerContext)
+  const store = useContext(storeContext)
 
-  @observable
-  searchInput = ""
+  const men = wrestlers.filter(isMan)
+  const women = wrestlers.filter(isWoman)
+  
+  const favorites = wrestlers.concat(tagTeams).filter(wrestler => store?.isFavorited(wrestler))
 
-  // TODO: make a single context to use in class components OR convert this into a functional component
-  static contextType = storeContext
+  const dataArr = [
+    wrestlers,
+    men,
+    women,
+    tagTeams,
+    favorites
+  ]
 
-  @computed
-  get pickerData(): string[] {
-    return [
-      "ALL",
-      "MEN",
-      "WOMEN",
-      "TAG TEAMS",
-      FAVORITES_STR
-      //"STABLES"
-    ]
-  }
+  const clearInput = () => setSearchInput("")
+  const onChangeText = (text: string) => setSearchInput(text)
+  const onSelectPickerIndex = (index: number) => setSelectedPickerIndex(index)
 
-  @computed
-  get dataArr(): RosterMember[][] {
-    return [
-      this.wrestlers,
-      this.mensDivision,
-      this.womensDivision,
-			this.tagTeams,
-			this.favorites
-      //[]
-    ]
-  }
+  const isFavoritesSelected = PICKER_DATA.indexOf(FAVORITES_STR) === selectedPickerIndex
 
-  @computed
-  get filteredData(): RosterMember[] {
-    return this.dataArr[this.selectedPickerIndex].filter(member => member.name.startsWith(this.searchInput))
-  }
-
-  @computed
-  get mensDivision() {
-    return this.wrestlers.filter(isMan)
-  }
-
-  @computed
-  get womensDivision() {
-    return this.wrestlers.filter(isWoman)
-  }
-
-  @computed
-  get favorites(): RosterMember[] {
-    return this.wrestlers.concat(this.tagTeams).filter(wrestler =>
-      _.isNil(this.context)
-        ? false
-        : this.context.isFavorited(wrestler)
-    )
-  }
-
-  @computed
-  get isFavoritesSelected() {
-    return this.pickerData.indexOf(FAVORITES_STR) === this.selectedPickerIndex
-  }
-
-  componentDidMount() {
-    this.fetchWrestlers()
-    this.fetchTagTeams()
-  }
-
-  fetchWrestlers = async () => this.wrestlers = await AewApi.fetchWrestlers()
-  fetchTagTeams = async () => this.tagTeams = await AewApi.fetchOfficialTagTeams()
- 
-  render() {
-    return (
-      <View style={{ flex: 1, backgroundColor: colors.black }}>
-        <StatusBar barStyle="light-content" />
-        <Picker
-          options={this.pickerData}
-          selectedIndex={this.selectedPickerIndex}
-          onSelect={index => this.selectedPickerIndex = index}
+  const filteredData = dataArr[selectedPickerIndex].filter(member => member.name.startsWith(searchInput))
+  
+  return (
+    <View style={{ flex: 1, backgroundColor: colors.black }}>
+      <StatusBar barStyle="light-content" />
+      <Picker
+        options={PICKER_DATA}
+        selectedIndex={selectedPickerIndex}
+        onSelect={onSelectPickerIndex}
+      />
+      <View style={styles.textInputContainer}>
+        <TextInput
+          value={searchInput}
+          style={[sharedStyles.h3, { flex: 1 }]}
+          placeholder="Search"
+          onChangeText={onChangeText}
         />
-        <View style={styles.textInputContainer}>
-          <TextInput
-            value={this.searchInput}
-            style={[sharedStyles.h3, { flex: 1 }]}
-            placeholder="Search"
-            onChangeText={text => this.searchInput = text}
-          />
-          {this.searchInput === ""
-            ? <AntDesign name="search1" size={20} color={colors.white} />
-            : (
-              <TouchableOpacity onPress={() => this.searchInput = ""}>
-                <AntDesign name="close" size={20} color={colors.white} />
-              </TouchableOpacity>
-            )
-          }
-        </View>
-        <ScrollView style={sharedStyles.scrollViewContainer}>
-          { this.isFavoritesSelected
-            ? <FavoritesList />
-            : <RosterMemberList members={this.filteredData} />
-          }
-        </ScrollView>
+        {searchInput === ""
+          ? <AntDesign name="search1" size={20} color={colors.white} />
+          : (
+            <TouchableOpacity onPress={clearInput}>
+              <AntDesign name="close" size={20} color={colors.white} />
+            </TouchableOpacity>
+          )
+        }
       </View>
-    )
-  }
+      <ScrollView style={sharedStyles.scrollViewContainer}>
+        { isFavoritesSelected
+          ? <FavoritesList />
+          : <RosterMemberList members={filteredData} />
+        }
+      </ScrollView>
+    </View>
+  )
 }
 
 export function RosterMemberList({ members }: { members: RosterMember[] }) {
@@ -201,7 +164,12 @@ function RosterRow({ member }: { member: RosterMember }) {
 }
 
 const Star = observer(({ member }: { member: RosterMember }) => {
-  const store = useStore()
+  const store = useContext(storeContext)
+  // TODO: fix bug where store is unitialized
+  if (!store) {
+    return null
+  }
+
   const [isFavorited, setIsFavorited] = useState(store.isFavorited(member))
 
   const onPress = () => (
@@ -261,3 +229,5 @@ const styles = StyleSheet.create({
     justifyContent: "space-between"
   }
 })
+
+export default RosterScreen
