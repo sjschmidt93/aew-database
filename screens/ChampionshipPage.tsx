@@ -1,5 +1,5 @@
 import { RootStackParamList } from "../App"
-import { Text, View, Image, FlatList, TouchableOpacity, ScrollView } from "react-native"
+import { Text, View, Image, FlatList, TouchableOpacity, ScrollView, StyleSheet } from "react-native"
 import { RouteProp } from "@react-navigation/native"
 import React from "react"
 import { sharedStyles, colors } from "../styles"
@@ -25,7 +25,7 @@ export default function ChampionshipPage({ route }: Props) {
       <FlatList
         data={championship.reigns.slice().reverse()}
         renderItem={({item}) => <ReignRow reign={item} />}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(_item, index) => index.toString()}
       />
       <Text style={sharedStyles.h2}>Match History</Text>
       <MatchList matches={championship.matches} />
@@ -80,7 +80,7 @@ class ReignRow extends React.Component<ReignRowProps> {
   }
 }
 
-const styles = {
+const styles = StyleSheet.create({
   reignRowContainer: {
     marginBottom: 10,
     backgroundColor: colors.graphite
@@ -98,4 +98,4 @@ const styles = {
   header: {
     paddingBottom: 10
   }
-}
+})

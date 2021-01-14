@@ -1,5 +1,5 @@
 import React, { useContext } from "react"
-import { View, Image, Text, StyleSheet, FlatList, ActivityIndicator } from "react-native"
+import { View, Image, Text, StyleSheet, FlatList } from "react-native"
 import { colors, sharedStyles } from "../styles"
 import { formatDate } from "../utils"
 import { Championship } from "../types"
@@ -7,12 +7,13 @@ import { TouchableOpacity } from "react-native-gesture-handler"
 import _ from "lodash"
 import { navigate } from "../RootNavigation"
 import DataContext from "../DataContext"
+import LoadingIndicator from "./LoadingIndicator"
 
 const ChampionshipList = () => {
   const { championships } = useContext(DataContext)
 
   return _.isEmpty(championships)
-    ? <ActivityIndicator size="large" color={colors.aewYellow} />
+    ? <LoadingIndicator />
     : (
       <FlatList
         data={championships}

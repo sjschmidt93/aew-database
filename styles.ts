@@ -1,4 +1,4 @@
-export const sharedStyles = {
+export const sharedStyles = StyleSheet.create({
   h3: {
     color: 'white',
     fontSize: 18,
@@ -24,7 +24,7 @@ export const sharedStyles = {
     paddingTop: 10,
     paddingBottom: 20
   }
-}
+})
 
 export const colors = {
   white: "#ffffff",

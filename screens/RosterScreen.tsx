@@ -9,9 +9,10 @@ import { AewApi } from "../aew_api"
 import _ from "lodash"
 import { AntDesign } from "@expo/vector-icons"
 import { isTagTeam } from "../components/MatchList"
-import { storeContext, useStore } from "../FavoritesStore"
+import { storeContext } from "../FavoritesStore"
 import { FavoritesList } from "../components/FavoritesList"
-import { DataContext } from "../DataContext"
+import DataContext from "../DataContext"
+import LoadingIndicator from "../components/LoadingIndicator"
 
 const ROSTER_ROW_HEIGHT = 90
 const FAVORITES_STR = "FAVORITES"
@@ -45,7 +46,6 @@ export const RosterScreen = () => {
 
   const men = wrestlers.filter(isMan)
   const women = wrestlers.filter(isWoman)
-  
   const favorites = wrestlers.concat(tagTeams).filter(wrestler => store?.isFavorited(wrestler))
 
   const dataArr = [
@@ -88,12 +88,17 @@ export const RosterScreen = () => {
           )
         }
       </View>
-      <ScrollView style={sharedStyles.scrollViewContainer}>
-        { isFavoritesSelected
-          ? <FavoritesList />
-          : <RosterMemberList members={filteredData} />
-        }
-      </ScrollView>
+      {_.isEmpty(dataArr[selectedPickerIndex]) && !isFavoritesSelected
+        ? <LoadingIndicator />
+        : (
+          <ScrollView style={sharedStyles.scrollViewContainer}>
+            { isFavoritesSelected
+              ? <FavoritesList />
+              : <RosterMemberList members={filteredData} />
+            }
+          </ScrollView>
+        )
+      }
     </View>
   )
 }
