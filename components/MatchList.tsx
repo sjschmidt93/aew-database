@@ -1,6 +1,6 @@
-import { View, TouchableOpacity, Text, FlatList, StyleSheet, Image } from "react-native"
+import { View, TouchableOpacity, Text, FlatList, StyleSheet } from "react-native"
 import { computed } from "mobx"
-import { navigate, navigationRef, push } from "../RootNavigation"
+import { navigate, push } from "../RootNavigation"
 import React from "react"
 import { sharedStyles, colors } from "../styles"
 import { Match, Wrestler, TagTeam, MatchType } from "../types"
@@ -38,7 +38,7 @@ type MatchRowProps = {
   match: Match
   showEvent: boolean
   wrestler?: Wrestler
-  tagTeam?: tagTeam
+  tagTeam?: TagTeam
 }
 
 class MatchRow extends React.Component<MatchRowProps> {
@@ -116,7 +116,7 @@ class SideWithImages extends React.Component<SideWithImagesProps> {
 
   @computed
   get wrestlers() {
-    return isTagTeam(this.side) ? this.side.wrestlers : [this.side]
+    return !_.isNil(this.side) && isTagTeam(this.side) ? this.side.wrestlers : [this.side]
   }
 
   @computed
@@ -166,9 +166,9 @@ class SideWithImages extends React.Component<SideWithImagesProps> {
   render () {
     const isPressable = isTagTeam(this.side) || this.props.wrestler?.id !== this.side.id
     const onPress = () => {
-      if (isTagTeam(this.side)) {
-        // filter out the wrestler whose page is currently
-        const wrestlers = this.side.wrestlers.filter(wrestler => wrestler.id !== this.props.wrestler?.id)
+      if (isTagTeam(this.side) && !_.isNil(this.side)) {
+        // filter out the wrestler whose page is currently displayed
+        const wrestlers = this.side?.wrestlers.filter(wrestler => wrestler.id !== this.props.wrestler?.id)
         let items: RosterMember[] = [...this.side.sub_teams, ...wrestlers]
         if (this.side.is_official) {
           items.unshift(this.side)

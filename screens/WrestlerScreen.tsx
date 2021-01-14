@@ -12,6 +12,7 @@ import { TouchableOpacity } from "react-native-gesture-handler"
 import { AntDesign } from '@expo/vector-icons'
 import { formatDate } from "../utils"
 import MatchList from "../components/MatchList"
+import LoadingIndicator from "../components/LoadingIndicator"
 
 type WrestlerScreenRouteProp = RouteProp<RootStackParamList, "Wrestler">
 type Props = {
@@ -67,6 +68,9 @@ export default class WrestlerScreen extends React.Component<Props> {
   @observable
   showMoreHeight = new Animated.Value(0)
 
+  @observable
+  loadingMatches = false
+
   labels = showMoreConfig.map(config => renderLabelValue(config, this.wrestler)).filter(label => !_.isNil(label))
   
   @computed
@@ -75,7 +79,11 @@ export default class WrestlerScreen extends React.Component<Props> {
   }
 
   @action
-  fetchMatches = async () => this.matches = await AewApi.fetchWrestlerMatches(this.wrestler.id)
+  fetchMatches = async () => {
+    this.loadingMatches = true
+    this.matches = await AewApi.fetchWrestlerMatches(this.wrestler.id)
+    this.loadingMatches = false
+  }
 
   @action
   onPressViewMore = () => this.showingMore = !this.showingMore
@@ -126,7 +134,10 @@ export default class WrestlerScreen extends React.Component<Props> {
           </View>
         </TouchableOpacity>
         <Text style={sharedStyles.h2}>Match history</Text>
-        <MatchList matches={this.matches} wrestler={this.wrestler} />
+        {this.loadingMatches 
+          ? <LoadingIndicator />
+          : <MatchList matches={this.matches} wrestler={this.wrestler} />
+        }
         { !_.isNil(this.wrestler.reigns) && <ReignList reigns={this.wrestler.reigns} /> }
       </ScrollView> 
     )

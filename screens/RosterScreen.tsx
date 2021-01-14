@@ -46,14 +46,14 @@ export const RosterScreen = () => {
 
   const men = wrestlers.filter(isMan)
   const women = wrestlers.filter(isWoman)
-  const favorites = wrestlers.concat(tagTeams).filter(wrestler => store?.isFavorited(wrestler))
+  //const favorites: RosterMember[] = wrestlers.concat(tagTeams).filter(wrestler => store?.isFavorited(wrestler))
 
   const dataArr = [
     wrestlers,
     men,
     women,
     tagTeams,
-    favorites
+    []
   ]
 
   const clearInput = () => setSearchInput("")

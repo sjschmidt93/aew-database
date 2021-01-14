@@ -21,15 +21,15 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     AewApi.fetchWrestlers()
-      .then(res => setWrestlers(res))
+      .then(res => setWrestlers(res || []))
       .catch(e => console.warn("Error fetching wrestlers", e))
 
     AewApi.fetchEvents()
-      .then(res => setEvents(res))
+      .then(res => setEvents(res || []))
       .catch(console.error)
 
     AewApi.fetchChampionships()
-      .then(res => setChampionships(res))
+      .then(res => setChampionships(res || []))
       .catch(console.error)
   }, [])
 

@@ -8,6 +8,7 @@ import { Event } from "../types"
 import { AewApi } from "../aew_api"
 import { navigate } from "../RootNavigation"
 import { images } from "../assets"
+import LoadingIndicator from "../components/LoadingIndicator"
 
 const EVENT_ROW_HEIGHT = 75
 
@@ -18,6 +19,9 @@ export default class EventsScreen extends React.Component {
 
   @observable
   selectedPickerIndex = 0
+
+  @observable
+  isLoading = true
   
   @computed
   get pickerData(): string[] {
@@ -58,7 +62,11 @@ export default class EventsScreen extends React.Component {
     this.fetchEvents()
   }
 
-  fetchEvents = async () => this.events = await AewApi.fetchEvents()
+  fetchEvents = async () => {
+    this.isLoading = true
+    this.events = await AewApi.fetchEvents() || []
+    this.isLoading = false
+  }
 
   onPickerSelect = (index: number) => this.selectedPickerIndex = index
   
@@ -73,7 +81,10 @@ export default class EventsScreen extends React.Component {
       <>
         <Picker options={this.pickerData} selectedIndex={this.selectedPickerIndex} onSelect={this.onPickerSelect} />
         <ScrollView style={sharedStyles.scrollViewContainer}>
-          <EventList events={this.dataArr[this.selectedPickerIndex]} />
+          {this.isLoading
+            ? <LoadingIndicator />
+            : <EventList events={this.dataArr[this.selectedPickerIndex]} />
+          }
         </ScrollView>
       </>
     )

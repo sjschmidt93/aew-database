@@ -1,3 +1,5 @@
+import { StyleSheet } from "react-native"
+
 export const sharedStyles = StyleSheet.create({
   h3: {
     color: 'white',

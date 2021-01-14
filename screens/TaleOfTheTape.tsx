@@ -5,15 +5,14 @@ import React, { useContext, useEffect, useRef, useState } from "react"
 import { View, StyleSheet, Text, Image, Dimensions, Animated, StyleProp, Keyboard, TextInput, ViewStyle } from "react-native"
 import { RootStackParamList } from "../App"
 import { colors, sharedStyles } from "../styles"
-import { Ionicons, Feather, MaterialIcons, AntDesign } from "@expo/vector-icons"
-import _, { Dictionary, first } from "lodash"
+import { Feather, MaterialIcons, AntDesign } from "@expo/vector-icons"
+import _ from "lodash"
 import { Wrestler } from "../types"
 import { TouchableOpacity } from "react-native-gesture-handler"
-import { AewApi } from "../aew_api"
 import { useStore } from "../FavoritesStore"
 import { toHeightString, toRecordString, toWeightString } from "./WrestlerScreen"
 import { PersonIcon } from "../components/PersonIcon"
-import { DataContext } from "../DataContext"
+import DataContext from "../DataContext"
 
 type WrestlerScreenRouteProp = RouteProp<RootStackParamList, "TaleOfTheTape">
 type Props = {
@@ -310,7 +309,7 @@ const SearchBar = observer((props: SearchBarProps) => {
   const textInputRef = useRef<TextInput>()
 
   const store = useStore()
-  const wrestlers = useContext(DataContext)
+  const { wrestlers } = useContext(DataContext)
 
   useEffect(() => {
     const filteredWrestlers = wrestlers.filter(wrestler => wrestler.id !== props.otherWrestler?.id)
