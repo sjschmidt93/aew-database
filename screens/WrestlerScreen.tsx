@@ -93,7 +93,10 @@ export default class WrestlerScreen extends React.Component<Props> {
     showingMore => (
       Animated.timing(
         this.showMoreHeight,
-        { toValue: showingMore ? this.labels.length * LABEL_VALUE_HEIGHT + SHOW_MORE_MARGIN_BOTTOM : 0 }
+        {
+          toValue: showingMore ? this.labels.length * LABEL_VALUE_HEIGHT + SHOW_MORE_MARGIN_BOTTOM : 0,
+          useNativeDriver: true
+        }
       ).start()
     )
   )
