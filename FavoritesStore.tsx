@@ -147,9 +147,7 @@ class FavoritesStore {
   saveWrestlers = async () => await AsyncStorage.setItem(FAV_WRESTLERS_KEY, JSON.stringify(this.favoriteWrestlers))
   saveTagTeams = async () => await AsyncStorage.setItem(FAV_TAG_TEAMS_KEY, JSON.stringify(this.favoriteTagTeams))
 
-  isFavorited = (member: RosterMember) => {
-    isTagTeam(member) ? this.isTagTeamFavorited(member) : this.isWrestlerFavorited(member)
-  }
+  isFavorited = (member: RosterMember) => isTagTeam(member) ? this.isTagTeamFavorited(member) : this.isWrestlerFavorited(member)
 
   isWrestlerFavorited = (wrestler: Wrestler) => this.wrestlerIds.includes(wrestler.id)
   isTagTeamFavorited = (tagTeam: TagTeam) => this.tagTeamIds.includes(tagTeam.id)

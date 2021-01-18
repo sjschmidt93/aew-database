@@ -2,7 +2,6 @@ import { useStore } from "../FavoritesStore"
 import { sharedStyles } from "../styles"
 import { Text, StyleSheet, View } from "react-native"
 import React from "react"
-import { ScrollView } from "react-native-gesture-handler"
 import { RosterMemberList } from "../screens/RosterScreen"
 import { observer } from "mobx-react"
 
