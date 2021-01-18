@@ -11,4 +11,4 @@ Higher resolution photos are available in `screenshots/`
 ![alt text](https://i.imgur.com/HRZOGJOm.jpg) ![alt text](https://i.imgur.com/RdyyNc5m.jpg) ![alt text](https://i.imgur.com/WE30n16m.jpg) ![alt text](https://i.imgur.com/0N1AFxQm.jpg)
 
 # Video
-Coming soon!
+[![Watch the video](https://i.imgur.com/gfwUAlN.png)](https://www.youtube.com/watch?v=9r3ghkcKWLc)
