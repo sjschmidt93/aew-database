@@ -56,7 +56,10 @@ export const RosterScreen = () => {
 
   const clearInput = () => setSearchInput("")
   const onChangeText = (text: string) => setSearchInput(text)
-  const onSelectPickerIndex = (index: number) => setSelectedPickerIndex(index)
+  const onSelectPickerIndex = (index: number) => {
+    clearInput()
+    setSelectedPickerIndex(index)
+  }
 
   const isFavoritesSelected = PICKER_DATA.indexOf(FAVORITES_STR) === selectedPickerIndex
 
@@ -108,7 +111,7 @@ export function RosterMemberList({ members }: { members: RosterMember[] }) {
       data={members}
       ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
       contentContainerStyle={{ marginBottom: 10 }}
-      keyExtractor={item => item.name}
+      keyExtractor={(item, index) => item.name}
     />
   )
 }
@@ -174,8 +177,6 @@ const Star = observer(({ member }: { member: RosterMember }) => {
   }
 
   const [isFavorited, setIsFavorited] = useState(store.isFavorited(member))
-
-  if (isFavorited) console.log(member)
 
   const onPress = () => (
     store.modifyMember(member)

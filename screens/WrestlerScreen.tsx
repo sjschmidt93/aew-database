@@ -95,7 +95,7 @@ export default class WrestlerScreen extends React.Component<Props> {
         this.showMoreHeight,
         {
           toValue: showingMore ? this.labels.length * LABEL_VALUE_HEIGHT + SHOW_MORE_MARGIN_BOTTOM : 0,
-          useNativeDriver: true
+          useNativeDriver: false
         }
       ).start()
     )

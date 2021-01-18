@@ -70,7 +70,7 @@ class FavoritesStore {
       const jsonValue = await AsyncStorage.getItem(FAV_WRESTLERS_KEY)
       this.favoriteWrestlers = !_.isNil(jsonValue) ? JSON.parse(jsonValue) : []
     } catch(e) {
-      console.log("There was an error fetching favorite wrestlers.", e)
+      console.error("There was an error fetching favorite wrestlers.", e)
     }
   }
 
@@ -80,7 +80,7 @@ class FavoritesStore {
       const jsonValue = await AsyncStorage.getItem(FAV_TAG_TEAMS_KEY)
       this.favoriteTagTeams = !_.isNil(jsonValue) ? JSON.parse(jsonValue) : []
     } catch(e) {
-      console.log("There was an error fetching favorite tag teams.", e)
+      console.error("There was an error fetching favorite tag teams.", e)
     }
   }
 
@@ -148,7 +148,6 @@ class FavoritesStore {
   saveTagTeams = async () => await AsyncStorage.setItem(FAV_TAG_TEAMS_KEY, JSON.stringify(this.favoriteTagTeams))
 
   isFavorited = (member: RosterMember) => {
-    console.log(this.tagTeamIds)
     isTagTeam(member) ? this.isTagTeamFavorited(member) : this.isWrestlerFavorited(member)
   }
 
