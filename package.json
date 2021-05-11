@@ -19,7 +19,7 @@
     "@unimodules/core": "~5.5.1",
     "expo": "^39.0.0",
     "expo-image-manipulator": "~8.3.0",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.21",
     "mobx": "^5.15.4",
     "mobx-react": "^6.1.8",
     "moment": "^2.25.1",
